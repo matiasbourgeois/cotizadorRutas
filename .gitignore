@@ -1,0 +1,21 @@
+# Node modules
+cotizadorRutas-frontend/node_modules/
+cotizadorRutas-backend/node_modules/
+
+# Entornos
+*.env
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Archivos de lock
+yarn.lock
+pnpm-lock.yaml
+
+# Build
+dist/
+build/
