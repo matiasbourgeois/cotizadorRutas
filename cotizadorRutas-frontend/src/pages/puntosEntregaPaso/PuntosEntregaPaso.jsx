@@ -13,18 +13,21 @@ export default function PuntosEntregaPaso() {
     const [optimizar, setOptimizar] = useState(false);
     const [mostrarMapa, setMostrarMapa] = useState(false);
     const [fuerzaRecalculo, setFuerzaRecalculo] = useState(0);
-    const [datosRuta, setDatosRuta] = useState(null); // <-- Este estado es clave
+    const [datosRuta, setDatosRuta] = useState(null); // <-- Este estado es clave para la validación
     const navigate = useNavigate();
     const { setPuntosEntrega } = useCotizacion();
 
+    // Si se agrega un punto nuevo, reseteamos el cálculo de la ruta para forzar un nuevo cálculo
     const agregarPunto = (punto) => {
         if (!punto) return;
         setOptimizar(false);
         setPuntos((prev) => [...prev, punto]);
-        setDatosRuta(null); // Si se agrega un punto, reseteamos el cálculo
+        setDatosRuta(null); // <-- FORZAMOS a que se deba recalcular
+        setMostrarMapa(false);
     };
 
     const handleSiguiente = async () => {
+        // Doble validación: no se debería poder hacer clic, pero por si acaso.
         if (!datosRuta) {
             alert("Por favor, calcula la ruta antes de continuar.");
             return;
@@ -32,19 +35,24 @@ export default function PuntosEntregaPaso() {
 
         try {
             const ordenados = puntos.map((p, index) => ({ ...p, orden: index }));
+            
+            // Guardamos la ruta en el backend para tener un registro
             const res = await axios.post("http://localhost:5010/api/rutas", {
                 puntos: ordenados,
                 distanciaKm: datosRuta?.distanciaKm || 0,
                 duracionMin: datosRuta?.duracionMin || 0
             });
             const nuevaRutaId = res.data._id;
-
+            
+            // Guardamos la información en el contexto para los siguientes pasos
             setPuntosEntrega({
                 puntos: ordenados,
                 distanciaKm: datosRuta?.distanciaKm || 0,
                 duracionMin: datosRuta?.duracionMin || 0,
                 rutaId: nuevaRutaId
             });
+
+            // Navegamos al siguiente paso
             navigate(`/cotizador/frecuencia/${nuevaRutaId}`);
         } catch (err) {
             console.error("❌ Error al guardar ruta:", err);
@@ -57,7 +65,10 @@ export default function PuntosEntregaPaso() {
             <div className="card">
                 <div className="card-body">
                     <h4 className="titulo-seccion mb-4">Paso 1: Definir los Puntos de Entrega</h4>
+                    
+                    <label className="form-label fw-bold">Añadir Dirección</label>
                     <BuscadorDireccion onAgregar={agregarPunto} />
+                    
                     <TablaPuntos puntos={puntos} setPuntos={setPuntos} setOptimizar={setOptimizar} />
 
                     {puntos.length >= 2 && (
@@ -90,7 +101,7 @@ export default function PuntosEntregaPaso() {
                             puntos={puntos}
                             optimizar={optimizar}
                             onOptimizarOrden={(nuevoOrden) => setPuntos(nuevoOrden)}
-                            onDatosRuta={setDatosRuta} // <-- Guardamos los datos de la ruta aquí
+                            onDatosRuta={setDatosRuta} // <-- Aquí se guarda el resultado del cálculo
                             recalculo={fuerzaRecalculo}
                         />
                     )}
@@ -102,7 +113,7 @@ export default function PuntosEntregaPaso() {
                             <button
                                 className="btn-sistema btn-sda-principal"
                                 onClick={handleSiguiente}
-                                // El botón se deshabilita si no hay datos de ruta calculados
+                                // ✅ El botón se deshabilita si no hay datos de ruta calculados
                                 disabled={!datosRuta}
                                 title={!datosRuta ? "Debes calcular la ruta primero" : "Ir al siguiente paso"}
                             >
