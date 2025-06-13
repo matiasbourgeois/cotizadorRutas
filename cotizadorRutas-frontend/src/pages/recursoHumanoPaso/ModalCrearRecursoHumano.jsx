@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
+import axios from "axios";
 
 const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
   const [formData, setFormData] = useState({
@@ -9,28 +10,53 @@ const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
     email: "",
     tipoContratacion: "empleado",
   });
+  const [estaGuardando, setEstaGuardando] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onCrear(formData);
-    onHide();
+    if (estaGuardando) return;
+
+    setEstaGuardando(true);
+    try {
+      // ✅ Hacemos la llamada POST al backend para crear el recurso
+      const res = await axios.post("http://localhost:5010/api/recursos-humanos", formData);
+      
+      // ✅ Pasamos el recurso recién creado (con su _id) al componente padre
+      onCrear(res.data);
+      
+      // Limpiar y cerrar el modal
+      setFormData({
+        nombre: "",
+        dni: "",
+        telefono: "",
+        email: "",
+        tipoContratacion: "empleado",
+      });
+      onHide();
+
+    } catch (error) {
+      console.error("❌ Error al crear recurso humano:", error);
+      alert("Error al crear el recurso. Verifique los datos o la conexión con el servidor.");
+    } finally {
+      setEstaGuardando(false);
+    }
   };
 
   return (
     <Modal show={show} onHide={onHide} backdrop="static" centered>
       <Modal.Header closeButton className="modal-header-sda">
-        <Modal.Title className="titulo-modal-sda">Nuevo Recurso Humano</Modal.Title>
+        <Modal.Title className="modal-title-sda">Nuevo Recurso Humano</Modal.Title>
       </Modal.Header>
 
       <form onSubmit={handleSubmit}>
-        <Modal.Body className="modal-body-sda">
+        <Modal.Body>
           <div className="mb-3">
-            <label className="form-label">Nombre completo</label>
+            <label className="form-label fw-bold">Nombre completo</label>
             <input
               type="text"
               name="nombre"
@@ -42,7 +68,7 @@ const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
           </div>
 
           <div className="mb-3">
-            <label className="form-label">DNI</label>
+            <label className="form-label fw-bold">DNI</label>
             <input
               type="text"
               name="dni"
@@ -76,7 +102,7 @@ const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
           </div>
 
           <div className="mb-3">
-            <label className="form-label">Tipo de contratación</label>
+            <label className="form-label fw-bold">Tipo de contratación</label>
             <select
               name="tipoContratacion"
               value={formData.tipoContratacion}
@@ -89,12 +115,12 @@ const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
           </div>
         </Modal.Body>
 
-        <Modal.Footer className="modal-footer-sda">
-          <button type="button" className="btn-sistema btn-sda-secundario" onClick={onHide}>
+        <Modal.Footer>
+          <button type="button" className="btn-soft-cancelar" onClick={onHide} disabled={estaGuardando}>
             Cancelar
           </button>
-          <button type="submit" className="btn-sistema btn-sda-principal">
-            Crear
+          <button type="submit" className="btn-soft-confirmar" disabled={estaGuardando}>
+            {estaGuardando ? "Guardando..." : "Crear Recurso"}
           </button>
         </Modal.Footer>
       </form>
