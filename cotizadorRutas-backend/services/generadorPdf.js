@@ -1,4 +1,4 @@
-// En: cotizadorRutas-backend/services/generadorPdf.js
+// ruta: cotizadorRutas-backend/services/generadorPdf.js
 
 import PDFDocument from 'pdfkit';
 import { format } from 'date-fns';
@@ -9,7 +9,7 @@ function formatKey(key) {
 }
 
 function formatCurrency(num) {
-    return `$ ${Math.round(num).toLocaleString('es-AR')}`;
+    return `$ ${Math.round(num || 0).toLocaleString('es-AR')}`;
 }
 
 function generarTabla(doc, startY, titulo, data) {
@@ -69,45 +69,57 @@ function generarTotal(doc, y, total) {
 }
 
 export function generarPresupuestoPDF(presupuesto, stream) {
-    const doc = new PDFDocument({ size: 'A4', margin: 50, bufferPages: true });
-    doc.pipe(stream);
+    try {
+        const doc = new PDFDocument({ size: 'A4', margin: 50, bufferPages: true });
+        doc.pipe(stream);
 
-    // --- DIBUJAR TODO EL CONTENIDO ---
-    doc.fontSize(20).font('Helvetica-Bold').text('Presupuesto de Ruta', { align: 'center' });
-    doc.moveDown();
-    const fechaFormateada = format(new Date(presupuesto.fechaCreacion), 'dd/MM/yyyy');
-    doc.fontSize(12).font('Helvetica').text(`Fecha de Emisión: ${fechaFormateada}`, { align: 'right' });
-    doc.moveDown(2);
-    
-    doc.fontSize(14).font('Helvetica-Bold').text('Resumen del Servicio');
-    doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica-Bold').text('Puntos de Entrega:');
-    doc.font('Helvetica').list(presupuesto.puntosEntrega.map(p => p.nombre), { bulletRadius: 1.5, textIndent: 10, indent: 10 });
-    doc.moveDown();
-    const distancia = presupuesto.totalKilometros || 0;
-    doc.font('Helvetica-Bold').text(`Distancia Total por Viaje: `, { continued: true })
-       .font('Helvetica').text(`${distancia.toFixed(2)} km`);
-    doc.moveDown(3);
+        // --- DIBUJAR TODO EL CONTENIDO ---
+        doc.fontSize(20).font('Helvetica-Bold').text('Presupuesto de Ruta', { align: 'center' });
+        doc.moveDown();
+        const fechaFormateada = format(new Date(presupuesto.fechaCreacion), 'dd/MM/yyyy');
+        doc.fontSize(12).font('Helvetica').text(`Fecha de Emisión: ${fechaFormateada}`, { align: 'right' });
+        doc.moveDown(2);
+        
+        doc.fontSize(14).font('Helvetica-Bold').text('Resumen del Servicio');
+        doc.moveDown(0.5);
+        doc.fontSize(10).font('Helvetica-Bold').text('Puntos de Entrega:');
 
-    let y = doc.y;
+        if (presupuesto.puntosEntrega && presupuesto.puntosEntrega.length > 0) {
+            doc.font('Helvetica').list(presupuesto.puntosEntrega.map(p => p.nombre || 'Punto sin nombre'), { bulletRadius: 1.5, textIndent: 10, indent: 10 });
+        }
+        
+        doc.moveDown();
+        const distancia = presupuesto.totalKilometros || 0;
+        doc.font('Helvetica-Bold').text(`Distancia Total por Viaje: `, { continued: true })
+           .font('Helvetica').text(`${distancia.toFixed(2)} km`);
+        doc.moveDown(3);
 
-    y = generarTabla(doc, y, 'Resumen General de Costos', presupuesto.resumenCostos);
-    if (presupuesto.vehiculo?.calculo?.detalle) {
-        y = generarTabla(doc, y, 'Desglose de Costos del Vehículo', presupuesto.vehiculo.calculo.detalle);
+        let y = doc.y;
+
+        if (presupuesto.resumenCostos) {
+            y = generarTabla(doc, y, 'Resumen General de Costos', presupuesto.resumenCostos);
+        }
+        if (presupuesto.vehiculo?.calculo?.detalle) {
+            y = generarTabla(doc, y, 'Desglose de Costos del Vehículo', presupuesto.vehiculo.calculo.detalle);
+        }
+        if (presupuesto.recursoHumano?.calculo?.detalle) {
+            y = generarTabla(doc, y, 'Desglose de Costos del Recurso Humano', presupuesto.recursoHumano.calculo.detalle);
+        }
+
+        if(presupuesto.resumenCostos?.totalFinal) {
+            generarTotal(doc, y, presupuesto.resumenCostos.totalFinal);
+        }
+
+        const range = doc.bufferedPageRange();
+        for (let i = range.start; i < range.start + range.count; i++) {
+          doc.switchToPage(i);
+          doc.fontSize(8).font('Helvetica').text(`Página ${i + 1} de ${range.count}`, 50, doc.page.height - 35, { align: 'right' });
+        }
+
+        doc.end();
+
+    } catch (error) {
+        console.error("⛔️ Error DENTRO de generarPresupuestoPDF:", error);
+        stream.emit('error', error);
     }
-    if (presupuesto.recursoHumano?.calculo?.detalle) {
-        y = generarTabla(doc, y, 'Desglose de Costos del Recurso Humano', presupuesto.recursoHumano.calculo.detalle);
-    }
-
-    y = generarTotal(doc, y, presupuesto.resumenCostos.totalFinal);
-
-    // --- LÓGICA CORREGIDA PARA PIE DE PÁGINA ---
-    // Solo al final, cuando todas las páginas están creadas, las recorremos para agregar el pie.
-    const range = doc.bufferedPageRange();
-    for (let i = range.start; i < range.start + range.count; i++) {
-      doc.switchToPage(i);
-      doc.fontSize(8).font('Helvetica').text(`Página ${i + 1} de ${range.count}`, 50, doc.page.height - 35, { align: 'right' });
-    }
-
-    doc.end();
 }

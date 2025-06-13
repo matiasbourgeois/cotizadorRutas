@@ -1,229 +1,159 @@
+// ruta: src/pages/vehiculoPaso/VehiculoPaso.jsx
+
 import { useEffect, useState } from 'react';
 import { useCotizacion } from '../../context/Cotizacion';
-
-
 import axios from 'axios';
 import ModalCrearVehiculo from './ModalCrearVehiculo';
 import ModalConfiguracionVehiculo from './ModalConfiguracionVehiculo';
-import calcularCostoVehiculo from "../../utils/calcularCostoVehiculo";
-
-
-import '../../styles/formularioSistema.css';
-import '../../styles/botonesSistema.css';
-import '../../styles/titulosSistema.css';
-
 import { useNavigate, useParams } from 'react-router-dom';
+import { useDisclosure } from '@mantine/hooks';
+import { Stack, Title, Select, Group, Button, Paper, Text, ActionIcon, SimpleGrid, Badge } from '@mantine/core';
+import { Settings, ArrowRight, ArrowLeft, Truck, Wind, Box } from 'lucide-react';
 
-const VehiculoPaso = ({ onSeleccionarVehiculo }) => {
+const InfoVehiculo = ({ icon, label, value }) => (
+    <Group gap="xs">
+        {icon}
+        <div>
+            <Text fz="xs" c="dimmed">{label}</Text>
+            <Text fw={500}>{value || 'No definido'}</Text>
+        </div>
+    </Group>
+);
+
+const VehiculoPaso = () => {
   const [vehiculos, setVehiculos] = useState([]);
-  const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(null);
-  const [mostrarModal, setMostrarModal] = useState(false);
-  const [mostrarConfiguracion, setMostrarConfiguracion] = useState(false);
+  const [modalCrearAbierto, { open: abrirModalCrear, close: cerrarModalCrear }] = useDisclosure(false);
+  const [modalConfigAbierto, { open: abrirModalConfig, close: cerrarModalConfig }] = useDisclosure(false);
 
   const { idRuta } = useParams();
   const navigate = useNavigate();
-  const { costoVehiculo: costos } = useCotizacion();
-  const { puntosEntrega, frecuencia, setVehiculo, setCostoVehiculo } = useCotizacion();
+  const { vehiculo: vehiculoSeleccionado, setVehiculo } = useCotizacion();
 
-
-
-  useEffect(() => {
-    obtenerVehiculos();
-  }, []);
-
-  const obtenerVehiculos = async () => {
+  // Esta función carga la lista de vehículos
+  const fetchVehiculos = async () => {
     try {
       const res = await axios.get('http://localhost:5010/api/vehiculos');
-      setVehiculos(res.data);
+      setVehiculos(res.data.map(v => ({
+        value: v._id,
+        label: `${v.marca} ${v.modelo} (${v.patente})`
+      })));
     } catch (error) {
       console.error('Error al obtener vehículos:', error);
     }
   };
 
-  const handleSeleccion = async (e) => {
-    const id = e.target.value;
-    const vehiculo = vehiculos.find(v => v._id === id);
-    setVehiculoSeleccionado(vehiculo);
-    if (onSeleccionarVehiculo) onSeleccionarVehiculo(vehiculo);
+  // Se ejecuta una sola vez cuando el componente carga
+  useEffect(() => {
+    fetchVehiculos();
+  }, []);
 
-    try {
-      const kmsPorViaje = puntosEntrega?.distanciaKm || 0;
-      let cantidadViajesMensuales = 0;
-      if (frecuencia?.tipo === "mensual") {
-        cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4; // 4 semanas promedio
-      } else if (frecuencia?.tipo === "esporadico") {
-        cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
-      }
-
-      const esViajeRegular = frecuencia?.tipo === "mensual";
-
-      const costos = await calcularCostoVehiculo(
-        vehiculo,
-        kmsPorViaje,
-        cantidadViajesMensuales,
-        esViajeRegular
-      );
-
-      setVehiculo(vehiculo);
-      setCostoVehiculo(costos);
-
-    } catch (error) {
-      console.error("Error al calcular el costo del vehículo:", error);
+  // Maneja la selección de un vehículo de la lista
+  const handleSeleccion = (id) => {
+    if (!id) {
+        setVehiculo(null);
+        return;
     }
+    axios.get(`http://localhost:5010/api/vehiculos/${id}`)
+      .then(res => setVehiculo(res.data))
+      .catch(err => console.error("Error al buscar detalles del vehículo", err));
   };
 
-
-
-  const handleVehiculoCreado = async (nuevoVehiculo) => {
-    setVehiculos(prev => [...prev, nuevoVehiculo]);
-    setVehiculoSeleccionado(nuevoVehiculo);
-    if (onSeleccionarVehiculo) onSeleccionarVehiculo(nuevoVehiculo);
-    const kmsPorViaje = puntosEntrega?.distanciaKm || 0;
-    let cantidadViajesMensuales = 0;
-    if (frecuencia?.tipo === "mensual") {
-      cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4; // 4 semanas promedio
-    } else if (frecuencia?.tipo === "esporadico") {
-      cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
-    }
-
-    const esViajeRegular = frecuencia?.tipo === "mensual";
-
-
-    const costos = await calcularCostoVehiculo(
-      nuevoVehiculo,
-      kmsPorViaje,
-      cantidadViajesMensuales,
-      esViajeRegular
-    );
-
+  // Se ejecuta cuando el modal de creación confirma un nuevo vehículo
+  const handleVehiculoCreado = (nuevoVehiculo) => {
+    // Añadimos el nuevo vehículo a la lista existente y lo seleccionamos
+    setVehiculos(prev => [...prev, {
+      value: nuevoVehiculo._id,
+      label: `${nuevoVehiculo.marca} ${nuevoVehiculo.modelo} (${nuevoVehiculo.patente})`
+    }]);
     setVehiculo(nuevoVehiculo);
-    setCostoVehiculo(costos);
+    cerrarModalCrear();
+  };
 
-
-    setMostrarModal(false);
+  // Se ejecuta cuando el modal de configuración guarda cambios
+  const handleGuardarConfiguracion = (datosActualizados) => {
+    setVehiculo(datosActualizados);
+    setVehiculos(prev => prev.map(v => 
+        v.value === datosActualizados._id 
+        ? { value: datosActualizados._id, label: `${datosActualizados.marca} ${datosActualizados.modelo} (${datosActualizados.patente})` }
+        : v
+    ));
+    cerrarModalConfig();
   };
 
   const handleSiguiente = () => {
     if (vehiculoSeleccionado) {
       navigate(`/cotizador/recurso-humano/${idRuta}`);
     } else {
-      alert('Por favor, seleccione o cree un vehículo antes de continuar.');
+        alert('Por favor, seleccione o cree un vehículo antes de continuar.');
     }
   };
 
   return (
-    <div className="container mt-4">
-      <h4 className="titulo-seccion-sda">Seleccionar Vehículo</h4>
+    <Stack gap="xl">
+        <Title order={2} c="deep-blue.7">Selección del Vehículo</Title>
 
-      <div className="mb-3 d-flex gap-2 align-items-end">
-        <div className="flex-grow-1">
-          <label className="form-label fw-bold">Vehículo registrado</label>
-          <select className="form-select" onChange={handleSeleccion} defaultValue="">
-            <option value="" disabled>Seleccione un vehículo</option>
-            {vehiculos.map(v => (
-              <option key={v._id} value={v._id}>
-                {`${v.marca} ${v.modelo} (${v.patente})`}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button className="btn-sistema btn-sda-principal" onClick={() => setMostrarModal(true)}>
-          Nuevo
-        </button>
-      </div>
+        <Group grow align="flex-end">
+            <Select
+                label="Vehículo registrado"
+                placeholder="Seleccione un vehículo de la lista"
+                data={vehiculos}
+                value={vehiculoSeleccionado?._id || null}
+                onChange={handleSeleccion}
+                searchable
+                clearable
+            />
+            <Button onClick={abrirModalCrear}>Nuevo Vehículo</Button>
+        </Group>
 
-      {vehiculoSeleccionado && (
-        <div className="card p-3 mt-3 shadow-sm">
-          <h5 className="mb-2">{vehiculoSeleccionado.marca} {vehiculoSeleccionado.modelo}</h5>
-          <p className="mb-1"><strong>Patente:</strong> {vehiculoSeleccionado.patente}</p>
-          <p className="mb-1"><strong>Tipo:</strong> {vehiculoSeleccionado.tipoVehiculo}</p>
-          <p className="mb-1"><strong>Año:</strong> {vehiculoSeleccionado.año}</p>
-          <p className="mb-1"><strong>Combustible:</strong> {vehiculoSeleccionado.tipoCombustible} {vehiculoSeleccionado.tieneGNC ? '(con GNC)' : ''}</p>
-          <p className="mb-1"><strong>Capacidad:</strong> {vehiculoSeleccionado.capacidadKg} kg</p>
-          <p className="mb-1"><strong>Rendimiento:</strong> {vehiculoSeleccionado.rendimientoKmLitro} km/l</p>
-          <p className="mb-1"><strong>Observaciones:</strong> {vehiculoSeleccionado.observaciones || 'Ninguna'}</p>
+        {vehiculoSeleccionado && (
+            <Paper withBorder p="md" radius="md">
+                <Group justify="space-between" align="flex-start">
+                    <Stack gap="xs">
+                        <Title order={4}>{vehiculoSeleccionado.marca} {vehiculoSeleccionado.modelo}</Title>
+                        <Text c="dimmed">Patente: {vehiculoSeleccionado.patente} | Año: {vehiculoSeleccionado.año}</Text>
+                        <Group mt="xs">
+                            <Badge variant="light" color="cyan" size="lg">{vehiculoSeleccionado.tipoVehiculo}</Badge>
+                            <Badge variant="light" color={vehiculoSeleccionado.tieneGNC ? 'green' : 'blue'} size="lg">
+                                {vehiculoSeleccionado.tipoCombustible} {vehiculoSeleccionado.tieneGNC && '+ GNC'}
+                            </Badge>
+                        </Group>
+                    </Stack>
+                    <ActionIcon variant="light" size="lg" onClick={abrirModalConfig} title="Configuración Avanzada">
+                        <Settings size={20} />
+                    </ActionIcon>
+                </Group>
+                <SimpleGrid cols={{ base: 1, sm: 3 }} mt="md" spacing="lg">
+                    <InfoVehiculo icon={<Truck size={20}/>} label="Capacidad" value={`${vehiculoSeleccionado.capacidadKg} kg`} />
+                    <InfoVehiculo icon={<Box size={20}/>} label="Volumen" value={`${vehiculoSeleccionado.volumenM3} m³`} />
+                    <InfoVehiculo icon={<Wind size={20}/>} label="Rendimiento" value={`${vehiculoSeleccionado.rendimientoKmLitro} km/l`} />
+                </SimpleGrid>
+            </Paper>
+        )}
 
-          <button className="btn-sistema btn-sda-secundario mt-3" onClick={() => setMostrarConfiguracion(true)}>
-            ⚙️ Configuración Avanzada
-          </button>
+        <Group justify="space-between" mt="md">
+            <Button variant="default" onClick={() => navigate(-1)} leftSection={<ArrowLeft size={16} />}>
+                Volver
+            </Button>
+            <Button onClick={handleSiguiente} disabled={!vehiculoSeleccionado} rightSection={<ArrowRight size={16} />}>
+                Siguiente
+            </Button>
+        </Group>
 
-        </div>
-      )}
-
-      <div className="d-flex justify-content-between mt-4">
-        <button className="btn-sistema btn-sda-secundario" onClick={() => navigate(-1)}>
-          ⬅ Volver
-        </button>
-        <button className="btn-sistema btn-sda-principal" onClick={handleSiguiente}>
-          Siguiente ➡
-        </button>
-
-
-      </div>
-
-      {costos && (
-        <div className="card mt-4 shadow-sm">
-          <div className="card-body">
-            <h5 className="card-title text-warning fw-bold mb-3">🧮 Detalle de Costos del Vehículo</h5>
-
-            <div className="row">
-              <div className="col-md-6 mb-2">
-                <strong>Uso completo del mes:</strong>{" "}
-                {costos.usoCompleto ? "Sí (mensual)" : "No (uso parcial/esporádico)"}
-              </div>
-              <div className="col-md-6 mb-2">
-                <strong>Proporción de uso:</strong>{" "}
-                {`${(costos.proporcionUso * 100).toFixed(1)}%`}
-              </div>
-              <div className="col-md-6 mb-2">
-                <strong>Kilómetros mensuales estimados:</strong>{" "}
-                {costos.kmsMensuales.toFixed(2)} km
-              </div>
-            </div>
-
-            <hr />
-
-            <h6 className="text-muted mb-3">📊 Costos estimados:</h6>
-            <div className="row">
-              {Object.entries(costos.detalle).map(([clave, valor]) => (
-                <div key={clave} className="col-sm-6 col-md-4 mb-2">
-                  <strong className="text-capitalize">{clave}:</strong> ${valor.toLocaleString()}
-                </div>
-              ))}
-            </div>
-
-            <hr />
-            <h5 className="text-end text-success mt-3">
-              Total estimado mensual: ${costos.totalFinal.toLocaleString()}
-            </h5>
-          </div>
-        </div>
-      )}
-
-
-      <ModalCrearVehiculo
-        show={mostrarModal}
-        onClose={() => setMostrarModal(false)}
-        onVehiculoCreado={handleVehiculoCreado}
-      />
-
-      {vehiculoSeleccionado && (
-        <ModalConfiguracionVehiculo
-          show={mostrarConfiguracion}
-          onClose={() => setMostrarConfiguracion(false)}
-          vehiculo={vehiculoSeleccionado}
-          onGuardarCambios={(datosActualizados) => {
-            setVehiculos(prev =>
-              prev.map(v => v._id === datosActualizados._id ? datosActualizados : v)
-            );
-            setVehiculoSeleccionado(datosActualizados);
-            setVehiculo(datosActualizados); // ✅ CORRECTO
-          }}
-
+        <ModalCrearVehiculo
+            show={modalCrearAbierto}
+            onClose={cerrarModalCrear}
+            onVehiculoCreado={handleVehiculoCreado}
         />
-      )}
 
-    </div>
+        {vehiculoSeleccionado && (
+            <ModalConfiguracionVehiculo
+                show={modalConfigAbierto}
+                onClose={cerrarModalConfig}
+                vehiculo={vehiculoSeleccionado}
+                onGuardarCambios={handleGuardarConfiguracion}
+            />
+        )}
+    </Stack>
   );
 };
 

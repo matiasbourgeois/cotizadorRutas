@@ -1,5 +1,4 @@
-// utils/calcularCostoRecursoHumano.js
-
+// ruta: cotizadorRutas-backend/services/calculos/costoRecursoHumanoService.js
 export default function calcularCostoTotalRecurso(
   recurso,
   kmsPorViaje,
@@ -25,10 +24,7 @@ export default function calcularCostoTotalRecurso(
   let adicionalFijo = recurso.adicionalNoRemunerativoFijo * proporcionUso;
   let adicionalPorKmLote = tramos1000km * recurso.adicionalCargaDescargaCadaXkm;
 
-  if (tipo === "empleado") {
-    sueldoProporcional = recurso.sueldoBasico * proporcionUso;
-    adicionalActividad = sueldoProporcional * (recurso.adicionalActividadPorc / 100);
-  } else if (tipo === "contratado") {
+  if (tipo === "empleado" || tipo === "contratado") {
     sueldoProporcional = recurso.sueldoBasico * proporcionUso;
     adicionalActividad = sueldoProporcional * (recurso.adicionalActividadPorc / 100);
   }

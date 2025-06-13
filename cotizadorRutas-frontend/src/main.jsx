@@ -1,19 +1,44 @@
+// ruta: src/main.jsx
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import { BrowserRouter } from 'react-router-dom';
+import { MantineProvider, createTheme } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './styles/botonesSistema.css';
-import './styles/formularioSistema.css';
-import './styles/tablasSistema.css';
-import './styles/titulosSistema.css';
-import './styles/Stepper.css'; // <-- AÑADIR NUEVO CSS
+// Importamos los nuevos estilos base de Mantine
+import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
+
+// Importamos nuestros estilos globales personalizados (lo veremos más adelante)
+import './index.css';
+
+// Definimos nuestro tema personalizado
+const theme = createTheme({
+  fontFamily: 'Montserrat, sans-serif',
+  primaryColor: 'cyan', // Un color primario moderno
+  colors: {
+    // Definimos una paleta de colores personalizada
+    'ocean-blue': [
+      '#7AD1DD', '#5FCCDB', '#44CADC', '#2AC9DE', '#1AC2D9', 
+      '#11B7CD', '#09ADC3', '#0E99AC', '#128797', '#147885'
+    ],
+    'deep-blue': [
+      '#E9EDF5', '#C5D1E8', '#A2B5DA', '#7F99CC', '#5C7CBC', 
+      '#4B69B1', '#3A56A5', '#2A439A', '#19308E', '#081D83'
+    ],
+  },
+});
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <MantineProvider theme={theme}>
+        <Notifications position="top-right" />
+        <App />
+      </MantineProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

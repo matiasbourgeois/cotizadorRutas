@@ -1,166 +1,104 @@
-import { useEffect, useState } from "react";
-import { Modal, Button, Form, Card, Row, Col } from "react-bootstrap";
-import axios from "axios";
-import "../../styles/formularioSistema.css";
-import "../../styles/botonesSistema.css";
+// ruta: src/pages/recursoHumanoPaso/ModalConfiguracionEmpleado.jsx
 
-const ModalConfiguracionEmpleado = ({
-  show,
-  onClose,
-  recursoHumano,
-  onGuardarCambios,
-  tipoContratacion,
-}) => {
+import { useEffect, useState } from "react";
+import { Modal, Button, SimpleGrid, Group, NumberInput, Textarea, Stack, Tabs, rem, Title } from "@mantine/core";
+import axios from "axios";
+import { Settings, Wallet, FileText, MessageCircle } from "lucide-react";
+
+const ModalConfiguracionEmpleado = ({ show, onClose, recursoHumano, onGuardarCambios }) => {
   const [formData, setFormData] = useState({});
-  const [cambios, setCambios] = useState(false);
-  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (recursoHumano) {
       setFormData({ ...recursoHumano });
-      setCambios(false);
     }
   }, [recursoHumano]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: parseFloat(value) }));
-    setCambios(true);
+  const handleChange = (name, value) => {
+    const finalValue = typeof value === 'string' && value.trim() === '' ? '' : parseFloat(value) || 0;
+    setFormData((prev) => ({ ...prev, [name]: finalValue }));
   };
-
-const handleGuardar = async () => {
-  try {
-    const res = await axios.put(
-      `http://localhost:5010/api/recursos-humanos/${formData._id}`,
-      formData
-    );
-    onGuardarCambios(res.data);  // se pasa la versión actualizada
-    setCambios(false);
-    onClose();
-  } catch (error) {
-    console.error("❌ Error al guardar cambios:", error);
-    alert("Ocurrió un error al guardar los cambios.");
-  }
-};
-
-  const handleCerrar = () => {
-    if (cambios) {
-      setMostrarConfirmacion(true);
-    } else {
+  
+  const handleGuardar = async () => {
+    setIsSaving(true);
+    try {
+      const res = await axios.put(`http://localhost:5010/api/recursos-humanos/${formData._id}`, formData);
+      onGuardarCambios(res.data);
       onClose();
+    } catch (error) {
+      console.error("❌ Error al guardar cambios:", error);
+      alert("Ocurrió un error al guardar los cambios.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const confirmarCerrar = () => {
-    setMostrarConfirmacion(false);
-    setCambios(false);
-    onClose();
-  };
-
-  const cancelarCerrar = () => {
-    setMostrarConfirmacion(false);
-  };
-
-  const campo = (label, name, unidad = "") => (
-    <Form.Group as={Col} xs={12} sm={6} md={4} className="mb-3">
-      <Form.Label className="fw-semibold">{label}</Form.Label>
-      <Form.Control
-        type="number"
-        name={name}
-        value={formData[name] ?? ""}
-        placeholder={`Valor actual: ${recursoHumano[name] ?? "(sin definir)"}`}
-        onChange={handleChange}
-      />
-      {unidad && <small className="text-muted">{unidad}</small>}
-    </Form.Group>
+  const CampoNumerico = ({ label, name, unidad = "" }) => (
+    <NumberInput
+      label={label}
+      name={name}
+      value={formData[name] ?? ''}
+      onChange={(value) => handleChange(name, value)}
+      placeholder={`Valor actual: ${recursoHumano[name] ?? "(no definido)"}`}
+      description={unidad || '\u00A0'}
+      allowDecimal
+      thousandSeparator=","
+      decimalScale={2}
+      min={0}
+    />
   );
 
   if (!recursoHumano) return null;
 
   return (
-    <>
-      <Modal show={show} onHide={handleCerrar} size="xl" backdrop="static" centered>
-        <Modal.Header closeButton className="modal-header-sda">
-          <Modal.Title className="modal-title-sda">
-            Configuración Avanzada – {recursoHumano.nombre}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form className="formulario-sda">
-            <Card className="mb-4">
-              <Card.Body>
-                <Card.Title className="text-muted text-uppercase fw-bold mb-3">💰 Parámetros Económicos</Card.Title>
-                <Row>
-                  {campo("Sueldo Básico", "sueldoBasico", "$ ARS")}
-                  {campo("% Adicional por Actividad", "adicionalActividadPorc", "%")}
-                  {campo("Adicional por Km Remunerativo", "adicionalKmRemunerativo", "$ por km")}
-                  {campo("Mínimo Km Remunerativo por viaje", "minKmRemunerativo", "km")}
-                  {campo("Viático por Km No Remunerativo", "viaticoPorKmNoRemunerativo", "$ por km")}
-                  {campo("Mínimo Km No Remunerativo por viaje", "minKmNoRemunerativo", "km")}
-                  {campo("Adicional No Remunerativo Fijo", "adicionalNoRemunerativoFijo", "$ ARS")}
-                  {campo("Adicional Carga/Descarga cada X km", "adicionalCargaDescargaCadaXkm", "$ ARS")}
-                  {campo("Km por unidad de Carga/Descarga", "kmPorUnidadDeCarga", "km")}
-                </Row>
-              </Card.Body>
-            </Card>
+    <Modal opened={show} onClose={onClose} title={`Configuración Avanzada – ${recursoHumano.nombre}`} size="xl" centered>
+      <Tabs defaultValue="economicos" color="cyan">
+        <Tabs.List>
+          <Tabs.Tab value="economicos" leftSection={<Wallet style={{ width: rem(16), height: rem(16) }} />}>Parámetros Económicos</Tabs.Tab>
+          <Tabs.Tab value="contratacion" leftSection={<FileText style={{ width: rem(16), height: rem(16) }} />}>Contratación</Tabs.Tab>
+          <Tabs.Tab value="obs" leftSection={<MessageCircle style={{ width: rem(16), height: rem(16) }} />}>Observaciones</Tabs.Tab>
+        </Tabs.List>
 
-            {tipoContratacion === "empleado" && (
-              <Card className="mb-4">
-                <Card.Body>
-                  <Card.Title className="text-muted text-uppercase fw-bold mb-3">🧾 Solo para Empleados</Card.Title>
-                  <Row>
-                    {campo("% Cargas Sociales", "porcentajeCargasSociales", "%")}
-                  </Row>
-                </Card.Body>
-              </Card>
+        <Tabs.Panel value="economicos" pt="lg">
+            <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
+                <CampoNumerico label="Sueldo Básico" name="sueldoBasico" unidad="$ ARS" />
+                <CampoNumerico label="% Adicional por Actividad" name="adicionalActividadPorc" unidad="%" />
+                <CampoNumerico label="Adicional No Remunerativo Fijo" name="adicionalNoRemunerativoFijo" unidad="$ ARS" />
+                <CampoNumerico label="Adicional por Km (Remunerativo)" name="adicionalKmRemunerativo" unidad="$ por km" />
+                <CampoNumerico label="Viático por Km (No Remun.)" name="viaticoPorKmNoRemunerativo" unidad="$ por km" />
+                <CampoNumerico label="Adicional Carga/Descarga" name="adicionalCargaDescargaCadaXkm" unidad="$ por lote de km" />
+                <CampoNumerico label="Km por unidad de Carga/Descarga" name="kmPorUnidadDeCarga" unidad="km" />
+            </SimpleGrid>
+        </Tabs.Panel>
+        
+        <Tabs.Panel value="contratacion" pt="lg">
+          <Stack>
+            {recursoHumano.tipoContratacion === "empleado" && (
+                <CampoNumerico label="% Cargas Sociales" name="porcentajeCargasSociales" unidad="Porcentaje sobre remunerativo" />
             )}
-
-            {tipoContratacion === "contratado" && (
-              <Card className="mb-4">
-                <Card.Body>
-                  <Card.Title className="text-muted text-uppercase fw-bold mb-3">📦 Solo para Contratados</Card.Title>
-                  <Row>
-                    {campo("% Overhead (Monotributo, Seguro, Bonificaciones)", "porcentajeOverheadContratado", "%")}
-                  </Row>
-                </Card.Body>
-              </Card>
+            {recursoHumano.tipoContratacion === "contratado" && (
+                <CampoNumerico label="% Overhead Contratado" name="porcentajeOverheadContratado" unidad="Monotributo, Seguro, etc." />
             )}
-
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">📝 Observaciones</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                name="observaciones"
-                value={formData.observaciones || ""}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, observaciones: e.target.value }))
-                }
-              />
-            </Form.Group>
-          </Form>
-
-          <div className="d-flex justify-content-end mt-4">
-            <button className="btn-soft me-2" onClick={handleCerrar}>Cancelar</button>
-            <button className="btn-sistema btn-sda-principal" onClick={handleGuardar}>Guardar Cambios</button>
-          </div>
-        </Modal.Body>
-      </Modal>
-
-      {/* Modal de confirmación */}
-      <Modal show={mostrarConfirmacion} onHide={cancelarCerrar} backdrop="static" centered>
-        <Modal.Header closeButton>
-          <Modal.Title>¿Desea cerrar sin guardar?</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Hay cambios no guardados. ¿Está seguro que desea cerrar el formulario sin guardar?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={cancelarCerrar}>Cancelar</Button>
-          <Button variant="danger" onClick={confirmarCerrar}>Cerrar sin guardar</Button>
-        </Modal.Footer>
-      </Modal>
-    </>
+          </Stack>
+        </Tabs.Panel>
+        
+        <Tabs.Panel value="obs" pt="lg">
+            <Textarea
+              label="Anotaciones sobre el recurso humano"
+              name="observaciones"
+              value={formData.observaciones || ""}
+              onChange={(e) => setFormData(prev => ({...prev, observaciones: e.currentTarget.value}))}
+              autosize
+              minRows={4}
+            />
+        </Tabs.Panel>
+      </Tabs>
+      <Group justify="flex-end" mt="xl">
+        <Button variant="default" onClick={onClose}>Cancelar</Button>
+        <Button onClick={handleGuardar} loading={isSaving}>Guardar Cambios</Button>
+      </Group>
+    </Modal>
   );
 };
 

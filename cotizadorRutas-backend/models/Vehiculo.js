@@ -39,7 +39,7 @@ const VehiculoSchema = new mongoose.Schema({
   // ⚙️ Configuración técnica y económica base
   rendimientoKmLitro: {
     type: Number,
-    default: null
+    default: 10
   },
   capacidadKg: {
     type: Number,

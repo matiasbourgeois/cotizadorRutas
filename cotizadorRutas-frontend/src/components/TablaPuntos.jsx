@@ -1,9 +1,8 @@
-import React from "react";
+// ruta: src/components/TablaPuntos.jsx
+
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Trash2, GripVertical } from "lucide-react";
-import '../styles/tablasSistema.css';
-import '../styles/botonesSistema.css';
-
+import { Table, ActionIcon, Text, Center, Box } from "@mantine/core";
 
 const TablaPuntos = ({ puntos, setPuntos, setOptimizar }) => {
   const eliminarPunto = (index) => {
@@ -12,72 +11,67 @@ const TablaPuntos = ({ puntos, setPuntos, setOptimizar }) => {
     setPuntos(nuevos);
   };
 
-const onDragEnd = (result) => {
-  if (!result.destination) return;
-  const nuevos = Array.from(puntos);
-  const [moved] = nuevos.splice(result.source.index, 1);
-  nuevos.splice(result.destination.index, 0, moved);
-  setOptimizar(false); 
-  setPuntos(nuevos);
-};
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const nuevos = Array.from(puntos);
+    const [moved] = nuevos.splice(result.source.index, 1);
+    nuevos.splice(result.destination.index, 0, moved);
+    setOptimizar(false);
+    setPuntos(nuevos);
+  };
 
+  const rows = puntos.map((p, index) => (
+    <Draggable key={p.nombre + index} draggableId={`punto-${index}`} index={index}>
+      {(provided) => (
+        <Table.Tr ref={provided.innerRef} {...provided.draggableProps}>
+          <Table.Td {...provided.dragHandleProps} style={{ width: 40 }}>
+            <Center>
+              <GripVertical size={20} color="gray" />
+            </Center>
+          </Table.Td>
+          <Table.Td style={{ width: 40 }}>{index + 1}</Table.Td>
+          <Table.Td>{p.nombre}</Table.Td>
+          <Table.Td style={{ width: 60 }}>
+            <ActionIcon color="red" variant="subtle" onClick={() => eliminarPunto(index)}>
+              <Trash2 size={18} />
+            </ActionIcon>
+          </Table.Td>
+        </Table.Tr>
+      )}
+    </Draggable>
+  ));
 
   return (
-    <div className="table-responsive mt-4">
-      <table className="table align-middle text-center shadow-sm rounded tabla-montserrat">
-        <thead className="encabezado-moderno">
-          <tr>
-            <th></th>
-            <th>#</th>
-            <th>Dirección</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <DragDropContext onDragEnd={onDragEnd}>
+    <Box mt="md" style={{ overflowX: 'auto' }}>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Table miw={400} verticalSpacing="sm" withTableBorder withColumnBorders>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th></Table.Th>
+              <Table.Th>#</Table.Th>
+              <Table.Th>Dirección</Table.Th>
+              <Table.Th>Acción</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
           <Droppable droppableId="tabla-puntos">
             {(provided) => (
-              <tbody ref={provided.innerRef} {...provided.droppableProps}>
-                {puntos.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="text-muted py-4">
-                      No hay direcciones agregadas.
-                    </td>
-                  </tr>
-                ) : (
-                  puntos.map((p, index) => (
-                    <Draggable key={index} draggableId={`punto-${index}`} index={index}>
-                      {(providedDrag) => (
-                        <tr
-                          className="tabla-moderna-fila"
-                          ref={providedDrag.innerRef}
-                          {...providedDrag.draggableProps}
-                        >
-                          <td {...providedDrag.dragHandleProps}>
-                            <GripVertical size={20} className="text-muted" />
-                          </td>
-                          <td>{index + 1}</td>
-                          <td>{p.nombre}</td>
-                          <td>
-                            <button
-                              className="btn-icono btn-eliminar"
-                              title="Eliminar"
-                              onClick={() => eliminarPunto(index)}
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </td>
-                        </tr>
-                      )}
-                    </Draggable>
-                  ))
+              <Table.Tbody ref={provided.innerRef} {...provided.droppableProps}>
+                {rows.length > 0 ? rows : (
+                  <Table.Tr>
+                    <Table.Td colSpan={4}>
+                      <Text c="dimmed" ta="center" py="lg">
+                        Aún no has agregado ninguna dirección.
+                      </Text>
+                    </Table.Td>
+                  </Table.Tr>
                 )}
                 {provided.placeholder}
-              </tbody>
+              </Table.Tbody>
             )}
           </Droppable>
-        </DragDropContext>
-      </table>
-    </div>
+        </Table>
+      </DragDropContext>
+    </Box>
   );
 };
 

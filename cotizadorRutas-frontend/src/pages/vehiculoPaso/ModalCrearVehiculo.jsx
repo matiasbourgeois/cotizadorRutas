@@ -1,10 +1,11 @@
+// ruta: src/pages/vehiculoPaso/ModalCrearVehiculo.jsx
+
 import { useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+// ✅ --- LA SOLUCIÓN ESTÁ EN ESTA LÍNEA --- ✅
+import { Modal, Button, Select, TextInput, Checkbox, Group, Stack } from "@mantine/core";
+import { YearPickerInput } from '@mantine/dates';
 import axios from "axios";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import "../../styles/formularioSistema.css";
-import "../../styles/botonesSistema.css";
+import 'dayjs/locale/es'; // Soporte para español en fechas
 
 const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
   const [formData, setFormData] = useState({
@@ -16,14 +17,15 @@ const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
     tipoCombustible: "nafta",
     tieneGNC: false
   });
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
+  const handleChange = (name, value) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
     try {
       const dataEnviar = {
         ...formData,
@@ -31,87 +33,58 @@ const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
       };
       const res = await axios.post("http://localhost:5010/api/vehiculos", dataEnviar);
       onVehiculoCreado(res.data);
-      onClose();
+      onClose(); // Cierra el modal al tener éxito
     } catch (error) {
       console.error("❌ Error al crear vehículo:", error);
       alert("Error al crear vehículo. Ver consola.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
-    <Modal show={show} onHide={onClose} backdrop="static" centered>
-      <Modal.Header closeButton className="modal-header-sda">
-        <Modal.Title className="modal-title-sda">Agregar Nuevo Vehículo</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form onSubmit={handleSubmit} className="formulario-sda">
-          <Form.Group className="mb-3">
-            <Form.Label>Tipo de vehículo</Form.Label>
-            <Form.Select name="tipoVehiculo" value={formData.tipoVehiculo} onChange={handleChange} required>
-              <option value="utilitario">Utilitario</option>
-              <option value="mediano">Mediano</option>
-              <option value="grande">Grande</option>
-              <option value="camion">Camión</option>
-            </Form.Select>
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Patente</Form.Label>
-            <Form.Control type="text" name="patente" value={formData.patente} onChange={handleChange} required />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Marca</Form.Label>
-            <Form.Control type="text" name="marca" value={formData.marca} onChange={handleChange} required />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Modelo</Form.Label>
-            <Form.Control type="text" name="modelo" value={formData.modelo} onChange={handleChange} required />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Año</Form.Label><br />
-            <DatePicker
-              selected={formData.año}
-              onChange={(date) => setFormData({ ...formData, año: date })}
-              showYearPicker
-              dateFormat="yyyy"
-              className="form-control"
-              placeholderText="Seleccionar año"
-            />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Tipo de combustible</Form.Label>
-            <Form.Select name="tipoCombustible" value={formData.tipoCombustible} onChange={handleChange} required>
-              <option value="nafta">Nafta</option>
-              <option value="gasoil">Gasoil</option>
-            </Form.Select>
-          </Form.Group>
-
+    <Modal opened={show} onClose={onClose} title="Agregar Nuevo Vehículo" centered>
+      <form onSubmit={handleSubmit}>
+        <Stack>
+          <Select
+            label="Tipo de vehículo"
+            name="tipoVehiculo"
+            value={formData.tipoVehiculo}
+            onChange={(value) => handleChange('tipoVehiculo', value)}
+            data={['utilitario', 'mediano', 'grande', 'camion']}
+            required
+          />
+          <TextInput label="Patente" name="patente" value={formData.patente} onChange={(e) => handleChange('patente', e.currentTarget.value)} required />
+          <TextInput label="Marca" name="marca" value={formData.marca} onChange={(e) => handleChange('marca', e.currentTarget.value)} required />
+          <TextInput label="Modelo" name="modelo" value={formData.modelo} onChange={(e) => handleChange('modelo', e.currentTarget.value)} required />
+          <YearPickerInput
+            label="Año"
+            value={formData.año}
+            onChange={(date) => handleChange('año', date)}
+            locale="es"
+          />
+          <Select
+            label="Tipo de combustible"
+            name="tipoCombustible"
+            value={formData.tipoCombustible}
+            onChange={(value) => handleChange('tipoCombustible', value)}
+            data={['nafta', 'gasoil']}
+            required
+          />
           {formData.tipoCombustible === "nafta" && (
-            <Form.Group className="mb-4">
-              <Form.Check
-                type="checkbox"
-                name="tieneGNC"
-                label="¿Tiene GNC?"
-                checked={formData.tieneGNC}
-                onChange={handleChange}
-              />
-            </Form.Group>
+            <Checkbox
+              label="¿Tiene GNC?"
+              name="tieneGNC"
+              checked={formData.tieneGNC}
+              onChange={(e) => handleChange('tieneGNC', e.currentTarget.checked)}
+            />
           )}
-
-          <div className="d-flex justify-content-end mt-3">
-            <button type="button" className="btn-soft me-2" onClick={onClose}>
-              Cancelar
-            </button>
-            <button type="submit" className="btn-sistema btn-sda-principal">
-              Crear Vehículo
-            </button>
-          </div>
-        </Form>
-      </Modal.Body>
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" loading={isSaving}>Crear Vehículo</Button>
+          </Group>
+        </Stack>
+      </form>
     </Modal>
   );
 };

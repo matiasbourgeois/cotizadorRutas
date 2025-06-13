@@ -1,4 +1,4 @@
-// En: cotizadorRutas-backend/routes/presupuestos.js
+// ruta: cotizadorRutas-backend/routes/presupuestos.js
 
 import express from 'express';
 import {
@@ -7,18 +7,21 @@ import {
   crearPresupuesto,
   actualizarPresupuesto,
   eliminarPresupuesto,
-  generarPdfPresupuesto // <-- Importamos la nueva función
+  generarPdfPresupuesto,
+  calcularPresupuesto // <-- Importamos la nueva función del controlador
 } from '../controllers/presupuestoController.js';
 
 const router = express.Router();
 
+// NUEVA RUTA PARA CÁLCULO/PREVISUALIZACIÓN
+router.post('/calcular', calcularPresupuesto);
+
+// RUTAS EXISTENTES
 router.get('/', obtenerPresupuestos);
 router.get('/:id', obtenerPresupuestoPorId);
 router.post('/', crearPresupuesto);
 router.put('/:id', actualizarPresupuesto);
 router.delete('/:id', eliminarPresupuesto);
-
-// NUEVA RUTA
 router.get('/:id/pdf', generarPdfPresupuesto);
 
 export default router;

@@ -1,28 +1,16 @@
-// En: cotizadorRutas-frontend/src/pages/configuracionPaso/ConfiguracionPresupuestoPaso.jsx
+// ruta: src/pages/configuracionPaso/ConfiguracionPresupuestoPaso.jsx
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useCotizacion } from "../../context/Cotizacion";
-import armarPresupuestoFinal from "../../utils/armarPresupuestoFinal";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { notifications } from '@mantine/notifications';
+import { Stack, Title, Grid, Paper, NumberInput, Textarea, Button, Group, Table, Text, Alert, Center } from "@mantine/core";
+import { ArrowLeft, Calculator, FileDown, AlertCircle } from "lucide-react";
 
-// Estilos
-import "../../styles/formularioSistema.css";
-import "../../styles/tablasSistema.css";
-import "../../styles/botonesSistema.css";
-import "../../styles/titulosSistema.css";
-
-function ConfiguracionPresupuestoPaso() {
+const ConfiguracionPresupuestoPaso = () => {
     const navigate = useNavigate();
-
-    const {
-        puntosEntrega,
-        frecuencia,
-        vehiculo,
-        costoVehiculo,
-        recursoHumano,
-        costoRecursoHumano,
-    } = useCotizacion();
+    const { puntosEntrega, frecuencia, vehiculo, recursoHumano } = useCotizacion();
 
     const [config, setConfig] = useState({
         costoPeajes: 0,
@@ -31,137 +19,191 @@ function ConfiguracionPresupuestoPaso() {
         porcentajeGanancia: 20,
         observaciones: "",
     });
+    
+    const [resumen, setResumen] = useState(null);
+    const [estadoBoton, setEstadoBoton] = useState('listo'); // listo, calculando, guardando, generando
 
-    const [presupuestoFinal, setPresupuestoFinal] = useState(null);
-    const [estadoBoton, setEstadoBoton] = useState('listo'); // 'listo', 'guardando', 'generando'
-
-    useEffect(() => {
-        if (costoVehiculo && costoRecursoHumano) {
-            const vehiculoParaPresupuesto = { datos: vehiculo, calculo: costoVehiculo };
-            const recursoHumanoParaPresupuesto = { datos: recursoHumano, calculo: costoRecursoHumano };
-            const presupuestoCompleto = armarPresupuestoFinal(
-                puntosEntrega.puntos,
-                frecuencia,
-                vehiculoParaPresupuesto,
-                recursoHumanoParaPresupuesto,
-                config
-            );
-            setPresupuestoFinal(presupuestoCompleto);
-        }
-    }, [puntosEntrega, frecuencia, vehiculo, costoVehiculo, recursoHumano, costoRecursoHumano, config]);
-
-    const handleChange = (e) => {
-        const { name, value, type } = e.target;
-        const valorFinal = type === 'number' ? parseFloat(value) || 0 : value;
+    const handleChange = (name, value) => {
+        const valorFinal = typeof value === 'string' ? value : parseFloat(value) || 0;
         setConfig((prev) => ({ ...prev, [name]: valorFinal }));
     };
 
-    // --- LÓGICA ACTUALIZADA DEL BOTÓN FINAL ---
-    const handleCrearPresupuestoYPdf = async () => {
-        if (!presupuestoFinal) {
-            alert("No se ha podido generar el resumen del presupuesto.");
+    const handleCalcularPresupuesto = async () => {
+        if (!puntosEntrega || !frecuencia || !vehiculo || !recursoHumano) {
+            notifications.show({
+                title: 'Faltan datos',
+                message: 'Debes completar todos los pasos anteriores para poder calcular un presupuesto.',
+                color: 'red',
+                icon: <AlertCircle />,
+            });
             return;
         }
 
+        setEstadoBoton('calculando');
+        setResumen(null);
         try {
-            // 1. Guardar el presupuesto en la base de datos
-            setEstadoBoton('guardando');
-            const response = await axios.post(
-                "http://localhost:5010/api/presupuestos",
-                presupuestoFinal
-            );
+            const payload = { puntosEntrega, frecuencia, vehiculo, recursoHumano, configuracion: config };
+            const response = await axios.post("http://localhost:5010/api/presupuestos/calcular", payload);
+            setResumen(response.data);
+            notifications.show({
+                title: 'Cálculo exitoso',
+                message: 'El resumen del presupuesto ha sido generado.',
+                color: 'green',
+            });
+        } catch (error) {
+            console.error("Error al calcular el presupuesto:", error);
+            notifications.show({
+                title: 'Error en el cálculo',
+                message: 'No se pudo generar el resumen. Revisa la consola.',
+                color: 'red',
+            });
+        } finally {
+            setEstadoBoton('listo');
+        }
+    };
 
+    const handleFinalizarYPdf = async () => {
+        if (!resumen) {
+            notifications.show({
+                title: 'Acción requerida',
+                message: 'Por favor, primero calcula el resumen del presupuesto.',
+                color: 'yellow',
+            });
+            return;
+        }
+
+        setEstadoBoton('guardando');
+        try {
+            const payload = {
+                puntosEntrega: puntosEntrega.puntos,
+                totalKilometros: puntosEntrega.distanciaKm,
+                frecuencia,
+                vehiculo: { datos: vehiculo, calculo: resumen.detalleVehiculo },
+                recursoHumano: { datos: recursoHumano, calculo: resumen.detalleRecurso },
+                configuracion: config,
+                resumenCostos: resumen.resumenCostos,
+            };
+
+            const response = await axios.post("http://localhost:5010/api/presupuestos", payload);
             const presupuestoGuardado = response.data;
-            if (response.status !== 201) {
-                throw new Error("El servidor no pudo guardar el presupuesto.");
-            }
             
-            // 2. Solicitar y descargar el PDF del presupuesto recién guardado
             setEstadoBoton('generando');
-            const pdfResponse = await axios.get(
-                `http://localhost:5010/api/presupuestos/${presupuestoGuardado._id}/pdf`,
-                { responseType: 'blob' } // ¡Muy importante para recibir un archivo!
-            );
+            const pdfResponse = await axios.get(`http://localhost:5010/api/presupuestos/${presupuestoGuardado._id}/pdf`, { responseType: 'blob' });
 
-            // 3. Crear un link temporal y hacer clic para descargar el archivo
             const url = window.URL.createObjectURL(new Blob([pdfResponse.data]));
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `presupuesto-${presupuestoGuardado._id}.pdf`);
             document.body.appendChild(link);
             link.click();
-
-            // Limpieza
             link.parentNode.removeChild(link);
-            window.URL.revokeObjectURL(url);
-            
-            alert("✅ ¡Presupuesto guardado y PDF descargado exitosamente!");
+
+            notifications.show({
+                title: '¡Proceso Completo!',
+                message: 'Presupuesto guardado y PDF descargado exitosamente.',
+                color: 'green',
+            });
             navigate("/");
 
         } catch (error) {
             console.error("Error en el proceso final:", error);
-            alert("❌ Ocurrió un error. Revisa la consola para más detalles.");
+            notifications.show({
+                title: 'Error en el proceso final',
+                message: 'No se pudo guardar el presupuesto o generar el PDF.',
+                color: 'red',
+            });
         } finally {
             setEstadoBoton('listo');
         }
     };
 
-    const getTextoBoton = () => {
-        if (estadoBoton === 'guardando') return 'Guardando Presupuesto...';
-        if (estadoBoton === 'generando') return 'Generando PDF...';
-        return 'Finalizar y Crear Presupuesto';
-    }
+    const rows = resumen?.resumenCostos ? Object.entries(resumen.resumenCostos).map(([key, value]) => {
+        const isTotal = key === 'totalFinal';
+        return (
+            <Table.Tr key={key} bg={isTotal ? 'cyan.0' : undefined}>
+                <Table.Td>
+                    <Text fw={isTotal ? 700 : 400} c={isTotal ? 'cyan.9' : undefined}>
+                        {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                    </Text>
+                </Table.Td>
+                <Table.Td>
+                    <Text fw={isTotal ? 700 : 500} ta="right" c={isTotal ? 'cyan.9' : undefined}>
+                        ${(value || 0).toLocaleString('es-AR')}
+                    </Text>
+                </Table.Td>
+            </Table.Tr>
+        );
+    }) : [];
 
     return (
-        <div className="container mt-4">
-            <h4 className="titulo-seccion">Paso 5: Configuración y Presupuesto Final</h4>
-            <div className="row">
-                {/* Columna de configuración */}
-                <div className="col-lg-4 mb-4">
-                    <div className="card shadow-sm">
-                        <div className="card-header fw-bold">Parámetros Finales</div>
-                        <div className="card-body">
-                            <div className="mb-3"><label className="form-label">Costo Peajes (por viaje)</label><input type="number" name="costoPeajes" value={config.costoPeajes} onChange={handleChange} className="form-control" /></div>
-                            <div className="mb-3"><label className="form-label">Costo Administrativo (mensual)</label><input type="number" name="costoAdministrativo" value={config.costoAdministrativo} onChange={handleChange} className="form-control" /></div>
-                            <div className="mb-3"><label className="form-label">Otros Costos (mensual)</label><input type="number" name="otrosCostos" value={config.otrosCostos} onChange={handleChange} className="form-control" /></div>
-                            <div className="mb-3"><label className="form-label">% Ganancia</label><input type="number" name="porcentajeGanancia" value={config.porcentajeGanancia} onChange={handleChange} className="form-control" /></div>
-                            <div className="mb-3"><label className="form-label">Observaciones</label><textarea name="observaciones" value={config.observaciones} onChange={handleChange} className="form-control" rows={3}/></div>
-                        </div>
-                    </div>
-                </div>
+        <Stack gap="xl">
+            <Title order={2} c="deep-blue.7">Configuración y Presupuesto Final</Title>
 
-                {/* Columna de resumen */}
-                <div className="col-lg-8">
-                    <div className="card shadow-sm">
-                        <div className="card-header fw-bold text-warning">📊 Resumen del Presupuesto</div>
-                        <div className="card-body">
-                            {presupuestoFinal?.resumenCostos ? (
-                                <table className="table tabla-montserrat">
-                                    <tbody>
-                                        {Object.entries(presupuestoFinal.resumenCostos).map(([key, value]) => (
-                                            <tr key={key} className={key === 'totalFinal' ? 'table-success' : ''}>
-                                                <td className="text-capitalize">{key.replace(/([A-Z])/g, ' $1')}:</td>
-                                                <td className={`text-end fw-bold ${key === 'ganancia' ? 'text-info' : ''} ${key === 'totalFinal' ? 'text-success' : ''}`}>${value.toLocaleString('es-AR')}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            ) : (<p className="text-center text-muted p-4">Complete los parámetros para ver el resumen final.</p>)}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <Grid gutter="xl">
+                <Grid.Col span={{ base: 12, md: 5 }}>
+                    <Paper withBorder shadow="sm" p="md" radius="md">
+                        <Stack>
+                            <Title order={4} c="dimmed">Parámetros Finales</Title>
+                            <NumberInput label="Costo Peajes (total por viaje)" value={config.costoPeajes} onChange={(v) => handleChange('costoPeajes', v)} prefix="$ " thousandSeparator="," decimalScale={2} />
+                            <NumberInput label="Costo Administrativo (mensual)" value={config.costoAdministrativo} onChange={(v) => handleChange('costoAdministrativo', v)} prefix="$ " thousandSeparator="," decimalScale={2} />
+                            <NumberInput label="Otros Costos (mensual)" value={config.otrosCostos} onChange={(v) => handleChange('otrosCostos', v)} prefix="$ " thousandSeparator="," decimalScale={2} />
+                            <NumberInput label="Porcentaje de Ganancia" value={config.porcentajeGanancia} onChange={(v) => handleChange('porcentajeGanancia', v)} suffix=" %" min={0} />
+                            <Textarea label="Observaciones Finales" placeholder="Aclaraciones para el PDF..." value={config.observaciones} onChange={(e) => handleChange('observaciones', e.currentTarget.value)} autosize minRows={3} />
+                            <Button 
+                                mt="md" 
+                                onClick={handleCalcularPresupuesto} 
+                                loading={estadoBoton === 'calculando'}
+                                leftSection={<Calculator size={18}/>}
+                                fullWidth
+                            >
+                                Calcular Resumen
+                            </Button>
+                        </Stack>
+                    </Paper>
+                </Grid.Col>
 
-             {/* Navegación Final */}
-             <div className="d-flex justify-content-between mt-5">
-                <button className="btn-sda-secundario" onClick={() => navigate(-1)} disabled={estadoBoton !== 'listo'}>
-                    ⬅ Volver
-                </button>
-                <button className="btn-soft-confirmar px-4 py-2" onClick={handleCrearPresupuestoYPdf} disabled={!presupuestoFinal || estadoBoton !== 'listo'}>
-                    {getTextoBoton()}
-                </button>
-            </div>
-        </div>
+                <Grid.Col span={{ base: 12, md: 7 }}>
+                     <Paper withBorder shadow="sm" p="md" radius="md" style={{ height: '100%' }}>
+                         <Stack h="100%">
+                            <Title order={4} c="dimmed">📊 Resumen del Presupuesto</Title>
+                            {resumen ? (
+                                <Table striped withColumnBorders>
+                                    <Table.Thead>
+                                        <Table.Tr>
+                                            <Table.Th>Concepto</Table.Th>
+                                            <Table.Th style={{ textAlign: 'right' }}>Monto</Table.Th>
+                                        </Table.Tr>
+                                    </Table.Thead>
+                                    <Table.Tbody>{rows}</Table.Tbody>
+                                </Table>
+                            ) : (
+                                <Center style={{ flex: 1 }}>
+                                    <Alert icon={<AlertCircle size={16} />} color="blue" title="Resumen pendiente">
+                                        Ajusta los parámetros y haz clic en "Calcular Resumen" para ver el resultado.
+                                    </Alert>
+                                </Center>
+                            )}
+                         </Stack>
+                     </Paper>
+                </Grid.Col>
+            </Grid>
+
+            <Group justify="space-between" mt="md">
+                <Button variant="default" onClick={() => navigate(-1)} leftSection={<ArrowLeft size={16} />}>
+                    Volver
+                </Button>
+                <Button
+                    color="green"
+                    size="md"
+                    onClick={handleFinalizarYPdf}
+                    disabled={!resumen || estadoBoton !== 'listo'}
+                    loading={estadoBoton === 'guardando' || estadoBoton === 'generando'}
+                    leftSection={<FileDown size={18} />}
+                >
+                    {estadoBoton === 'guardando' ? 'Guardando...' : estadoBoton === 'generando' ? 'Generando PDF...' : 'Finalizar y Generar PDF'}
+                </Button>
+            </Group>
+        </Stack>
     );
 }
 

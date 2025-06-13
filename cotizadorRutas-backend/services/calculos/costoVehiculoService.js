@@ -1,5 +1,4 @@
-// utils/calcularCostoVehiculo.js
-
+// ruta: cotizadorRutas-backend/services/calculos/costoVehiculoService.js
 /**
  * Calcula el costo mensual estimado de operar un vehículo en base a sus características,
  * los kilómetros por viaje, la cantidad de viajes al mes y si es un viaje regular o esporádico.
@@ -11,29 +10,6 @@
  * @returns {Object} Objeto con detalle del cálculo y total final.
  */
 export default function calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadViajesMensuales, esViajeRegular) {
-  console.log("🚗 Vehículo recibido para cálculo:", vehiculo);
-  console.log("📏 kmsPorViaje:", kmsPorViaje);
-  console.log("📆 cantidadViajesMensuales:", cantidadViajesMensuales);
-  console.log("🔁 esViajeRegular:", esViajeRegular);
-
-  const camposObligatorios = [
-    "precioVehiculoNuevo",
-    "kmsVidaUtilVehiculo",
-    "precioCubierta",
-    "cantidadCubiertas",
-    "kmsVidaUtilCubiertas",
-    "precioCambioAceite",
-    "kmsCambioAceite",
-    "rendimientoKmLitro",
-    "precioLitroCombustible"
-  ];
-
-  camposObligatorios.forEach(campo => {
-    if (vehiculo[campo] === undefined || vehiculo[campo] === null) {
-      console.warn(`⚠️ FALTA el campo '${campo}' en el vehículo`);
-    }
-  });
-
   const viajesMensualesEstándar = 22;
   const proporcionUso = esViajeRegular ? 1 : (cantidadViajesMensuales / viajesMensualesEstándar);
   const kmsMensuales = kmsPorViaje * cantidadViajesMensuales;

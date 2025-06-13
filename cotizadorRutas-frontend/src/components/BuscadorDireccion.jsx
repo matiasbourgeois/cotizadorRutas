@@ -1,6 +1,9 @@
-// src/components/BuscadorDireccion.jsx
+// ruta: src/components/BuscadorDireccion.jsx
+
 import { useEffect, useRef, useState } from "react";
 import { useLoadScript } from "@react-google-maps/api";
+import { TextInput, rem } from "@mantine/core";
+import { MapPin } from "lucide-react";
 
 const libraries = ["places"];
 
@@ -9,7 +12,7 @@ export default function BuscadorDireccion({ onAgregar }) {
   const inputRef = useRef(null);
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: import.meta.env.VITE_Maps_API_KEY,
     libraries,
   });
 
@@ -27,11 +30,7 @@ export default function BuscadorDireccion({ onAgregar }) {
 
       const nombreLugar = place.name || "";
       const direccionCompleta = place.formatted_address || "";
-
-      // Buscar código postal en address_components
-      const cpObj = place.address_components?.find(comp =>
-        comp.types.includes("postal_code")
-      );
+      const cpObj = place.address_components?.find(comp => comp.types.includes("postal_code"));
       const codigoPostal = cpObj?.long_name || "";
 
       let nombreFinal = `${nombreLugar} – ${direccionCompleta}`;
@@ -39,31 +38,28 @@ export default function BuscadorDireccion({ onAgregar }) {
         nombreFinal += `, CP ${codigoPostal}`;
       }
 
-      const nuevaDireccion = {
+      onAgregar({
         nombre: nombreFinal,
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng(),
-      };
-
-
-      onAgregar(nuevaDireccion);
+      });
       setDireccion("");
     });
-  }, [isLoaded]);
+  }, [isLoaded, onAgregar]);
 
   if (loadError) return <p>Error al cargar Google Maps</p>;
   if (!isLoaded) return <p>Cargando mapa...</p>;
 
   return (
-    <div className="mb-4">
-      <input
-        ref={inputRef}
-        type="text"
-        className="form-control"
-        placeholder="Ingresá una dirección o lugar..."
-        value={direccion}
-        onChange={(e) => setDireccion(e.target.value)}
-      />
-    </div>
+    <TextInput
+      ref={inputRef}
+      label="Agregar Dirección"
+      description="Ingresa una dirección o nombre de lugar y presiona Enter."
+      placeholder="Buscar en Google Maps..."
+      value={direccion}
+      onChange={(e) => setDireccion(e.target.value)}
+      leftSection={<MapPin style={{ width: rem(16), height: rem(16) }} />}
+      mb="lg"
+    />
   );
 }

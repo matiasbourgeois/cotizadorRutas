@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+// ruta: src/pages/puntosEntregaPaso/PuntosEntregaPaso.jsx
+
+import { useState, useEffect, useCallback } from "react";
 import BuscadorDireccion from "../../components/BuscadorDireccion";
 import TablaPuntos from "../../components/TablaPuntos";
 import MapaRuta from "../../components/MapaRuta";
@@ -6,19 +8,19 @@ import ResumenRuta from "../../components/ResumenRuta";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCotizacion } from "../../context/Cotizacion";
-import { Map, List, Navigation } from 'lucide-react';
-
+import { Grid, Stack, Group, Button, Title, Text, Center } from "@mantine/core";
+import { Navigation, Route, Sparkles } from "lucide-react";
 
 export default function PuntosEntregaPaso() {
     const [puntos, setPuntos] = useState([]);
     const [optimizar, setOptimizar] = useState(false);
     const [recalculo, setRecalculo] = useState(0);
     const [datosRuta, setDatosRuta] = useState(null);
+    const [isSaving, setIsSaving] = useState(false);
     const navigate = useNavigate();
     const { setPuntosEntrega } = useCotizacion();
 
     useEffect(() => {
-        // Cada vez que los puntos cambien, se resetea la ruta calculada
         setDatosRuta(null);
     }, [puntos]);
 
@@ -28,12 +30,18 @@ export default function PuntosEntregaPaso() {
         setOptimizar(false);
     };
 
+    // ✅ --- LA SOLUCIÓN ESTÁ AQUÍ --- ✅
+    const handleOptimizarOrden = useCallback((nuevoOrden) => {
+        setPuntos(nuevoOrden);
+        setOptimizar(false); // <-- ¡AQUÍ! Apagamos el modo optimizar después de recibir el resultado.
+    }, []); 
+
     const handleSiguiente = async () => {
         if (!datosRuta) {
             alert("Por favor, calcula la ruta antes de continuar.");
             return;
         }
-
+        setIsSaving(true);
         try {
             const ordenados = puntos.map((p, index) => ({ ...p, orden: index }));
             
@@ -41,21 +49,19 @@ export default function PuntosEntregaPaso() {
                 puntos: ordenados,
                 distanciaKm: datosRuta.distanciaKm,
                 duracionMin: datosRuta.duracionMin,
-                staticMapUrl: datosRuta.staticMapUrl
             };
 
             const res = await axios.post("http://localhost:5010/api/rutas", payload);
             const nuevaRuta = res.data;
             
-            setPuntosEntrega({
-                ...payload,
-                rutaId: nuevaRuta._id
-            });
+            setPuntosEntrega({ ...payload, rutaId: nuevaRuta._id });
 
-            navigate(`/cotizador/frecuencia/${nuevaRuta._id}`, { state: { idRuta: nuevaRuta._id } });
+            navigate(`/cotizador/frecuencia/${nuevaRuta._id}`);
         } catch (err) {
             console.error("❌ Error al guardar ruta:", err);
             alert("Error al guardar la ruta. Ver consola.");
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -65,84 +71,70 @@ export default function PuntosEntregaPaso() {
     };
 
     return (
-        <div className="row g-4">
-            {/* --- Columna Izquierda: Controles --- */}
-            <div className="col-lg-5">
-                <div className="card shadow-sm h-100">
-                    <div className="card-body d-flex flex-column">
-                        <h5 className="titulo-seccion mb-4 d-flex align-items-center">
-                            <List size={28} className="me-2 text-warning" />
-                            Define los Puntos
-                        </h5>
-                        
-                        <BuscadorDireccion onAgregar={agregarPunto} />
-                        
-                        <div className="flex-grow-1">
-                          <TablaPuntos puntos={puntos} setPuntos={setPuntos} setOptimizar={setOptimizar} />
-                        </div>
+        <Grid gutter="xl">
+            <Grid.Col span={{ base: 12, md: 5 }}>
+                <Stack>
+                    <Title order={2} c="deep-blue.7">Define los Puntos de la Ruta</Title>
+                    <BuscadorDireccion onAgregar={agregarPunto} />
+                    <TablaPuntos puntos={puntos} setPuntos={setPuntos} setOptimizar={setOptimizar} />
+                    
+                    {puntos.length >= 2 && (
+                        <Group grow mt="md">
+                            <Button 
+                                variant="default" 
+                                onClick={() => handleCalcular(false)}
+                                leftSection={<Route size={16} />}
+                            >
+                                Calcular Ruta
+                            </Button>
+                            <Button 
+                                onClick={() => handleCalcular(true)}
+                                leftSection={<Sparkles size={16} />}
+                            >
+                                Optimizar y Calcular
+                            </Button>
+                        </Group>
+                    )}
+                </Stack>
+            </Grid.Col>
 
-                        {puntos.length >= 2 && (
-                            <div className="mt-auto pt-3 border-top">
-                                <p className="form-label fw-bold">Acciones de Ruta</p>
-                                <div className="d-flex flex-column flex-sm-row gap-2">
-                                    <button
-                                        className="btn btn-sda-principal flex-fill"
-                                        onClick={() => handleCalcular(false)}
-                                    >
-                                        Calcular Ruta
-                                    </button>
-                                    <button
-                                        className="btn btn-sda-secundario flex-fill"
-                                        onClick={() => handleCalcular(true)}
-                                    >
-                                        Optimizar y Calcular
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
+            <Grid.Col span={{ base: 12, md: 7 }}>
+                <Stack>
+                    <Title order={2} c="deep-blue.7">Visualización de Ruta</Title>
+                    {puntos.length > 0 ? (
+                        <MapaRuta
+                            puntos={puntos}
+                            optimizar={optimizar}
+                            onOptimizarOrden={handleOptimizarOrden}
+                            onDatosRuta={setDatosRuta}
+                            recalculo={recalculo}
+                        />
+                    ) : (
+                        <Center h={400} bg="gray.1" style={{ borderRadius: 'var(--mantine-radius-md)' }}>
+                            <Text c="dimmed">Agrega al menos dos puntos para visualizar el mapa.</Text>
+                        </Center>
+                    )}
+                   
+                    {datosRuta && <ResumenRuta distanciaKm={datosRuta.distanciaKm} duracionMin={datosRuta.duracionMin} />}
+                </Stack>
+            </Grid.Col>
 
-            {/* --- Columna Derecha: Mapa y Resumen --- */}
-            <div className="col-lg-7">
-                <div className="card shadow-sm">
-                     <div className="card-body">
-                         <h5 className="titulo-seccion mb-4 d-flex align-items-center">
-                            <Map size={28} className="me-2 text-warning" />
-                            Visualización de Ruta
-                        </h5>
-                        {puntos.length > 0 ? (
-                             <MapaRuta
-                                puntos={puntos}
-                                optimizar={optimizar}
-                                onOptimizarOrden={(nuevoOrden) => setPuntos(nuevoOrden)}
-                                onDatosRuta={setDatosRuta}
-                                recalculo={recalculo}
-                            />
-                        ) : (
-                            <div className="text-center py-5 text-muted">
-                                <p>Agrega al menos un punto para visualizar el mapa.</p>
-                            </div>
-                        )}
-                       
-                        {datosRuta && <ResumenRuta distanciaKm={datosRuta.distanciaKm} duracionMin={datosRuta.duracionMin} />}
-                    </div>
-                </div>
-                 {puntos.length >= 2 && (
-                    <div className="mt-4 text-end">
-                        <button
-                            className="btn-soft-confirmar px-4 py-2"
+            {puntos.length >= 2 && (
+                <Grid.Col span={12}>
+                    <Group justify="flex-end" mt="xl">
+                        <Button
+                            size="md"
+                            color="cyan"
                             onClick={handleSiguiente}
-                            disabled={!datosRuta}
-                            title={!datosRuta ? "Debes calcular la ruta primero" : "Ir al siguiente paso"}
+                            disabled={!datosRuta || isSaving}
+                            loading={isSaving}
+                            leftSection={<Navigation size={18} />}
                         >
-                            <Navigation size={18} className="me-2"/>
                             Siguiente Paso
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
+                        </Button>
+                    </Group>
+                </Grid.Col>
+            )}
+        </Grid>
     );
 }
