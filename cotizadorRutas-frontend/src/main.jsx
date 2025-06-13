@@ -8,6 +8,7 @@ import './styles/botonesSistema.css';
 import './styles/formularioSistema.css';
 import './styles/tablasSistema.css';
 import './styles/titulosSistema.css';
+import './styles/Stepper.css'; // <-- AÑADIR NUEVO CSS
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

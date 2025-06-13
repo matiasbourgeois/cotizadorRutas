@@ -1,33 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BuscadorDireccion from "../../components/BuscadorDireccion";
 import TablaPuntos from "../../components/TablaPuntos";
 import MapaRuta from "../../components/MapaRuta";
 import ResumenRuta from "../../components/ResumenRuta";
-import "../../styles/botonesSistema.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCotizacion } from "../../context/Cotizacion";
+import { Map, List, Navigation } from 'lucide-react';
+
 
 export default function PuntosEntregaPaso() {
     const [puntos, setPuntos] = useState([]);
     const [optimizar, setOptimizar] = useState(false);
-    const [mostrarMapa, setMostrarMapa] = useState(false);
-    const [fuerzaRecalculo, setFuerzaRecalculo] = useState(0);
-    const [datosRuta, setDatosRuta] = useState(null); // <-- Este estado es clave para la validación
+    const [recalculo, setRecalculo] = useState(0);
+    const [datosRuta, setDatosRuta] = useState(null);
     const navigate = useNavigate();
     const { setPuntosEntrega } = useCotizacion();
 
-    // Si se agrega un punto nuevo, reseteamos el cálculo de la ruta para forzar un nuevo cálculo
+    useEffect(() => {
+        // Cada vez que los puntos cambien, se resetea la ruta calculada
+        setDatosRuta(null);
+    }, [puntos]);
+
     const agregarPunto = (punto) => {
         if (!punto) return;
-        setOptimizar(false);
         setPuntos((prev) => [...prev, punto]);
-        setDatosRuta(null); // <-- FORZAMOS a que se deba recalcular
-        setMostrarMapa(false);
+        setOptimizar(false);
     };
 
     const handleSiguiente = async () => {
-        // Doble validación: no se debería poder hacer clic, pero por si acaso.
         if (!datosRuta) {
             alert("Por favor, calcula la ruta antes de continuar.");
             return;
@@ -36,92 +37,111 @@ export default function PuntosEntregaPaso() {
         try {
             const ordenados = puntos.map((p, index) => ({ ...p, orden: index }));
             
-            // Guardamos la ruta en el backend para tener un registro
-            const res = await axios.post("http://localhost:5010/api/rutas", {
+            const payload = {
                 puntos: ordenados,
-                distanciaKm: datosRuta?.distanciaKm || 0,
-                duracionMin: datosRuta?.duracionMin || 0
-            });
-            const nuevaRutaId = res.data._id;
+                distanciaKm: datosRuta.distanciaKm,
+                duracionMin: datosRuta.duracionMin,
+                staticMapUrl: datosRuta.staticMapUrl
+            };
+
+            const res = await axios.post("http://localhost:5010/api/rutas", payload);
+            const nuevaRuta = res.data;
             
-            // Guardamos la información en el contexto para los siguientes pasos
             setPuntosEntrega({
-                puntos: ordenados,
-                distanciaKm: datosRuta?.distanciaKm || 0,
-                duracionMin: datosRuta?.duracionMin || 0,
-                rutaId: nuevaRutaId
+                ...payload,
+                rutaId: nuevaRuta._id
             });
 
-            // Navegamos al siguiente paso
-            navigate(`/cotizador/frecuencia/${nuevaRutaId}`);
+            navigate(`/cotizador/frecuencia/${nuevaRuta._id}`, { state: { idRuta: nuevaRuta._id } });
         } catch (err) {
             console.error("❌ Error al guardar ruta:", err);
             alert("Error al guardar la ruta. Ver consola.");
         }
     };
 
+    const handleCalcular = (optimizado = false) => {
+        setOptimizar(optimizado);
+        setRecalculo(prev => prev + 1);
+    };
+
     return (
-        <div className="container py-4">
-            <div className="card">
-                <div className="card-body">
-                    <h4 className="titulo-seccion mb-4">Paso 1: Definir los Puntos de Entrega</h4>
-                    
-                    <label className="form-label fw-bold">Añadir Dirección</label>
-                    <BuscadorDireccion onAgregar={agregarPunto} />
-                    
-                    <TablaPuntos puntos={puntos} setPuntos={setPuntos} setOptimizar={setOptimizar} />
-
-                    {puntos.length >= 2 && (
-                        <div className="d-flex gap-2 mt-3">
-                            <button
-                                className="btn-sistema btn-sda-principal"
-                                onClick={() => {
-                                    setOptimizar(false);
-                                    setMostrarMapa(true);
-                                    setFuerzaRecalculo(prev => prev + 1);
-                                }}
-                            >
-                                Calcular Ruta
-                            </button>
-                            <button
-                                className="btn-sistema btn-sda-secundario"
-                                onClick={() => {
-                                    setOptimizar(true);
-                                    setMostrarMapa(true);
-                                    setFuerzaRecalculo(prev => prev + 1);
-                                }}
-                            >
-                                Optimizar y Calcular
-                            </button>
+        <div className="row g-4">
+            {/* --- Columna Izquierda: Controles --- */}
+            <div className="col-lg-5">
+                <div className="card shadow-sm h-100">
+                    <div className="card-body d-flex flex-column">
+                        <h5 className="titulo-seccion mb-4 d-flex align-items-center">
+                            <List size={28} className="me-2 text-warning" />
+                            Define los Puntos
+                        </h5>
+                        
+                        <BuscadorDireccion onAgregar={agregarPunto} />
+                        
+                        <div className="flex-grow-1">
+                          <TablaPuntos puntos={puntos} setPuntos={setPuntos} setOptimizar={setOptimizar} />
                         </div>
-                    )}
 
-                    {mostrarMapa && puntos.length >= 2 && (
-                        <MapaRuta
-                            puntos={puntos}
-                            optimizar={optimizar}
-                            onOptimizarOrden={(nuevoOrden) => setPuntos(nuevoOrden)}
-                            onDatosRuta={setDatosRuta} // <-- Aquí se guarda el resultado del cálculo
-                            recalculo={fuerzaRecalculo}
-                        />
-                    )}
-
-                    {datosRuta && <ResumenRuta distanciaKm={datosRuta.distanciaKm} duracionMin={datosRuta.duracionMin} />}
-
-                    {puntos.length >= 2 && (
-                        <div className="mt-4 text-end">
-                            <button
-                                className="btn-sistema btn-sda-principal"
-                                onClick={handleSiguiente}
-                                // ✅ El botón se deshabilita si no hay datos de ruta calculados
-                                disabled={!datosRuta}
-                                title={!datosRuta ? "Debes calcular la ruta primero" : "Ir al siguiente paso"}
-                            >
-                                Siguiente ➡
-                            </button>
-                        </div>
-                    )}
+                        {puntos.length >= 2 && (
+                            <div className="mt-auto pt-3 border-top">
+                                <p className="form-label fw-bold">Acciones de Ruta</p>
+                                <div className="d-flex flex-column flex-sm-row gap-2">
+                                    <button
+                                        className="btn btn-sda-principal flex-fill"
+                                        onClick={() => handleCalcular(false)}
+                                    >
+                                        Calcular Ruta
+                                    </button>
+                                    <button
+                                        className="btn btn-sda-secundario flex-fill"
+                                        onClick={() => handleCalcular(true)}
+                                    >
+                                        Optimizar y Calcular
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
+            </div>
+
+            {/* --- Columna Derecha: Mapa y Resumen --- */}
+            <div className="col-lg-7">
+                <div className="card shadow-sm">
+                     <div className="card-body">
+                         <h5 className="titulo-seccion mb-4 d-flex align-items-center">
+                            <Map size={28} className="me-2 text-warning" />
+                            Visualización de Ruta
+                        </h5>
+                        {puntos.length > 0 ? (
+                             <MapaRuta
+                                puntos={puntos}
+                                optimizar={optimizar}
+                                onOptimizarOrden={(nuevoOrden) => setPuntos(nuevoOrden)}
+                                onDatosRuta={setDatosRuta}
+                                recalculo={recalculo}
+                            />
+                        ) : (
+                            <div className="text-center py-5 text-muted">
+                                <p>Agrega al menos un punto para visualizar el mapa.</p>
+                            </div>
+                        )}
+                       
+                        {datosRuta && <ResumenRuta distanciaKm={datosRuta.distanciaKm} duracionMin={datosRuta.duracionMin} />}
+                    </div>
+                </div>
+                 {puntos.length >= 2 && (
+                    <div className="mt-4 text-end">
+                        <button
+                            className="btn-soft-confirmar px-4 py-2"
+                            onClick={handleSiguiente}
+                            disabled={!datosRuta}
+                            title={!datosRuta ? "Debes calcular la ruta primero" : "Ir al siguiente paso"}
+                        >
+                            <Navigation size={18} className="me-2"/>
+                            Siguiente Paso
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
