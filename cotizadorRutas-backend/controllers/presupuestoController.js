@@ -1,7 +1,7 @@
 // ruta: cotizadorRutas-backend/controllers/presupuestoController.js
 
 import Presupuesto from '../models/Presupuesto.js';
-import { generarPresupuestoPDF } from '../services/generadorPdf.js';
+import { generarPresupuestoPDF_Avanzado } from '../services/generadorPdfAvanzado.js';
 import calcularCostoVehiculo from '../services/calculos/costoVehiculoService.js';
 import calcularCostoTotalRecurso from '../services/calculos/costoRecursoHumanoService.js';
 
@@ -184,6 +184,7 @@ export const eliminarPresupuesto = async (req, res) => {
   }
 };
 
+
 export const generarPdfPresupuesto = async (req, res) => {
     try {
         const presupuesto = await Presupuesto.findById(req.params.id);
@@ -192,12 +193,14 @@ export const generarPdfPresupuesto = async (req, res) => {
         }
 
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=presupuesto-${presupuesto._id}.pdf`);
+        res.setHeader('Content-Disposition', `attachment; filename=propuesta-${presupuesto._id}.pdf`);
         
-        generarPresupuestoPDF(presupuesto, res);
+        // 👇 **CAMBIO CLAVE: Usamos el nuevo generador avanzado**
+        await generarPresupuestoPDF_Avanzado(presupuesto, res);
 
     } catch (error) {
-        console.error("Error en el controlador al generar PDF:", error);
-        res.status(500).send("Error al generar el PDF");
+        console.error("Error en el controlador al generar PDF avanzado:", error);
+        res.status(500).send("Error al generar el PDF del presupuesto.");
     }
 }
+
