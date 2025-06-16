@@ -10,11 +10,13 @@ export const CotizacionProvider = ({ children }) => {
   // Estados para cada paso del cotizador
   const [puntosEntrega, setPuntosEntrega] = useState(null);
   const [frecuencia, setFrecuencia] = useState(null);
-  const [vehiculo, setVehiculo] = useState(null); // Solo guarda el objeto del vehículo seleccionado
-  const [recursoHumano, setRecursoHumano] = useState(null); // Solo guarda el objeto del R.H. seleccionado
+  const [vehiculo, setVehiculo] = useState(null);
+  const [recursoHumano, setRecursoHumano] = useState(null);
+  
+  // ✅ LÍNEA FALTANTE AÑADIDA
+  // Aquí declaramos el estado para los detalles de la carga.
+  const [detallesCarga, setDetallesCarga] = useState({ tipo: 'general', pesoKg: 0, valorDeclarado: 0 });
 
-  // Se eliminan los estados costoVehiculo y costoRecursoHumano.
-  // La lógica de getPresupuestoCompleto se va al backend.
 
   return (
     <CotizacionContext.Provider
@@ -27,6 +29,7 @@ export const CotizacionProvider = ({ children }) => {
         setVehiculo,
         recursoHumano,
         setRecursoHumano,
+        // Ahora estas variables sí existen y pueden ser pasadas en el contexto
         detallesCarga,
         setDetallesCarga
       }}

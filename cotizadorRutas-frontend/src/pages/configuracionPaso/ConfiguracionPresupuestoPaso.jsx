@@ -10,7 +10,8 @@ import { ArrowLeft, Calculator, FileDown, AlertCircle } from "lucide-react";
 
 const ConfiguracionPresupuestoPaso = () => {
     const navigate = useNavigate();
-    const { puntosEntrega, frecuencia, vehiculo, recursoHumano } = useCotizacion();
+    // ✅ CORRECCIÓN 1: Se obtiene 'detallesCarga' desde el contexto.
+    const { puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga } = useCotizacion();
 
     const [config, setConfig] = useState({
         costoPeajes: 0,
@@ -42,7 +43,8 @@ const ConfiguracionPresupuestoPaso = () => {
         setEstadoBoton('calculando');
         setResumen(null);
         try {
-            const payload = { puntosEntrega, frecuencia, vehiculo, recursoHumano, configuracion: config };
+            // ✅ CORRECCIÓN 2: Se añade 'detallesCarga' al payload que se envía a la API.
+            const payload = { puntosEntrega, frecuencia, vehiculo, recursoHumano, configuracion: config, detallesCarga };
             const response = await axios.post("http://localhost:5010/api/presupuestos/calcular", payload);
             setResumen(response.data);
             notifications.show({
@@ -74,6 +76,7 @@ const ConfiguracionPresupuestoPaso = () => {
 
         setEstadoBoton('guardando');
         try {
+            // ✅ CORRECCIÓN 3: Se añade 'detallesCarga' también al payload final para guardar.
             const payload = {
                 puntosEntrega: puntosEntrega.puntos,
                 totalKilometros: puntosEntrega.distanciaKm,
@@ -81,6 +84,7 @@ const ConfiguracionPresupuestoPaso = () => {
                 vehiculo: { datos: vehiculo, calculo: resumen.detalleVehiculo },
                 recursoHumano: { datos: recursoHumano, calculo: resumen.detalleRecurso },
                 configuracion: config,
+                detallesCarga, // <-- Añadido aquí
                 resumenCostos: resumen.resumenCostos,
             };
 
@@ -119,6 +123,10 @@ const ConfiguracionPresupuestoPaso = () => {
 
     const rows = resumen?.resumenCostos ? Object.entries(resumen.resumenCostos).map(([key, value]) => {
         const isTotal = key === 'totalFinal';
+        // Ocultamos el desglose de carga peligrosa si es cero
+        if (key === 'costoAdicionalPeligrosa' && !value) {
+            return null;
+        }
         return (
             <Table.Tr key={key} bg={isTotal ? 'cyan.0' : undefined}>
                 <Table.Td>
