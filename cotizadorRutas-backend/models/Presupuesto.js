@@ -10,6 +10,11 @@ const PresupuestoSchema = new mongoose.Schema({
     datos: { type: Object },
     calculo: { type: Object }
   },
+  detallesCarga: {
+    tipo: { type: String, default: 'general' }, // Opciones: general, refrigerada, peligrosa
+    pesoKg: { type: Number, default: 0 },
+    valorDeclarado: { type: Number, default: 0 }
+  },
   recursoHumano: {
     datos: { type: Object },
     calculo: { type: Object }

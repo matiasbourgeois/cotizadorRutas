@@ -27,6 +27,8 @@ export const CotizacionProvider = ({ children }) => {
         setVehiculo,
         recursoHumano,
         setRecursoHumano,
+        detallesCarga,
+        setDetallesCarga
       }}
     >
       {children}

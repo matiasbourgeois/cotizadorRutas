@@ -11,7 +11,8 @@
  */
 export default function calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadViajesMensuales, esViajeRegular) {
   const viajesMensualesEstándar = 22;
-  const proporcionUso = esViajeRegular ? 1 : (cantidadViajesMensuales / viajesMensualesEstándar);
+  const usoCompleto = cantidadViajesMensuales >= viajesMensualesEstándar;
+  const proporcionUso = usoCompleto ? 1 : (cantidadViajesMensuales / viajesMensualesEstándar);
   const kmsMensuales = kmsPorViaje * cantidadViajesMensuales;
 
   // 1. Depreciación del vehículo

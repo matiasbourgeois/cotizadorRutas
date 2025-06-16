@@ -1,21 +1,64 @@
-# Node modules
-cotizadorRutas-frontend/node_modules/
-cotizadorRutas-backend/node_modules/
+# ==================================
+#         Archivos de Node
+# ==================================
+# Ignora la carpeta node_modules en cualquier ubicación del proyecto
+**/node_modules
 
-# Entornos
-*.env
+# Ignora los archivos de log de npm y otros gestores
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Archivos del sistema
+
+# ==================================
+#       Archivos de Entorno
+# ==================================
+# Ignora todos los archivos .env que contienen claves de API y secretos
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+
+# ==================================
+#         Carpetas de Build
+# ==================================
+# Ignora las carpetas de compilación del frontend y backend
+dist
+dist-ssr
+build
+.svelte-kit
+.vercel
+
+
+# ==================================
+#     Archivos del Sistema y Editor
+# ==================================
+# Archivos del sistema operativo
 .DS_Store
 Thumbs.db
 
-# Logs
+# Archivos de configuración de editores de código
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+
+# ==================================
+#          Archivos de Log
+# ==================================
 *.log
+logs
 
-# Archivos de lock
-yarn.lock
-pnpm-lock.yaml
 
-# Build
-dist/
-build/
+# ==================================
+#     Archivos de Lock (Opcional)
+# ==================================
+# A veces se ignoran, pero es buena práctica subirlos. 
+# Los dejo comentados por si los quieres ignorar.
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml

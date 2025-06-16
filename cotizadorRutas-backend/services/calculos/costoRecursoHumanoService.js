@@ -26,7 +26,7 @@ export default function calcularCostoTotalRecurso(
 
   if (tipo === "empleado" || tipo === "contratado") {
     sueldoProporcional = recurso.sueldoBasico * proporcionUso;
-    adicionalActividad = sueldoProporcional * (recurso.adicionalActividadPorc / 100);
+    adicionalActividad = (recurso.sueldoBasico * (recurso.adicionalActividadPorc / 100)) * proporcionUso;
   }
 
   const subtotalBruto =
