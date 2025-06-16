@@ -9,7 +9,7 @@
  * @param {boolean} esViajeRegular - true = regular, false = esporádico (viene del Paso 2).
  * @returns {Object} Objeto con detalle del cálculo y total final.
  */
-export default function calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadViajesMensuales, esViajeRegular) {
+export default function calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadViajesMensuales, esViajeRegular, detallesCarga) {
   const viajesMensualesEstándar = 22;
   const usoCompleto = cantidadViajesMensuales >= viajesMensualesEstándar;
   const proporcionUso = usoCompleto ? 1 : (cantidadViajesMensuales / viajesMensualesEstándar);
@@ -37,10 +37,19 @@ export default function calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadVia
     : 0;
 
   // 4. Costo de combustible
+  let precioLitroCombustibleEfectivo = vehiculo.precioLitroCombustible;
+
+  // ✅ LÓGICA PARA CARGA REFRIGERADA
+  if (detallesCarga?.tipo === 'refrigerada') {
+    // Aumentamos el costo del combustible en un 25%
+    precioLitroCombustibleEfectivo *= 1.25;
+  }
+
   const kmsPorLitro = vehiculo.rendimientoKmLitro || 1;
   const combustiblePorKm = vehiculo.usaGNC
     ? vehiculo.precioGNC / kmsPorLitro
-    : vehiculo.precioLitroCombustible / kmsPorLitro;
+    // Usamos la variable modificada
+    : precioLitroCombustibleEfectivo / kmsPorLitro; 
   const combustible = combustiblePorKm * kmsMensuales;
 
   // 5. Costos fijos mensuales

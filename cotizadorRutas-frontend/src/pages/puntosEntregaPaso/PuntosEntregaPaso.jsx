@@ -1,4 +1,4 @@
-// ruta: src/pages/puntosEntregaPaso/PuntosEntregaPaso.jsx
+// En: src/pages/puntosEntregaPaso/PuntosEntregaPaso.jsx
 
 import { useState, useEffect, useCallback } from "react";
 import BuscadorDireccion from "../../components/BuscadorDireccion";
@@ -8,8 +8,10 @@ import ResumenRuta from "../../components/ResumenRuta";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCotizacion } from "../../context/Cotizacion";
-import { Grid, Stack, Group, Button, Title, Text, Center } from "@mantine/core";
-import { Navigation, Route, Sparkles } from "lucide-react";
+// ✅ --- INICIO: NUEVAS IMPORTACIONES ---
+import { Grid, Stack, Group, Button, Title, Text, Center, Paper, Select } from "@mantine/core";
+import { Navigation, Route, Sparkles, Box } from "lucide-react";
+// ✅ --- FIN: NUEVAS IMPORTACIONES ---
 
 export default function PuntosEntregaPaso() {
     const [puntos, setPuntos] = useState([]);
@@ -18,7 +20,9 @@ export default function PuntosEntregaPaso() {
     const [datosRuta, setDatosRuta] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
     const navigate = useNavigate();
-    const { setPuntosEntrega } = useCotizacion();
+    
+    // ✅ Obtenemos los detalles y el setter de la carga desde el contexto.
+    const { setPuntosEntrega, detallesCarga, setDetallesCarga } = useCotizacion();
 
     useEffect(() => {
         setDatosRuta(null);
@@ -30,11 +34,15 @@ export default function PuntosEntregaPaso() {
         setOptimizar(false);
     };
 
-    // ✅ --- LA SOLUCIÓN ESTÁ AQUÍ --- ✅
     const handleOptimizarOrden = useCallback((nuevoOrden) => {
         setPuntos(nuevoOrden);
-        setOptimizar(false); // <-- ¡AQUÍ! Apagamos el modo optimizar después de recibir el resultado.
+        setOptimizar(false);
     }, []); 
+
+    // ✅ Función para manejar el cambio en el selector de tipo de carga.
+    const handleCargaChange = (value) => {
+        setDetallesCarga(prev => ({ ...prev, tipo: value }));
+    };
 
     const handleSiguiente = async () => {
         if (!datosRuta) {
@@ -78,6 +86,25 @@ export default function PuntosEntregaPaso() {
                     <BuscadorDireccion onAgregar={agregarPunto} />
                     <TablaPuntos puntos={puntos} setPuntos={setPuntos} setOptimizar={setOptimizar} />
                     
+                    {/* ✅ --- INICIO: SECCIÓN NUEVA "DETALLES DE LA CARGA" --- ✅ */}
+                    <Paper withBorder p="md" mt="lg" radius="md">
+                        <Stack>
+                            <Title order={4} c="dimmed">Detalles de la Carga</Title>
+                            <Select
+                                label="Tipo de Carga"
+                                value={detallesCarga.tipo}
+                                onChange={handleCargaChange}
+                                data={[
+                                    { value: 'general', label: 'Carga General' },
+                                    { value: 'refrigerada', label: 'Carga Refrigerada' },
+                                    { value: 'peligrosa', label: 'Carga Peligrosa' }
+                                ]}
+                                leftSection={<Box size={16} />}
+                            />
+                        </Stack>
+                    </Paper>
+                    {/* ✅ --- FIN: SECCIÓN NUEVA --- ✅ */}
+
                     {puntos.length >= 2 && (
                         <Group grow mt="md">
                             <Button 
