@@ -1,19 +1,18 @@
 // En: cotizadorRutas-backend/models/Presupuesto.js
-
 import mongoose from 'mongoose';
 
 const PresupuestoSchema = new mongoose.Schema({
   puntosEntrega: { type: Array, default: [] },
   totalKilometros: Number,
+  duracionMin: Number, // <--- AÑADIDO: Guardaremos la duración aquí
   frecuencia: { type: Object },
   vehiculo: {
     datos: { type: Object },
     calculo: { type: Object }
   },
-  detallesCarga: {
-    tipo: { type: String, default: 'general' }, // Opciones: general, refrigerada, peligrosa
-    pesoKg: { type: Number, default: 0 },
-    valorDeclarado: { type: Number, default: 0 }
+  detallesCarga: { // <--- MODIFICADO: Aseguramos que se guarde el objeto completo
+    type: Object,
+    default: { tipo: 'general', pesoKg: 0, valorDeclarado: 0 }
   },
   recursoHumano: {
     datos: { type: Object },

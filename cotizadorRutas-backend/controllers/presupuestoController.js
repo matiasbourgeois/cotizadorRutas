@@ -5,8 +5,7 @@ import { generarPresupuestoPDF_Avanzado } from '../services/generadorPdfAvanzado
 import calcularCostoVehiculo from '../services/calculos/costoVehiculoService.js';
 import calcularCostoTotalRecurso from '../services/calculos/costoRecursoHumanoService.js';
 
-// ✅ Definimos el costo adicional para Carga Peligrosa como una constante.
-const COSTO_ADICIONAL_KM_PELIGROSA = 250; // $250 ARS por km
+const COSTO_ADICIONAL_KM_PELIGROSA = 250;
 
 export const calcularPresupuesto = async (req, res) => {
   try {
@@ -25,7 +24,6 @@ export const calcularPresupuesto = async (req, res) => {
     }
     const esViajeRegular = frecuencia?.tipo === "mensual";
 
-    // ✅ Se pasa `detallesCarga` al servicio para manejar la lógica de refrigerados.
     const costoVehiculo = calcularCostoVehiculo(
         vehiculo,
         kmsPorViaje,
@@ -46,14 +44,12 @@ export const calcularPresupuesto = async (req, res) => {
     const totalAdministrativo = configuracion.costoAdministrativo || 0;
     const otrosCostos = configuracion.otrosCostos || 0;
 
-    // ✅ Lógica para calcular el costo adicional de Carga Peligrosa
     let costoAdicionalPeligrosa = 0;
     if (detallesCarga?.tipo === 'peligrosa') {
       const kmsTotalesMensuales = kmsPorViaje * cantidadViajesMensuales;
       costoAdicionalPeligrosa = kmsTotalesMensuales * COSTO_ADICIONAL_KM_PELIGROSA;
     }
 
-    // ✅ Se suma el costo adicional al total operativo
     const totalOperativo = totalVehiculo + totalRecurso + totalPeajes + totalAdministrativo + otrosCostos + costoAdicionalPeligrosa;
     
     const porcentajeGanancia = configuracion.porcentajeGanancia || 0;
@@ -86,10 +82,11 @@ export const calcularPresupuesto = async (req, res) => {
 
 export const crearPresupuesto = async (req, res) => {
   try {
-    const { puntosEntrega, totalKilometros, frecuencia, vehiculo, recursoHumano, configuracion, detallesCarga } = req.body;
+    const { puntosEntrega, totalKilometros, duracionMin, frecuencia, vehiculo, recursoHumano, configuracion, detallesCarga } = req.body;
 
-     if (!puntosEntrega || !frecuencia || !vehiculo?.datos || !recursoHumano?.datos || !configuracion) {
-        return res.status(400).json({ error: 'Faltan datos para crear el presupuesto.' });
+    // Validación más robusta
+    if (!puntosEntrega?.puntos || !frecuencia || !vehiculo?.datos || !recursoHumano?.datos || !configuracion) {
+        return res.status(400).json({ error: 'Faltan datos clave para crear el presupuesto.' });
     }
 
     const kmsPorViaje = totalKilometros || 0;
@@ -101,16 +98,14 @@ export const crearPresupuesto = async (req, res) => {
     }
     const esViajeRegular = frecuencia?.tipo === "mensual";
 
-    // ✅ Lógica de cálculo replicada para guardar el presupuesto
     const calculoVehiculo = calcularCostoVehiculo(vehiculo.datos, kmsPorViaje, cantidadViajesMensuales, esViajeRegular, detallesCarga);
     const calculoRecurso = calcularCostoTotalRecurso(recursoHumano.datos, kmsPorViaje, cantidadViajesMensuales);
-
+    
     const totalVehiculo = calculoVehiculo.totalFinal;
     const totalRecurso = calculoRecurso.totalFinal;
     const totalPeajes = (configuracion.costoPeajes || 0) * cantidadViajesMensuales;
     const totalAdministrativo = configuracion.costoAdministrativo || 0;
     const otrosCostos = configuracion.otrosCostos || 0;
-
     let costoAdicionalPeligrosa = 0;
     if (detallesCarga?.tipo === 'peligrosa') {
       const kmsTotalesMensuales = kmsPorViaje * cantidadViajesMensuales;
@@ -123,19 +118,13 @@ export const crearPresupuesto = async (req, res) => {
     const totalFinal = totalOperativo + ganancia;
     
     const presupuestoParaGuardar = new Presupuesto({
-      puntosEntrega,
+      puntosEntrega: puntosEntrega.puntos, // <-- CORRECCIÓN PRINCIPAL APLICADA
       totalKilometros,
+      duracionMin,
       frecuencia,
-      vehiculo: {
-        datos: vehiculo.datos,
-        calculo: calculoVehiculo
-      },
-      recursoHumano: {
-        datos: recursoHumano.datos,
-        calculo: calculoRecurso
-      },
+      vehiculo: { datos: vehiculo.datos, calculo: calculoVehiculo },
+      recursoHumano: { datos: recursoHumano.datos, calculo: calculoRecurso },
       configuracion,
-      // ✅ Se añade `detallesCarga` al objeto a guardar
       detallesCarga,
       resumenCostos: {
         totalVehiculo,
@@ -218,10 +207,10 @@ export const generarPdfPresupuesto = async (req, res) => {
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=propuesta-${presupuesto._id}.pdf`);
         
-        await generarPresupuestoPDF_Avanzado(presupuesto, res);
+        await generarPresupuestoPDF_Avanzado(presupuesto, res, 'seccionRuta');
 
     } catch (error) {
         console.error("Error en el controlador al generar PDF avanzado:", error);
         res.status(500).send("Error al generar el PDF del presupuesto.");
     }
-}
+};
