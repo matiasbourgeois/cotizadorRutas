@@ -22,14 +22,26 @@ const getStaticMapUrl = (puntos, apiKey) => {
 
 const generarUrlGoogleMaps = (puntos) => {
     if (!puntos || puntos.length < 2) return '';
-    const baseUrl = 'https://www.google.com/maps/dir/?api=1'; // <-- URL CORRECTA
-    const origin = `origin=${puntos[0].lat},${puntos[0].lng}`;
-    const destination = `destination=${puntos[puntos.length - 1].lat},${puntos[puntos.length - 1].lng}`;
+    // ✅ URL CORREGIDA: Apunta al servicio de direcciones de Google Maps.
+    const baseUrl = 'https://www.google.com/maps/dir/';
+    const origin = `${puntos[0].lat},${puntos[0].lng}`;
+    const destination = `${puntos[puntos.length - 1].lat},${puntos[puntos.length - 1].lng}`;
     const waypoints = puntos.slice(1, -1).map(p => `${p.lat},${p.lng}`).join('|');
-    const waypointsParam = waypoints ? `&waypoints=${waypoints}` : '';
-    return `${baseUrl}&${origin}&${destination}${waypointsParam}&travelmode=driving`;
-};
+    
+    // Construimos la URL con los parámetros adecuados
+    const params = new URLSearchParams({
+        api: '1',
+        origin: origin,
+        destination: destination,
+        travelmode: 'driving'
+    });
 
+    if (waypoints) {
+        params.append('waypoints', waypoints);
+    }
+
+    return `${baseUrl}?${params.toString()}`;
+};
 const generarQrCodeDataUrl = async (url) => {
     if (!url) return '';
     try {
