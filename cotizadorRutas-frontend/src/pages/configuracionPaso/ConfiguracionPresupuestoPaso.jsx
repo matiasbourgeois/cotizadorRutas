@@ -45,7 +45,7 @@ const ConfiguracionPresupuestoPaso = () => {
         try {
             // ✅ CORRECCIÓN 2: Se añade 'detallesCarga' al payload que se envía a la API.
             const payload = { puntosEntrega, frecuencia, vehiculo, recursoHumano, configuracion: config, detallesCarga };
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/presupuestos/calcular`, payload);
+            const response = await axios.post(`${import.meta.env.VITE_API_URL_LOCAL}/api/presupuestos/calcular`, payload);
             setResumen(response.data);
             notifications.show({
                 title: 'Cálculo exitoso',
@@ -89,11 +89,11 @@ const ConfiguracionPresupuestoPaso = () => {
                 resumenCostos: resumen.resumenCostos,
             };
 
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/presupuestos`, payload);
+            const response = await axios.post(`${import.meta.env.VITE_API_URL_LOCAL}/api/presupuestos`, payload);
             const presupuestoGuardado = response.data;
             
             setEstadoBoton('generando');
-            const pdfResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/presupuestos/${presupuestoGuardado._id}/pdf`, { responseType: 'blob' });
+            const pdfResponse = await axios.get(`${import.meta.env.VITE_API_URL_LOCAL}/api/presupuestos/${presupuestoGuardado._id}/pdf`, { responseType: 'blob' });
 
             const url = window.URL.createObjectURL(new Blob([pdfResponse.data]));
             const link = document.createElement('a');

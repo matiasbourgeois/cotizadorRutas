@@ -23,7 +23,7 @@ const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
     if (isSaving) return;
     setIsSaving(true);
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/recursos-humanos`, formData);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL_LOCAL}/api/recursos-humanos`, formData);
       onCrear(res.data);
       onHide();
     } catch (error) {

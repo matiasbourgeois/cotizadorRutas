@@ -32,7 +32,7 @@ const VehiculoPaso = () => {
   // Esta función carga la lista de vehículos
   const fetchVehiculos = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/vehiculos`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL_LOCAL}/api/vehiculos`);
       setVehiculos(res.data.map(v => ({
         value: v._id,
         label: `${v.marca} ${v.modelo} (${v.patente})`
@@ -53,7 +53,7 @@ const VehiculoPaso = () => {
         setVehiculo(null);
         return;
     }
-    axios.get(`${import.meta.env.VITE_API_URL}/api/vehiculos/${id}`)
+    axios.get(`${import.meta.env.VITE_API_URL_LOCAL}/api/vehiculos/${id}`)
       .then(res => setVehiculo(res.data))
       .catch(err => console.error("Error al buscar detalles del vehículo", err));
   };
