@@ -12,30 +12,31 @@ export const calcularPresupuesto = async (req, res) => {
     const { puntosEntrega, frecuencia, vehiculo, recursoHumano, configuracion, detallesCarga } = req.body;
 
     if (!puntosEntrega || !frecuencia || !vehiculo || !recursoHumano || !configuracion) {
-        return res.status(400).json({ error: 'Faltan datos para el cálculo.' });
+      return res.status(400).json({ error: 'Faltan datos para el cálculo.' });
     }
 
     const kmsPorViaje = puntosEntrega?.distanciaKm || 0;
     let cantidadViajesMensuales = 0;
     if (frecuencia?.tipo === "mensual") {
-        cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33;
+      cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33;
     } else if (frecuencia?.tipo === "esporadico") {
-        cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
+      cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
     }
     const esViajeRegular = frecuencia?.tipo === "mensual";
 
     const costoVehiculo = calcularCostoVehiculo(
-        vehiculo,
-        kmsPorViaje,
-        cantidadViajesMensuales,
-        esViajeRegular,
-        detallesCarga
+      vehiculo,
+      kmsPorViaje,
+      cantidadViajesMensuales,
+      esViajeRegular,
+      detallesCarga
     );
 
     const costoRecurso = calcularCostoTotalRecurso(
-        recursoHumano,
-        kmsPorViaje,
-        cantidadViajesMensuales
+      recursoHumano,
+      kmsPorViaje,
+      cantidadViajesMensuales,
+      esViajeRegular
     );
 
     const totalVehiculo = costoVehiculo.totalFinal;
@@ -51,27 +52,27 @@ export const calcularPresupuesto = async (req, res) => {
     }
 
     const totalOperativo = totalVehiculo + totalRecurso + totalPeajes + totalAdministrativo + otrosCostos + costoAdicionalPeligrosa;
-    
+
     const porcentajeGanancia = configuracion.porcentajeGanancia || 0;
     const ganancia = Math.round((totalOperativo * porcentajeGanancia) / 100);
     const totalFinal = totalOperativo + ganancia;
 
     const resumenCostos = {
-        totalVehiculo,
-        totalRecurso,
-        totalPeajes,
-        totalAdministrativo,
-        otrosCostos,
-        costoAdicionalPeligrosa: Math.round(costoAdicionalPeligrosa),
-        totalOperativo: Math.round(totalOperativo),
-        ganancia,
-        totalFinal
+      totalVehiculo,
+      totalRecurso,
+      totalPeajes,
+      totalAdministrativo,
+      otrosCostos,
+      costoAdicionalPeligrosa: Math.round(costoAdicionalPeligrosa),
+      totalOperativo: Math.round(totalOperativo),
+      ganancia,
+      totalFinal
     };
 
     res.status(200).json({
-        resumenCostos,
-        detalleVehiculo: costoVehiculo,
-        detalleRecurso: costoRecurso
+      resumenCostos,
+      detalleVehiculo: costoVehiculo,
+      detalleRecurso: costoRecurso
     });
 
   } catch (error) {
@@ -84,23 +85,22 @@ export const crearPresupuesto = async (req, res) => {
   try {
     const { puntosEntrega, totalKilometros, duracionMin, frecuencia, vehiculo, recursoHumano, configuracion, detallesCarga } = req.body;
 
-    // Validación más robusta
-    if (!puntosEntrega?.puntos || !frecuencia || !vehiculo?.datos || !recursoHumano?.datos || !configuracion) {
-        return res.status(400).json({ error: 'Faltan datos clave para crear el presupuesto.' });
+    if (!puntosEntrega || !frecuencia || !vehiculo?.datos || !recursoHumano?.datos || !configuracion) {
+      return res.status(400).json({ error: 'Faltan datos clave para crear el presupuesto.' });
     }
 
     const kmsPorViaje = totalKilometros || 0;
     let cantidadViajesMensuales = 0;
     if (frecuencia?.tipo === "mensual") {
-        cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33;
+      cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33;
     } else if (frecuencia?.tipo === "esporadico") {
-        cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
+      cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
     }
     const esViajeRegular = frecuencia?.tipo === "mensual";
 
     const calculoVehiculo = calcularCostoVehiculo(vehiculo.datos, kmsPorViaje, cantidadViajesMensuales, esViajeRegular, detallesCarga);
-    const calculoRecurso = calcularCostoTotalRecurso(recursoHumano.datos, kmsPorViaje, cantidadViajesMensuales);
-    
+    const calculoRecurso = calcularCostoTotalRecurso(recursoHumano.datos, kmsPorViaje, cantidadViajesMensuales, esViajeRegular);
+
     const totalVehiculo = calculoVehiculo.totalFinal;
     const totalRecurso = calculoRecurso.totalFinal;
     const totalPeajes = (configuracion.costoPeajes || 0) * cantidadViajesMensuales;
@@ -116,9 +116,10 @@ export const crearPresupuesto = async (req, res) => {
     const porcentajeGanancia = configuracion.porcentajeGanancia || 0;
     const ganancia = Math.round((totalOperativo * porcentajeGanancia) / 100);
     const totalFinal = totalOperativo + ganancia;
-    
+
     const presupuestoParaGuardar = new Presupuesto({
-      puntosEntrega: puntosEntrega.puntos, // <-- CORRECCIÓN PRINCIPAL APLICADA
+      // ✅ CORRECCIÓN: Se asigna directamente el array de puntos.
+      puntosEntrega: puntosEntrega,
       totalKilometros,
       duracionMin,
       frecuencia,
@@ -198,19 +199,19 @@ export const eliminarPresupuesto = async (req, res) => {
 
 
 export const generarPdfPresupuesto = async (req, res) => {
-    try {
-        const presupuesto = await Presupuesto.findById(req.params.id);
-        if(!presupuesto) {
-            return res.status(404).send('Presupuesto no encontrado');
-        }
-
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=propuesta-${presupuesto._id}.pdf`);
-        
-        await generarPresupuestoPDF_Avanzado(presupuesto, res, 'seccionRuta');
-
-    } catch (error) {
-        console.error("Error en el controlador al generar PDF avanzado:", error);
-        res.status(500).send("Error al generar el PDF del presupuesto.");
+  try {
+    const presupuesto = await Presupuesto.findById(req.params.id);
+    if (!presupuesto) {
+      return res.status(404).send('Presupuesto no encontrado');
     }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=propuesta-${presupuesto._id}.pdf`);
+
+    await generarPresupuestoPDF_Avanzado(presupuesto, res, 'seccionRuta');
+
+  } catch (error) {
+    console.error("Error en el controlador al generar PDF avanzado:", error);
+    res.status(500).send("Error al generar el PDF del presupuesto.");
+  }
 };

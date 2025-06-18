@@ -29,7 +29,7 @@ const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
     try {
       const dataEnviar = {
         ...formData,
-        año: formData.año.getFullYear()
+        año: new Date(formData.año).getFullYear()
       };
       const res = await axios.post("http://localhost:5010/api/vehiculos", dataEnviar);
       onVehiculoCreado(res.data);

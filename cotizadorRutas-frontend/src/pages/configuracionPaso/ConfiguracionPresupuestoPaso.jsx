@@ -80,6 +80,7 @@ const ConfiguracionPresupuestoPaso = () => {
             const payload = {
                 puntosEntrega: puntosEntrega.puntos,
                 totalKilometros: puntosEntrega.distanciaKm,
+                duracionMin: puntosEntrega.duracionMin,
                 frecuencia,
                 vehiculo: { datos: vehiculo, calculo: resumen.detalleVehiculo },
                 recursoHumano: { datos: recursoHumano, calculo: resumen.detalleRecurso },
