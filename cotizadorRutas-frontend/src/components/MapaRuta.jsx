@@ -88,7 +88,7 @@ export default function MapaRuta({ puntos, optimizar, onOptimizarOrden, onDatosR
                 if (status === "OK") {
                     const distanciaMetros = result.routes[0].legs.reduce((sum, leg) => sum + leg.distance.value, 0);
                     const duracionSegundos = result.routes[0].legs.reduce((sum, leg) => sum + leg.duration.value, 0);
-                    const distanciaKm = (distanciaMetros / 1000).toFixed(2);
+                    const distanciaKm = parseFloat((distanciaMetros / 1000).toFixed(2));
                     const duracionMin = Math.round(duracionSegundos / 60);
 
                     // Actualizamos el resumen y el mapa con los datos CORRECTOS del viaje de solo ida
