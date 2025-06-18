@@ -23,7 +23,7 @@ const ModalConfiguracionEmpleado = ({ show, onClose, recursoHumano, onGuardarCam
   const handleGuardar = async () => {
     setIsSaving(true);
     try {
-      const res = await axios.put(`${import.meta.env.VITE_API_URL_LOCAL}/api/recursos-humanos/${formData._id}`, formData);
+      const res = await axios.put(`https://cotizador-rutas-api.duckdns.org/api/recursos-humanos/${formData._id}`, formData);
       onGuardarCambios(res.data);
       onClose();
     } catch (error) {

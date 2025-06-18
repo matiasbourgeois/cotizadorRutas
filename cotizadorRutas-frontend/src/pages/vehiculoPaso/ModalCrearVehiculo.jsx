@@ -31,7 +31,7 @@ const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
         ...formData,
         año: new Date(formData.año).getFullYear()
       };
-      const res = await axios.post(`${import.meta.env.VITE_API_URL_LOCAL}/api/vehiculos`, dataEnviar);
+      const res = await axios.post(`https://cotizador-rutas-api.duckdns.org/api/vehiculos`, dataEnviar);
       onVehiculoCreado(res.data);
       onClose(); // Cierra el modal al tener éxito
     } catch (error) {

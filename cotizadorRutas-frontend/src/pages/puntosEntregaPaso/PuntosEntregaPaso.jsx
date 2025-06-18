@@ -59,7 +59,7 @@ export default function PuntosEntregaPaso() {
                 duracionMin: datosRuta.duracionMin,
             };
 
-            const res = await axios.post(`${import.meta.env.VITE_API_URL_LOCAL}/api/rutas`, payload);
+            const res = await axios.post(`https://cotizador-rutas-api.duckdns.org/api/rutas`, payload);
             const nuevaRuta = res.data;
             
             setPuntosEntrega({ ...payload, rutaId: nuevaRuta._id });

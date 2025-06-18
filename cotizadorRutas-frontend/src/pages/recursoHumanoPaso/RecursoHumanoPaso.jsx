@@ -21,7 +21,7 @@ const RecursoHumanoPaso = () => {
   useEffect(() => {
     const obtenerRecursos = async () => {
       try {
-        const { data } = await axios.get(`${import.meta.env.VITE_API_URL_LOCAL}/api/recursos-humanos`);
+        const { data } = await axios.get(`https://cotizador-rutas-api.duckdns.org/api/recursos-humanos`);
         setRecursosDisponibles(data.map(r => ({
             value: r._id,
             label: `${r.nombre} (${r.tipoContratacion})`
@@ -38,7 +38,7 @@ const RecursoHumanoPaso = () => {
         setRecursoHumano(null);
         return;
     }
-     axios.get(`${import.meta.env.VITE_API_URL_LOCAL}/api/recursos-humanos/${id}`)
+     axios.get(`https://cotizador-rutas-api.duckdns.org/api/recursos-humanos/${id}`)
         .then(res => setRecursoHumano(res.data))
         .catch(err => console.error("Error al buscar detalles del recurso", err));
   };
