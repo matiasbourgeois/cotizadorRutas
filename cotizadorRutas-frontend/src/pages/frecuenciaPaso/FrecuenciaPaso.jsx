@@ -43,7 +43,7 @@ const FrecuenciaPaso = () => {
     try {
       // Aunque el backend no usa directamente este endpoint para el cálculo final,
       // es una buena práctica guardar la selección de frecuencia.
-      const res = await axios.post("http://localhost:5010/api/frecuencias-ruta", data);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/frecuencias-ruta`, data);
       setFrecuencia(data); // Guardamos la data localmente en el contexto
       navigate(`/cotizador/vehiculo/${idRuta}`);
     } catch (error) {

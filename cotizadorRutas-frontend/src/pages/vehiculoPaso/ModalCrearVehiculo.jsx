@@ -31,7 +31,7 @@ const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
         ...formData,
         año: new Date(formData.año).getFullYear()
       };
-      const res = await axios.post("http://localhost:5010/api/vehiculos", dataEnviar);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/vehiculos`, dataEnviar);
       onVehiculoCreado(res.data);
       onClose(); // Cierra el modal al tener éxito
     } catch (error) {

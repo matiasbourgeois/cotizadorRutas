@@ -21,7 +21,7 @@ const RecursoHumanoPaso = () => {
   useEffect(() => {
     const obtenerRecursos = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5010/api/recursos-humanos");
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/recursos-humanos`);
         setRecursosDisponibles(data.map(r => ({
             value: r._id,
             label: `${r.nombre} (${r.tipoContratacion})`
@@ -38,7 +38,7 @@ const RecursoHumanoPaso = () => {
         setRecursoHumano(null);
         return;
     }
-     axios.get(`http://localhost:5010/api/recursos-humanos/${id}`)
+     axios.get(`${import.meta.env.VITE_API_URL}/api/recursos-humanos/${id}`)
         .then(res => setRecursoHumano(res.data))
         .catch(err => console.error("Error al buscar detalles del recurso", err));
   };

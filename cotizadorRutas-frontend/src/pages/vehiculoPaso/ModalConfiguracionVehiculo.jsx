@@ -23,7 +23,7 @@ const ModalConfiguracionVehiculo = ({ show, onClose, vehiculo, onGuardarCambios 
   const handleGuardar = async () => {
     setIsSaving(true);
     try {
-      const { data } = await axios.put(`http://localhost:5010/api/vehiculos/${vehiculo._id}`, formData);
+      const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/api/vehiculos/${vehiculo._id}`, formData);
       onGuardarCambios(data);
       onClose();
     } catch (error) {
