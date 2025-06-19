@@ -1,4 +1,3 @@
-// ruta: cotizadorRutas-backend/server.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -10,14 +9,37 @@ import rutasRoutes from "./routes/rutas.js";
 import vehiculosRoutes from "./routes/vehiculos.js"; 
 import recursosHumanosRoutes from "./routes/recursosHumanos.js";  
 import frecuenciasRutaRoutes from "./routes/frecuenciasRuta.js";
-// La siguiente línea se elimina porque el archivo de ruta ya no existe
-// import configuracionPresupuestoRoutes from "./routes/configuracionPresupuesto.js";
 
 dotenv.config();
 conectarDB();
 
 const app = express();
-app.use(cors());
+
+// --- CONFIGURACIÓN DE CORS ---
+// Lista de dominios permitidos
+const whitelist = [
+  'https://green-peafowl-289396.hostingersite.com', // Dejamos el viejo por si acaso durante la transición
+  'https://cotizadorlogistico.site',
+  'https://www.cotizadorlogistico.site'
+];
+
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permitimos la conexión si el origen está en nuestra lista blanca
+    // o si no hay origen (como en las pruebas de servidor a servidor o Postman)
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  }
+};
+
+// Usamos cors con las opciones configuradas
+app.use(cors(corsOptions));
+// ----------------------------
+
 app.use(express.json());
 
 // Rutas API
@@ -26,8 +48,6 @@ app.use("/api/presupuestos", presupuestoRoutes);
 app.use("/api/vehiculos", vehiculosRoutes); 
 app.use("/api/recursos-humanos", recursosHumanosRoutes);
 app.use("/api/frecuencias-ruta", frecuenciasRutaRoutes);
-// La siguiente línea se elimina porque el archivo de ruta ya no existe
-// app.use("/api/configuracion-presupuesto", configuracionPresupuestoRoutes);
 
 app.get("/", (req, res) => {
   res.send("API Cotizador Rutas funcionando ✅");
