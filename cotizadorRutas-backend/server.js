@@ -18,9 +18,9 @@ const app = express();
 // --- CONFIGURACIÓN DE CORS ---
 // Lista de dominios permitidos
 const whitelist = [
-  'https://green-peafowl-289396.hostingersite.com', // Dejamos el viejo por si acaso durante la transición
   'https://cotizadorlogistico.site',
-  'https://www.cotizadorlogistico.site'
+  'https://www.cotizadorlogistico.site',
+  'http://localhost:5174' // <-- AÑADIMOS ESTA LÍNEA
 ];
 
 

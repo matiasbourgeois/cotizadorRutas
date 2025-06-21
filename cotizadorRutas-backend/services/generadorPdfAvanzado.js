@@ -893,25 +893,52 @@ async function getHtmlContent(presupuesto) {
 }
 
 export async function generarPresupuestoPDF_Avanzado(presupuesto, stream) {
-    const browser = await puppeteer.launch({
+  let browser; // Declaramos la variable fuera del try para que sea accesible en el finally
+  try {
+    // Lógica inteligente: ¿estamos en producción o en desarrollo?
+    if (process.env.BROWSERLESS_URL) {
+      // MODO PRODUCCIÓN: Conectar a Browserless si la variable existe
+      console.log('🔌 Modo Producción: Conectando a Browserless.io...');
+      browser = await puppeteer.connect({
+        browserWSEndpoint: process.env.BROWSERLESS_URL,
+        ignoreHTTPSErrors: true
+      });
+      console.log('✅ Conexión a Browserless exitosa.');
+    } else {
+      // MODO DESARROLLO: Lanzar Puppeteer localmente si la variable NO existe
+      console.log('🖥️ Modo Desarrollo: Lanzando Puppeteer local...');
+      browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
+      });
+      console.log('✅ Puppeteer local lanzado.');
+    }
+
     const page = await browser.newPage();
 
-    const htmlContent = await getHtmlContent(presupuesto);
-
+    // La función getHtmlContent debe estar definida más arriba en tu archivo, como ya la tienes.
+    const htmlContent = await getHtmlContent(presupuesto); 
 
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
     const pdfBuffer = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        displayHeaderFooter: true,
-        margin: { top: '0.5in', bottom: '0.5in', left: '0.3in', right: '0.3in' }
+      format: 'A4',
+      printBackground: true,
+      displayHeaderFooter: true,
+      margin: { top: '0.5in', bottom: '0.5in', left: '0.3in', right: '0.3in' }
     });
 
-    await browser.close();
+    console.log('📄 PDF generado.');
     stream.write(pdfBuffer);
+
+  } catch (error) {
+    console.error("❌ Error durante la generación del PDF:", error);
+    stream.emit('error', error);
+  } finally {
+    if (browser) {
+      await browser.close();
+      console.log('🔒 Navegador cerrado.');
+    }
     stream.end();
+  }
 }
