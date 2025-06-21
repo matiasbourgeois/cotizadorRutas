@@ -15,6 +15,7 @@ import {
     Button 
 } from "@mantine/core";
 import { Calendar, Repeat, MessageSquare, ArrowRight, ArrowLeft } from "lucide-react";
+import { API_URL } from '../../apiConfig';
 
 const FrecuenciaPaso = () => {
   const [tipo, setTipo] = useState("esporadico");
@@ -43,7 +44,7 @@ const FrecuenciaPaso = () => {
     try {
       // Aunque el backend no usa directamente este endpoint para el cálculo final,
       // es una buena práctica guardar la selección de frecuencia.
-      const res = await axios.post(`https://cotizador-rutas-api.duckdns.org/api/frecuencias-ruta`, data);
+      const res = await axios.post(`${API_URL}/api/frecuencias-ruta`, data);
       setFrecuencia(data); // Guardamos la data localmente en el contexto
       navigate(`/cotizador/vehiculo/${idRuta}`);
     } catch (error) {

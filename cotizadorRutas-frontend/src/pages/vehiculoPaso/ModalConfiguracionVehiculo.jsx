@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Modal, Button, SimpleGrid, Group, NumberInput, Textarea, Stack, Tabs, rem, Title, Grid } from "@mantine/core";
 import axios from "axios";
 import { Settings, Wallet, Route as RouteIcon, MessageCircle } from "lucide-react";
+import { API_URL } from '../../apiConfig';
 
 const ModalConfiguracionVehiculo = ({ show, onClose, vehiculo, onGuardarCambios }) => {
   const [formData, setFormData] = useState({});
@@ -23,7 +24,7 @@ const ModalConfiguracionVehiculo = ({ show, onClose, vehiculo, onGuardarCambios 
   const handleGuardar = async () => {
     setIsSaving(true);
     try {
-      const { data } = await axios.put(`https://cotizador-rutas-api.duckdns.org/api/vehiculos/${vehiculo._id}`, formData);
+      const { data } = await axios.put(`${API_URL}/api/vehiculos/${vehiculo._id}`, formData);
       onGuardarCambios(data);
       onClose();
     } catch (error) {

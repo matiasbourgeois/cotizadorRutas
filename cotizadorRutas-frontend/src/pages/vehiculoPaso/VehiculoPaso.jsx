@@ -9,6 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { Stack, Title, Select, Group, Button, Paper, Text, ActionIcon, SimpleGrid, Badge } from '@mantine/core';
 import { Settings, ArrowRight, ArrowLeft, Truck, Wind, Box } from 'lucide-react';
+import { API_URL } from '../../apiConfig';
 
 const InfoVehiculo = ({ icon, label, value }) => (
     <Group gap="xs">
@@ -32,7 +33,7 @@ const VehiculoPaso = () => {
   // Esta función carga la lista de vehículos
   const fetchVehiculos = async () => {
     try {
-      const res = await axios.get(`https://cotizador-rutas-api.duckdns.org/api/vehiculos`);
+      const res = await axios.get(`${API_URL}/api/vehiculos`);
       setVehiculos(res.data.map(v => ({
         value: v._id,
         label: `${v.marca} ${v.modelo} (${v.patente})`
@@ -53,7 +54,7 @@ const VehiculoPaso = () => {
         setVehiculo(null);
         return;
     }
-    axios.get(`https://cotizador-rutas-api.duckdns.org/api/vehiculos/${id}`)
+    axios.get(`${API_URL}/api/vehiculos/${id}`)
       .then(res => setVehiculo(res.data))
       .catch(err => console.error("Error al buscar detalles del vehículo", err));
   };

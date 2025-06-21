@@ -11,6 +11,7 @@ import { useCotizacion } from "../../context/Cotizacion";
 // ✅ --- INICIO: NUEVAS IMPORTACIONES ---
 import { Grid, Stack, Group, Button, Title, Text, Center, Paper, Select } from "@mantine/core";
 import { Navigation, Route, Sparkles, Box } from "lucide-react";
+import { API_URL } from '../../apiConfig';
 // ✅ --- FIN: NUEVAS IMPORTACIONES ---
 
 export default function PuntosEntregaPaso() {
@@ -59,7 +60,7 @@ export default function PuntosEntregaPaso() {
                 duracionMin: datosRuta.duracionMin,
             };
 
-            const res = await axios.post(`https://cotizador-rutas-api.duckdns.org/api/rutas`, payload);
+            const res = await axios.post(`${API_URL}/api/rutas`, payload);
             const nuevaRuta = res.data;
             
             setPuntosEntrega({ ...payload, rutaId: nuevaRuta._id });

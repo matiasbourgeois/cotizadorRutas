@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Modal, Stack, TextInput, Select, Group, Button } from "@mantine/core";
 import axios from "axios";
+import { API_URL } from '../../apiConfig';
 
 const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
     if (isSaving) return;
     setIsSaving(true);
     try {
-      const res = await axios.post(`https://cotizador-rutas-api.duckdns.org/api/recursos-humanos`, formData);
+      const res = await axios.post(`${API_URL}/api/recursos-humanos`, formData);
       onCrear(res.data);
       onHide();
     } catch (error) {

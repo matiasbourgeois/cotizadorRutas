@@ -6,6 +6,7 @@ import { Modal, Button, Select, TextInput, Checkbox, Group, Stack } from "@manti
 import { YearPickerInput } from '@mantine/dates';
 import axios from "axios";
 import 'dayjs/locale/es'; // Soporte para español en fechas
+import { API_URL } from '../../apiConfig';
 
 const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
   const [formData, setFormData] = useState({
@@ -31,7 +32,7 @@ const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
         ...formData,
         año: new Date(formData.año).getFullYear()
       };
-      const res = await axios.post(`https://cotizador-rutas-api.duckdns.org/api/vehiculos`, dataEnviar);
+      const res = await axios.post(`${API_URL}/api/vehiculos`, dataEnviar);
       onVehiculoCreado(res.data);
       onClose(); // Cierra el modal al tener éxito
     } catch (error) {
