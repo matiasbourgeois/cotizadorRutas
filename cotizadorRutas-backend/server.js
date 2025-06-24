@@ -9,6 +9,7 @@ import rutasRoutes from "./routes/rutas.js";
 import vehiculosRoutes from "./routes/vehiculos.js"; 
 import recursosHumanosRoutes from "./routes/recursosHumanos.js";  
 import frecuenciasRutaRoutes from "./routes/frecuenciasRuta.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 conectarDB();
@@ -42,7 +43,11 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
+app.get("/api/test-server", (req, res) => {
+  res.send("El servidor principal está funcionando!");
+});
 // Rutas API
+app.use("/api/auth", authRoutes);
 app.use("/api/rutas", rutasRoutes);
 app.use("/api/presupuestos", presupuestoRoutes);
 app.use("/api/vehiculos", vehiculosRoutes); 

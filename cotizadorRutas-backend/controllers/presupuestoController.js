@@ -146,6 +146,7 @@ export const crearPresupuesto = async (req, res) => {
         ganancia,
         totalFinal
       },
+      usuario: req.usuario._id
     });
 
     const guardado = await presupuestoParaGuardar.save();
@@ -158,7 +159,7 @@ export const crearPresupuesto = async (req, res) => {
 
 export const obtenerPresupuestos = async (req, res) => {
   try {
-    const presupuestos = await Presupuesto.find().sort({ fechaCreacion: -1 });
+    const presupuestos = await Presupuesto.find({ usuario: req.usuario._id }).sort({ fechaCreacion: -1 });
     res.json(presupuestos);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener presupuestos' });

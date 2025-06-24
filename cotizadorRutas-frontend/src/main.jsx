@@ -4,14 +4,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import { BrowserRouter } from 'react-router-dom';
+// ✅ 1. Importa ModalsProvider
 import { MantineProvider, createTheme } from '@mantine/core';
+import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
 
-// Importamos los nuevos estilos base de Mantine
+import { AuthProvider } from './context/AuthContext.jsx';
+import { CotizacionProvider } from './context/Cotizacion.jsx';
+
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
-
-// Importamos nuestros estilos globales personalizados (lo veremos más adelante)
 import './index.css';
 
 // Definimos nuestro tema personalizado
@@ -36,8 +38,15 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <MantineProvider theme={theme}>
-        <Notifications position="top-right" />
-        <App />
+        {/* ✅ 2. Envuelve la app con ModalsProvider */}
+        <ModalsProvider>
+          <AuthProvider>
+            <CotizacionProvider>
+              <Notifications position="top-right" />
+              <App />
+            </CotizacionProvider>
+          </AuthProvider>
+        </ModalsProvider>
       </MantineProvider>
     </BrowserRouter>
   </React.StrictMode>

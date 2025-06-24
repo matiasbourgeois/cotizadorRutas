@@ -6,7 +6,7 @@ import TablaPuntos from "../../components/TablaPuntos";
 import MapaRuta from "../../components/MapaRuta";
 import ResumenRuta from "../../components/ResumenRuta";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import clienteAxios from "../../api/clienteAxios";
 import { useCotizacion } from "../../context/Cotizacion";
 // ✅ --- INICIO: NUEVAS IMPORTACIONES ---
 import { Grid, Stack, Group, Button, Title, Text, Center, Paper, Select } from "@mantine/core";
@@ -60,7 +60,7 @@ export default function PuntosEntregaPaso() {
                 duracionMin: datosRuta.duracionMin,
             };
 
-            const res = await axios.post(`${API_URL}/api/rutas`, payload);
+            const res = await clienteAxios.post('/rutas', payload);
             const nuevaRuta = res.data;
             
             setPuntosEntrega({ ...payload, rutaId: nuevaRuta._id });

@@ -1,4 +1,5 @@
 import express from "express";
+import checkAuth from '../middleware/authMiddleware.js';
 import {
   crearFrecuenciaRuta,
   obtenerFrecuenciasRuta,
@@ -7,6 +8,7 @@ import {
 } from "../controllers/frecuenciaRutaController.js";
 
 const router = express.Router();
+router.use(checkAuth);
 
 // Crear una nueva frecuencia
 router.post("/", crearFrecuenciaRuta);

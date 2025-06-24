@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useCotizacion } from "../../context/Cotizacion";
 import ModalCrearRecursoHumano from "./ModalCrearRecursoHumano";
 import ModalConfiguracionEmpleado from "./ModalConfiguracionEmpleado";
-import axios from "axios";
+import clienteAxios from "../../api/clienteAxios";
 import { Stack, Title, Select, Group, Button, Paper, Text, ActionIcon, Badge } from '@mantine/core';
 import { useDisclosure } from "@mantine/hooks";
 import { Settings, ArrowRight, ArrowLeft } from "lucide-react";
@@ -22,7 +22,7 @@ const RecursoHumanoPaso = () => {
   useEffect(() => {
     const obtenerRecursos = async () => {
       try {
-        const { data } = await axios.get(`${API_URL}/api/recursos-humanos`);
+        const { data } = await clienteAxios.get('/recursos-humanos');
         setRecursosDisponibles(data.map(r => ({
             value: r._id,
             label: `${r.nombre} (${r.tipoContratacion})`
@@ -39,7 +39,7 @@ const RecursoHumanoPaso = () => {
         setRecursoHumano(null);
         return;
     }
-     axios.get(`${API_URL}/api/recursos-humanos/${id}`)
+     clienteAxios.get(`/recursos-humanos/${id}`)
         .then(res => setRecursoHumano(res.data))
         .catch(err => console.error("Error al buscar detalles del recurso", err));
   };

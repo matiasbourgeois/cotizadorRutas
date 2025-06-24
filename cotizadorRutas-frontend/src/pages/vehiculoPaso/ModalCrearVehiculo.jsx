@@ -4,7 +4,7 @@ import { useState } from "react";
 // ✅ --- LA SOLUCIÓN ESTÁ EN ESTA LÍNEA --- ✅
 import { Modal, Button, Select, TextInput, Checkbox, Group, Stack } from "@mantine/core";
 import { YearPickerInput } from '@mantine/dates';
-import axios from "axios";
+import clienteAxios from "../../api/clienteAxios";
 import 'dayjs/locale/es'; // Soporte para español en fechas
 import { API_URL } from '../../apiConfig';
 
@@ -32,7 +32,7 @@ const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
         ...formData,
         año: new Date(formData.año).getFullYear()
       };
-      const res = await axios.post(`${API_URL}/api/vehiculos`, dataEnviar);
+      const res = await clienteAxios.post('/vehiculos', dataEnviar);
       onVehiculoCreado(res.data);
       onClose(); // Cierra el modal al tener éxito
     } catch (error) {

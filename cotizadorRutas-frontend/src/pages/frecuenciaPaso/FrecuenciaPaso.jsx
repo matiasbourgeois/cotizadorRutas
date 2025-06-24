@@ -1,7 +1,7 @@
 // ruta: src/pages/frecuenciaPaso/FrecuenciaPaso.jsx
 
 import { useState } from "react";
-import axios from "axios";
+import clienteAxios from "../../api/clienteAxios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCotizacion } from "../../context/Cotizacion";
 import { 
@@ -44,7 +44,7 @@ const FrecuenciaPaso = () => {
     try {
       // Aunque el backend no usa directamente este endpoint para el cálculo final,
       // es una buena práctica guardar la selección de frecuencia.
-      const res = await axios.post(`${API_URL}/api/frecuencias-ruta`, data);
+      const res = await clienteAxios.post('/frecuencias-ruta', data);
       setFrecuencia(data); // Guardamos la data localmente en el contexto
       navigate(`/cotizador/vehiculo/${idRuta}`);
     } catch (error) {

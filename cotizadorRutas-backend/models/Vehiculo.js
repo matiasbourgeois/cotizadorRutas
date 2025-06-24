@@ -101,7 +101,7 @@ const VehiculoSchema = new mongoose.Schema({
   valorResidualPorcentaje: {
     type: Number,
     default: 30 // por defecto 30%
-},
+  },
 
   kmsVidaUtilCubiertas: {
     type: Number,
@@ -128,6 +128,11 @@ const VehiculoSchema = new mongoose.Schema({
   actualizadoEn: {
     type: Date,
     default: Date.now
+  },
+  usuario: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
 });
 

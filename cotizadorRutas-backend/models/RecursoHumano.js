@@ -30,6 +30,11 @@ const recursoHumanoSchema = new mongoose.Schema({
 
   creadoEn: { type: Date, default: Date.now },
   actualizadoEn: { type: Date, default: Date.now },
+  usuario: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
 });
 
 export default mongoose.model("RecursoHumano", recursoHumanoSchema);

@@ -3,7 +3,7 @@ import RecursoHumano from "../models/RecursoHumano.js";
 // Crear nuevo recurso humano
 export const crearRecursoHumano = async (req, res) => {
   try {
-    const nuevoRecurso = new RecursoHumano(req.body);
+    const nuevoRecurso = new RecursoHumano({ ...req.body, usuario: req.usuario._id });
     await nuevoRecurso.save();
     res.status(201).json(nuevoRecurso);
   } catch (error) {
@@ -16,7 +16,7 @@ export const crearRecursoHumano = async (req, res) => {
 // Obtener todos los recursos humanos
 export const obtenerRecursosHumanos = async (req, res) => {
   try {
-    const recursos = await RecursoHumano.find().sort({ creadoEn: -1 });
+    const recursos = await RecursoHumano.find({ usuario: req.usuario._id }).sort({ creadoEn: -1 });
     res.json(recursos);
   } catch (error) {
     res.status(500).json({ error: "Error al obtener los recursos", detalle: error.message });

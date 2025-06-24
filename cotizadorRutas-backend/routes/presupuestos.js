@@ -1,6 +1,7 @@
 // ruta: cotizadorRutas-backend/routes/presupuestos.js
 
 import express from 'express';
+import checkAuth from '../middleware/authMiddleware.js';
 import {
   obtenerPresupuestos,
   obtenerPresupuestoPorId,
@@ -12,6 +13,7 @@ import {
 } from '../controllers/presupuestoController.js';
 
 const router = express.Router();
+router.use(checkAuth);
 
 // NUEVA RUTA PARA CÁLCULO/PREVISUALIZACIÓN
 router.post('/calcular', calcularPresupuesto);

@@ -1,4 +1,6 @@
+
 import express from 'express';
+import checkAuth from '../middleware/authMiddleware.js';
 import {
   crearVehiculo,
   obtenerVehiculos,
@@ -8,6 +10,7 @@ import {
 } from '../controllers/vehiculoController.js';
 
 const router = express.Router();
+router.use(checkAuth);
 
 router.post('/', crearVehiculo);
 router.get('/', obtenerVehiculos);

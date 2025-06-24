@@ -20,7 +20,12 @@ const PresupuestoSchema = new mongoose.Schema({
   },
   configuracion: { type: Object },
   resumenCostos: { type: Object },
-  fechaCreacion: { type: Date, default: Date.now }
+  fechaCreacion: { type: Date, default: Date.now },
+  usuario: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
 });
 
 const Presupuesto = mongoose.model('Presupuesto', PresupuestoSchema);

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Modal, Stack, TextInput, Select, Group, Button } from "@mantine/core";
-import axios from "axios";
+import clienteAxios from "../../api/clienteAxios";
 import { API_URL } from '../../apiConfig';
 
 const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
@@ -24,7 +24,7 @@ const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
     if (isSaving) return;
     setIsSaving(true);
     try {
-      const res = await axios.post(`${API_URL}/api/recursos-humanos`, formData);
+      const res = await clienteAxios.post('/recursos-humanos', formData);
       onCrear(res.data);
       onHide();
     } catch (error) {

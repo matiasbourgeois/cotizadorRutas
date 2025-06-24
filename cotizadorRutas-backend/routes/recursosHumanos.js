@@ -1,4 +1,5 @@
 import express from "express";
+import checkAuth from '../middleware/authMiddleware.js';
 import {
   crearRecursoHumano,
   obtenerRecursosHumanos,
@@ -8,6 +9,7 @@ import {
 } from "../controllers/recursoHumanoController.js";
 
 const router = express.Router();
+router.use(checkAuth);
 
 // Crear nuevo
 router.post("/", crearRecursoHumano);

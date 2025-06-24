@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useCotizacion } from "../../context/Cotizacion";
-import axios from "axios";
+import clienteAxios from "../../api/clienteAxios";
 import { useNavigate } from "react-router-dom";
 import { notifications } from '@mantine/notifications';
 import { Stack, Title, Grid, Paper, NumberInput, Textarea, Button, Group, Table, Text, Alert, Center, TextInput } from "@mantine/core";
@@ -46,7 +46,7 @@ const ConfiguracionPresupuestoPaso = () => {
         try {
             // ✅ CORRECCIÓN 2: Se añade 'detallesCarga' al payload que se envía a la API.
             const payload = { puntosEntrega, frecuencia, vehiculo, recursoHumano, configuracion: config, detallesCarga };
-            const response = await axios.post(`${API_URL}/api/presupuestos/calcular`, payload);
+            const response = await clienteAxios.post('/presupuestos/calcular', payload);
             setResumen(response.data);
             notifications.show({
                 title: 'Cálculo exitoso',
@@ -90,11 +90,11 @@ const ConfiguracionPresupuestoPaso = () => {
                 resumenCostos: resumen.resumenCostos,
             };
 
-            const response = await axios.post(`${API_URL}/api/presupuestos`, payload);
+            const response = await clienteAxios.post('/presupuestos', payload);
             const presupuestoGuardado = response.data;
 
             setEstadoBoton('generando');
-            const pdfResponse = await axios.get(`${API_URL}/api/presupuestos/${presupuestoGuardado._id}/pdf`, { responseType: 'blob' });
+            const pdfResponse = await clienteAxios.get(`/presupuestos/${presupuestoGuardado._id}/pdf`, { responseType: 'blob' });
 
             const url = window.URL.createObjectURL(new Blob([pdfResponse.data]));
             const link = document.createElement('a');
