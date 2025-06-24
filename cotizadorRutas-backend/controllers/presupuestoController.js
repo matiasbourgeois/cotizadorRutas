@@ -42,8 +42,12 @@ export const calcularPresupuesto = async (req, res) => {
     const totalVehiculo = costoVehiculo.totalFinal;
     const totalRecurso = costoRecurso.totalFinal;
     const totalPeajes = (configuracion.costoPeajes || 0) * cantidadViajesMensuales;
-    const totalAdministrativo = configuracion.costoAdministrativo || 0;
     const otrosCostos = configuracion.otrosCostos || 0;
+
+
+    const subtotalOperativoParcial = totalVehiculo + totalRecurso;
+    const porcentajeAdmin = configuracion.costoAdministrativo || 0;
+    const totalAdministrativo = Math.round((subtotalOperativoParcial * porcentajeAdmin) / 100);
 
     let costoAdicionalPeligrosa = 0;
     if (detallesCarga?.tipo === 'peligrosa') {
@@ -104,8 +108,12 @@ export const crearPresupuesto = async (req, res) => {
     const totalVehiculo = calculoVehiculo.totalFinal;
     const totalRecurso = calculoRecurso.totalFinal;
     const totalPeajes = (configuracion.costoPeajes || 0) * cantidadViajesMensuales;
-    const totalAdministrativo = configuracion.costoAdministrativo || 0;
     const otrosCostos = configuracion.otrosCostos || 0;
+
+    const subtotalOperativoParcial = totalVehiculo + totalRecurso;
+    const porcentajeAdmin = configuracion.costoAdministrativo || 0;
+    const totalAdministrativo = Math.round((subtotalOperativoParcial * porcentajeAdmin) / 100);
+
     let costoAdicionalPeligrosa = 0;
     if (detallesCarga?.tipo === 'peligrosa') {
       const kmsTotalesMensuales = kmsPorViaje * cantidadViajesMensuales;

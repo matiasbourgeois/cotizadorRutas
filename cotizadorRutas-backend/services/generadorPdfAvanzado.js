@@ -59,7 +59,7 @@ function generarCapituloFrecuencia(presupuesto) {
     if (frecuencia.tipo === 'mensual') {
         const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
         const diasSeleccionados = frecuencia.diasSeleccionados.map(d => d.toLowerCase());
-        
+
         const viajesMensualesEstimado = Math.round((frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33);
 
         const calendarioHtml = `
@@ -72,9 +72,9 @@ function generarCapituloFrecuencia(presupuesto) {
                 <tbody>
                     <tr>
                         ${diasSemana.map(dia => {
-                            const esSeleccionado = diasSeleccionados.includes(dia.toLowerCase());
-                            return `<td class="${esSeleccionado ? 'selected' : ''}">${esSeleccionado ? '✔' : ''}</td>`;
-                        }).join('')}
+            const esSeleccionado = diasSeleccionados.includes(dia.toLowerCase());
+            return `<td class="${esSeleccionado ? 'selected' : ''}">${esSeleccionado ? '✔' : ''}</td>`;
+        }).join('')}
                     </tr>
                 </tbody>
             </table>
@@ -105,7 +105,7 @@ function generarCapituloFrecuencia(presupuesto) {
             </table>
         `;
 
-    // Lógica para el servicio ESPORÁDICO
+        // Lógica para el servicio ESPORÁDICO
     } else {
         contenidoPrincipal = `
             <div class="card summary-card">
@@ -171,6 +171,8 @@ function generarCapituloVehiculo(presupuesto) {
         'Parámetros para Cálculo de Desgaste': {
             'Valor del Vehículo (Nuevo)': formatCurrency(datos.precioVehiculoNuevo),
             'Vida Útil del Vehículo': `${(datos.kmsVidaUtilVehiculo || 0).toLocaleString('es-AR')} km`,
+            'Valor Residual (%)': `${datos.valorResidualPorcentaje || 0}%`, // <-- LÍNEA NUEVA
+            'Cantidad de Cubiertas': `${datos.cantidadCubiertas || 0} u.`,
             'Precio por Cubierta': formatCurrency(datos.precioCubierta),
             'Vida Útil por Cubierta': `${(datos.kmsVidaUtilCubiertas || 0).toLocaleString('es-AR')} km`,
             'Precio Cambio de Aceite': formatCurrency(datos.precioCambioAceite),
@@ -262,6 +264,7 @@ function generarCapituloRecursoHumano(presupuesto) {
     if (!recursoHumano || !recursoHumano.datos || !recursoHumano.calculo) return '';
 
     const { datos, calculo } = recursoHumano;
+    const esMensual = presupuesto.frecuencia?.tipo === 'mensual';
     const esEmpleado = datos.tipoContratacion === 'empleado';
 
     const modalidad = esEmpleado ? 'Empleado en Relación de Dependencia' : 'Personal Contratado';
@@ -275,7 +278,11 @@ function generarCapituloRecursoHumano(presupuesto) {
         },
         'Parámetros de Costos Variables': {
             'Adicional por Km (Remun.)': `${formatCurrency(datos.adicionalKmRemunerativo)} / km`,
+            // ✅ --- INICIO DE LÍNEAS NUEVAS --- ✅
+            ...(esMensual ? { 'Mínimo Km Remunerativo': `${datos.minKmRemunerativo || 0} km` } : {}),
             'Viático por Km (No Remun.)': `${formatCurrency(datos.viaticoPorKmNoRemunerativo)} / km`,
+            ...(esMensual ? { 'Mínimo Km Viático': `${datos.minKmNoRemunerativo || 0} km` } : {}),
+            // ✅ --- FIN DE LÍNEAS NUEVAS --- ✅
             'Adicional Carga/Descarga': `${formatCurrency(datos.adicionalCargaDescargaCadaXkm)} / ${datos.kmPorUnidadDeCarga} km`
         },
         'Parámetros de Costos Indirectos': esEmpleado ? {
@@ -893,52 +900,52 @@ async function getHtmlContent(presupuesto) {
 }
 
 export async function generarPresupuestoPDF_Avanzado(presupuesto, stream) {
-  let browser; // Declaramos la variable fuera del try para que sea accesible en el finally
-  try {
-    // Lógica inteligente: ¿estamos en producción o en desarrollo?
-    if (process.env.BROWSERLESS_URL) {
-      // MODO PRODUCCIÓN: Conectar a Browserless si la variable existe
-      console.log('🔌 Modo Producción: Conectando a Browserless.io...');
-      browser = await puppeteer.connect({
-        browserWSEndpoint: process.env.BROWSERLESS_URL,
-        ignoreHTTPSErrors: true
-      });
-      console.log('✅ Conexión a Browserless exitosa.');
-    } else {
-      // MODO DESARROLLO: Lanzar Puppeteer localmente si la variable NO existe
-      console.log('🖥️ Modo Desarrollo: Lanzando Puppeteer local...');
-      browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-      });
-      console.log('✅ Puppeteer local lanzado.');
+    let browser; // Declaramos la variable fuera del try para que sea accesible en el finally
+    try {
+        // Lógica inteligente: ¿estamos en producción o en desarrollo?
+        if (process.env.BROWSERLESS_URL) {
+            // MODO PRODUCCIÓN: Conectar a Browserless si la variable existe
+            console.log('🔌 Modo Producción: Conectando a Browserless.io...');
+            browser = await puppeteer.connect({
+                browserWSEndpoint: process.env.BROWSERLESS_URL,
+                ignoreHTTPSErrors: true
+            });
+            console.log('✅ Conexión a Browserless exitosa.');
+        } else {
+            // MODO DESARROLLO: Lanzar Puppeteer localmente si la variable NO existe
+            console.log('🖥️ Modo Desarrollo: Lanzando Puppeteer local...');
+            browser = await puppeteer.launch({
+                headless: true,
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+            console.log('✅ Puppeteer local lanzado.');
+        }
+
+        const page = await browser.newPage();
+
+        // La función getHtmlContent debe estar definida más arriba en tu archivo, como ya la tienes.
+        const htmlContent = await getHtmlContent(presupuesto);
+
+        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+        const pdfBuffer = await page.pdf({
+            format: 'A4',
+            printBackground: true,
+            displayHeaderFooter: true,
+            margin: { top: '0.5in', bottom: '0.5in', left: '0.3in', right: '0.3in' }
+        });
+
+        console.log('📄 PDF generado.');
+        stream.write(pdfBuffer);
+
+    } catch (error) {
+        console.error("❌ Error durante la generación del PDF:", error);
+        stream.emit('error', error);
+    } finally {
+        if (browser) {
+            await browser.close();
+            console.log('🔒 Navegador cerrado.');
+        }
+        stream.end();
     }
-
-    const page = await browser.newPage();
-
-    // La función getHtmlContent debe estar definida más arriba en tu archivo, como ya la tienes.
-    const htmlContent = await getHtmlContent(presupuesto); 
-
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      displayHeaderFooter: true,
-      margin: { top: '0.5in', bottom: '0.5in', left: '0.3in', right: '0.3in' }
-    });
-
-    console.log('📄 PDF generado.');
-    stream.write(pdfBuffer);
-
-  } catch (error) {
-    console.error("❌ Error durante la generación del PDF:", error);
-    stream.emit('error', error);
-  } finally {
-    if (browser) {
-      await browser.close();
-      console.log('🔒 Navegador cerrado.');
-    }
-    stream.end();
-  }
 }

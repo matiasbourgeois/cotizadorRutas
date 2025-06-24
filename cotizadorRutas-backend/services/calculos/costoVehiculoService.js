@@ -16,13 +16,16 @@ export default function calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadVia
   const kmsMensuales = kmsPorViaje * cantidadViajesMensuales;
 
   // 1. Depreciación del vehículo
-  const anioActual = new Date().getFullYear();
-  const anioFabricacion = vehiculo.año || anioActual;
-  const antiguedad = anioActual - anioFabricacion;
-  const incluirDepreciacion = antiguedad <= 10;
+const anioActual = new Date().getFullYear();
+const anioFabricacion = vehiculo.año || anioActual;
+const antiguedad = anioActual - anioFabricacion;
+const incluirDepreciacion = antiguedad <= 10;
 
-  const depreciacion = (incluirDepreciacion && vehiculo.precioVehiculoNuevo && vehiculo.kmsVidaUtilVehiculo && kmsMensuales > 0)
-    ? (vehiculo.precioVehiculoNuevo / (vehiculo.kmsVidaUtilVehiculo / kmsMensuales))
+const valorResidual = (vehiculo.precioVehiculoNuevo || 0) * ((vehiculo.valorResidualPorcentaje || 0) / 100);
+const valorADepreciar = (vehiculo.precioVehiculoNuevo || 0) - valorResidual;
+
+const depreciacion = (incluirDepreciacion && valorADepreciar > 0 && vehiculo.kmsVidaUtilVehiculo && kmsMensuales > 0)
+    ? (valorADepreciar / (vehiculo.kmsVidaUtilVehiculo / kmsMensuales))
     : 0;
 
   // 2. Costo de cubiertas
@@ -49,7 +52,7 @@ export default function calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadVia
   const combustiblePorKm = vehiculo.usaGNC
     ? vehiculo.precioGNC / kmsPorLitro
     // Usamos la variable modificada
-    : precioLitroCombustibleEfectivo / kmsPorLitro; 
+    : precioLitroCombustibleEfectivo / kmsPorLitro;
   const combustible = combustiblePorKm * kmsMensuales;
 
   // 5. Costos fijos mensuales

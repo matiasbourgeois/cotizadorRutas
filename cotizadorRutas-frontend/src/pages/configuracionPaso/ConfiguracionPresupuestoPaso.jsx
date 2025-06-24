@@ -5,8 +5,8 @@ import { useCotizacion } from "../../context/Cotizacion";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { notifications } from '@mantine/notifications';
-import { Stack, Title, Grid, Paper, NumberInput, Textarea, Button, Group, Table, Text, Alert, Center } from "@mantine/core";
-import { ArrowLeft, Calculator, FileDown, AlertCircle } from "lucide-react";
+import { Stack, Title, Grid, Paper, NumberInput, Textarea, Button, Group, Table, Text, Alert, Center, TextInput } from "@mantine/core";
+import { ArrowLeft, Calculator, FileDown, AlertCircle, Percent } from "lucide-react";
 import { API_URL } from '../../apiConfig';
 
 const ConfiguracionPresupuestoPaso = () => {
@@ -16,12 +16,12 @@ const ConfiguracionPresupuestoPaso = () => {
 
     const [config, setConfig] = useState({
         costoPeajes: 0,
-        costoAdministrativo: 0,
+        costoAdministrativo: 10,
         otrosCostos: 0,
-        porcentajeGanancia: 20,
+        porcentajeGanancia: 15,
         observaciones: "",
     });
-    
+
     const [resumen, setResumen] = useState(null);
     const [estadoBoton, setEstadoBoton] = useState('listo'); // listo, calculando, guardando, generando
 
@@ -92,7 +92,7 @@ const ConfiguracionPresupuestoPaso = () => {
 
             const response = await axios.post(`${API_URL}/api/presupuestos`, payload);
             const presupuestoGuardado = response.data;
-            
+
             setEstadoBoton('generando');
             const pdfResponse = await axios.get(`${API_URL}/api/presupuestos/${presupuestoGuardado._id}/pdf`, { responseType: 'blob' });
 
@@ -155,15 +155,21 @@ const ConfiguracionPresupuestoPaso = () => {
                         <Stack>
                             <Title order={4} c="dimmed">Parámetros Finales</Title>
                             <NumberInput label="Costo Peajes (total por viaje)" value={config.costoPeajes} onChange={(v) => handleChange('costoPeajes', v)} prefix="$ " thousandSeparator="," decimalScale={2} />
-                            <NumberInput label="Costo Administrativo (mensual)" value={config.costoAdministrativo} onChange={(v) => handleChange('costoAdministrativo', v)} prefix="$ " thousandSeparator="," decimalScale={2} />
+                            <NumberInput
+                                label="Costo Administrativo"
+                                value={config.costoAdministrativo}
+                                onChange={(v) => handleChange('costoAdministrativo', v)}
+                                suffix=" %"
+                                min={0}
+                            />
                             <NumberInput label="Otros Costos (mensual)" value={config.otrosCostos} onChange={(v) => handleChange('otrosCostos', v)} prefix="$ " thousandSeparator="," decimalScale={2} />
                             <NumberInput label="Porcentaje de Ganancia" value={config.porcentajeGanancia} onChange={(v) => handleChange('porcentajeGanancia', v)} suffix=" %" min={0} />
                             <Textarea label="Observaciones Finales" placeholder="Aclaraciones para el PDF..." value={config.observaciones} onChange={(e) => handleChange('observaciones', e.currentTarget.value)} autosize minRows={3} />
-                            <Button 
-                                mt="md" 
-                                onClick={handleCalcularPresupuesto} 
+                            <Button
+                                mt="md"
+                                onClick={handleCalcularPresupuesto}
                                 loading={estadoBoton === 'calculando'}
-                                leftSection={<Calculator size={18}/>}
+                                leftSection={<Calculator size={18} />}
                                 fullWidth
                             >
                                 Calcular Resumen
@@ -173,8 +179,8 @@ const ConfiguracionPresupuestoPaso = () => {
                 </Grid.Col>
 
                 <Grid.Col span={{ base: 12, md: 7 }}>
-                     <Paper withBorder shadow="sm" p="md" radius="md" style={{ height: '100%' }}>
-                         <Stack h="100%">
+                    <Paper withBorder shadow="sm" p="md" radius="md" style={{ height: '100%' }}>
+                        <Stack h="100%">
                             <Title order={4} c="dimmed">📊 Resumen del Presupuesto</Title>
                             {resumen ? (
                                 <Table striped withColumnBorders>
@@ -193,8 +199,8 @@ const ConfiguracionPresupuestoPaso = () => {
                                     </Alert>
                                 </Center>
                             )}
-                         </Stack>
-                     </Paper>
+                        </Stack>
+                    </Paper>
                 </Grid.Col>
             </Grid>
 
