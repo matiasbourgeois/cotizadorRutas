@@ -1,23 +1,18 @@
-// ruta: src/components/TablaPuntos.jsx
+// Archivo: cotizadorRutas-frontend/src/components/TablaPuntos.jsx
 
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Trash2, GripVertical } from "lucide-react";
 import { Table, ActionIcon, Text, Center, Box } from "@mantine/core";
 
-const TablaPuntos = ({ puntos, setPuntos, setOptimizar }) => {
-  const eliminarPunto = (index) => {
-    const nuevos = [...puntos];
-    nuevos.splice(index, 1);
-    setPuntos(nuevos);
-  };
-
+// Ahora recibe 'onReordenar' y 'onEliminar' en lugar de 'setPuntos'
+const TablaPuntos = ({ puntos, onReordenar, onEliminar, setOptimizar }) => { 
   const onDragEnd = (result) => {
     if (!result.destination) return;
     const nuevos = Array.from(puntos);
     const [moved] = nuevos.splice(result.source.index, 1);
     nuevos.splice(result.destination.index, 0, moved);
     setOptimizar(false);
-    setPuntos(nuevos);
+    onReordenar(nuevos); // Llama a la nueva función
   };
 
   const rows = puntos.map((p, index) => (
@@ -25,14 +20,12 @@ const TablaPuntos = ({ puntos, setPuntos, setOptimizar }) => {
       {(provided) => (
         <Table.Tr ref={provided.innerRef} {...provided.draggableProps}>
           <Table.Td {...provided.dragHandleProps} style={{ width: 40 }}>
-            <Center>
-              <GripVertical size={20} color="gray" />
-            </Center>
+            <Center><GripVertical size={20} color="gray" /></Center>
           </Table.Td>
           <Table.Td style={{ width: 40 }}>{index + 1}</Table.Td>
           <Table.Td>{p.nombre}</Table.Td>
           <Table.Td style={{ width: 60 }}>
-            <ActionIcon color="red" variant="subtle" onClick={() => eliminarPunto(index)}>
+            <ActionIcon color="red" variant="subtle" onClick={() => onEliminar(index)}>
               <Trash2 size={18} />
             </ActionIcon>
           </Table.Td>
@@ -40,7 +33,8 @@ const TablaPuntos = ({ puntos, setPuntos, setOptimizar }) => {
       )}
     </Draggable>
   ));
-
+  
+  // ... el resto del componente no cambia ...
   return (
     <Box mt="md" style={{ overflowX: 'auto' }}>
       <DragDropContext onDragEnd={onDragEnd}>
@@ -74,5 +68,6 @@ const TablaPuntos = ({ puntos, setPuntos, setOptimizar }) => {
     </Box>
   );
 };
+
 
 export default TablaPuntos;

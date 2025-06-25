@@ -1,91 +1,105 @@
-// Archivo: cotizadorRutas-frontend/src/layouts/CotizadorLayout.jsx
+// Archivo: cotizadorRutas-frontend/src/layouts/CotizadorLayout.jsx (Versión Rediseño "Cockpit")
 
-import React from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
-import { Stepper, Container, Paper, Title, rem, Group, Text, Button, Box } from '@mantine/core';
-import { FileText, Clock, Truck, User, Settings, Check, LogOut, History } from 'lucide-react';
+import { AppShell, Burger, Group, Text, NavLink, Box, Container, Button } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { FileText, Clock, Truck, User, Settings, Check, LogOut, History, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const CotizadorLayout = () => {
+  // ¿Por qué este cambio?
+  // Usamos el componente AppShell de Mantine, que está diseñado específicamente
+  // para crear layouts complejos con paneles laterales (navbar) y un área de
+  // contenido principal. Es la herramienta perfecta para nuestra visión.
+
+  const [opened, { toggle }] = useDisclosure();
   const location = useLocation();
   const { auth, cerrarSesionAuth } = useAuth();
 
-  const stepPaths = [
-    '/',
-    '/cotizador/frecuencia',
-    '/cotizador/vehiculo',
-    '/cotizador/recurso-humano',
-    '/cotizador/configuracion-final'
+  const steps = [
+    { path: '/', label: 'Definir Ruta', icon: FileText },
+    { path: '/cotizador/frecuencia', label: 'Frecuencia', icon: Clock },
+    { path: '/cotizador/vehiculo', label: 'Vehículo', icon: Truck },
+    { path: '/cotizador/recurso-humano', label: 'Recurso Humano', icon: User },
+    { path: '/cotizador/configuracion-final', label: 'Resumen y Costos', icon: Settings },
   ];
 
-  let active = stepPaths.findIndex(path => location.pathname.startsWith(path) && path !== '/');
-  if (location.pathname === '/') active = 0;
-  if (location.pathname.startsWith('/cotizador/configuracion-final')) active = 4;
+  // Lógica para determinar el paso activo (y los completados)
+  let activeIndex = steps.findIndex(step => location.pathname.startsWith(step.path) && step.path !== '/');
+  if (location.pathname === '/') activeIndex = 0;
+  if (location.pathname.startsWith('/cotizador/configuracion-final')) activeIndex = 4;
+
 
   return (
-    <Container size="xl" my="xl">
-      {/* --- INICIO: ENCABEZADO AÑADIDO --- */}
-      <Group justify="space-between" mb="xl">
-        <Box>
-          <Title order={1} c="deep-blue.7">Cotizador Logistico</Title>
-          <Text c="dimmed">Bienvenido, {auth?.nombre || 'Usuario'}</Text>
-        </Box>
-            <Group>
-                <Button
-                    component={Link}
-                    to="/historial"
-                    variant="outline"
-                    leftSection={<History size={16} />}
-                >
-                    Mis Cotizaciones
-                </Button>
-                <Button 
-                    variant="default" 
-                    leftSection={<LogOut size={16} />}
-                    onClick={cerrarSesionAuth}
-                >
-                    Cerrar Sesión
-                </Button>
-            </Group>
-      </Group>
+    <AppShell
+      header={{ height: 60 }}
+      navbar={{ width: 300, breakpoint: 'sm', collapsed: { mobile: !opened } }}
+      padding="md"
+    >
+      {/* --- Encabezado Superior --- */}
+      <AppShell.Header>
+        <Group h="100%" px="md" justify="space-between">
+            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+            <Text fw={700} c="deep-blue.7" size="xl">Cotizador Logístico</Text>
+            <Button
+                variant="default" 
+                leftSection={<LogOut size={16} />}
+                onClick={cerrarSesionAuth}
+            >
+                Cerrar Sesión
+            </Button>
+        </Group>
+      </AppShell.Header>
 
-      <Paper withBorder shadow="md" p="lg" mb="xl" radius="md">
-        <Stepper active={active} color="cyan" iconSize={32}>
-          <Stepper.Step
-            icon={<FileText style={{ width: rem(18), height: rem(18) }} />}
-            label="Paso 1"
-            description="Definir Ruta"
-          />
-          <Stepper.Step
-            icon={<Clock style={{ width: rem(18), height: rem(18) }} />}
-            label="Paso 2"
-            description="Frecuencia"
-          />
-          <Stepper.Step
-            icon={<Truck style={{ width: rem(18), height: rem(18) }} />}
-            label="Paso 3"
-            description="Vehículo"
-          />
-          <Stepper.Step
-            icon={<User style={{ width: rem(18), height: rem(18) }} />}
-            label="Paso 4"
-            description="Recurso Humano"
-          />
-          <Stepper.Step
-            icon={<Settings style={{ width: rem(18), height: rem(18) }} />}
-            label="Paso 5"
-            description="Resumen Final"
-          />
-          <Stepper.Completed>
-            <Check style={{ width: rem(18), height: rem(18) }} />
-          </Stepper.Completed>
-        </Stepper>
-      </Paper>
+      {/* --- Columna Izquierda: El "Panel de Misión" --- */}
+      <AppShell.Navbar p="md">
+        <Text c="dimmed" size="sm" mb="sm">Bienvenido, {auth?.nombre || 'Usuario'}</Text>
+        
+        <NavLink
+            href="/historial"
+            label="Historial de Cotizaciones"
+            leftSection={<History size={16} />}
+            rightSection={<ChevronRight size={12} />}
+            variant="subtle"
+            active
+            component={Link}
+            to="/historial"
+            mb="xl"
+        />
 
-      <Paper withBorder shadow="md" p="xl" radius="md">
-        <Outlet />
-      </Paper>
-    </Container>
+        <Text tt="uppercase" size="xs" c="dimmed" fw={700} mb="sm">Pasos de la cotización</Text>
+
+        {steps.map((step, index) => {
+            const isCompleted = index < activeIndex;
+            const isActive = index === activeIndex;
+
+            return (
+                <NavLink
+                    key={step.label}
+                    href={isCompleted ? step.path : undefined}
+                    label={step.label}
+                    leftSection={<step.icon size={16} />}
+                    rightSection={isCompleted ? <Check size={16} color="green" /> : null}
+                    active={isActive}
+                    disabled={!isCompleted && !isActive}
+                    component={isCompleted ? Link : 'div'}
+                    to={isCompleted ? step.path : undefined}
+                    variant="subtle"
+                    mb={5}
+                />
+            );
+        })}
+        {/* Aquí irá el "Live Summary Ticker" en el futuro */}
+      </AppShell.Navbar>
+
+      {/* --- Columna Derecha: El "Área de Trabajo" --- */}
+      <AppShell.Main>
+        <Container fluid>
+            {/* El Outlet renderizará el contenido del paso actual aquí */}
+            <Outlet />
+        </Container>
+      </AppShell.Main>
+    </AppShell>
   );
 };
 
