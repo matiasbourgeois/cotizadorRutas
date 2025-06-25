@@ -20,6 +20,9 @@ const PresupuestoSchema = new mongoose.Schema({
   },
   configuracion: { type: Object },
   resumenCostos: { type: Object },
+  cliente: { type: String, trim: true },
+  terminos: { type: String, trim: true },
+
   fechaCreacion: { type: Date, default: Date.now },
   usuario: {
     type: mongoose.Schema.Types.ObjectId,

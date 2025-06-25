@@ -9,21 +9,27 @@ import {
   actualizarPresupuesto,
   eliminarPresupuesto,
   generarPdfPresupuesto,
-  calcularPresupuesto // <-- Importamos la nueva función del controlador
+  calcularPresupuesto,
+  generarPdfPropuesta 
 } from '../controllers/presupuestoController.js';
 
 const router = express.Router();
 router.use(checkAuth);
 
-// NUEVA RUTA PARA CÁLCULO/PREVISUALIZACIÓN
 router.post('/calcular', calcularPresupuesto);
 
-// RUTAS EXISTENTES
-router.get('/', obtenerPresupuestos);
-router.get('/:id', obtenerPresupuestoPorId);
-router.post('/', crearPresupuesto);
-router.put('/:id', actualizarPresupuesto);
-router.delete('/:id', eliminarPresupuesto);
-router.get('/:id/pdf', generarPdfPresupuesto);
+// --- RUTAS CRUD (Crear, Leer, Actualizar, Borrar) ---
+router.route('/')
+  .get(obtenerPresupuestos)
+  .post(crearPresupuesto);
+
+router.route('/:id')
+  .get(obtenerPresupuestoPorId)
+  .put(actualizarPresupuesto)
+  .delete(eliminarPresupuesto);
+
+// --- RUTAS PARA GENERACIÓN DE PDFs ---
+router.get('/:id/pdf', generarPdfPresupuesto);       // Para el desglose detallado
+router.get('/:id/propuesta', generarPdfPropuesta); // Para la propuesta comercial
 
 export default router;

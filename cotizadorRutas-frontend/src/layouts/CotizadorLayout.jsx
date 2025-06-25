@@ -27,7 +27,7 @@ const CotizadorLayout = () => {
       {/* --- INICIO: ENCABEZADO AÑADIDO --- */}
       <Group justify="space-between" mb="xl">
         <Box>
-          <Title order={1} c="deep-blue.7">Cotizador de Rutas</Title>
+          <Title order={1} c="deep-blue.7">Cotizador Logistico</Title>
           <Text c="dimmed">Bienvenido, {auth?.nombre || 'Usuario'}</Text>
         </Box>
             <Group>

@@ -4,19 +4,59 @@ import puppeteer from 'puppeteer';
 import { format } from 'date-fns';
 import QRCode from 'qrcode';
 
+// ...después de la línea import QRCode from 'qrcode';
+
+// --- NUEVO ESTILO DE MAPA PROFESIONAL ---
+// Reemplaza la constante professionalMapStyle completa con esta versión corregida
+
+const professionalMapStyle = [
+    { "elementType": "geometry", "stylers": [{ "color": "0xf5f5f5" }] },
+    { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+    { "elementType": "labels.text.fill", "stylers": [{ "color": "0x616161" }] },
+    { "elementType": "labels.text.stroke", "stylers": [{ "color": "0xf5f5f5" }] },
+    { "featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{ "color": "0xbdbdbd" }] },
+    { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "0xeeeeee" }] },
+    { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "0x757575" }] },
+    { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "0xe5e5e5" }] },
+    { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "0x9e9e9e" }] },
+    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "0xffffff" }] },
+    { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "0x757575" }] },
+    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "0xdadada" }] },
+    { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "0x616161" }] },
+    { "featureType": "road.local", "elementType": "labels.text.fill", "stylers": [{ "color": "0x9e9e9e" }] },
+    { "featureType": "transit.line", "elementType": "geometry", "stylers": [{ "color": "0xe5e5e5" }] },
+    { "featureType": "transit.station", "elementType": "geometry", "stylers": [{ "color": "0xeeeeee" }] },
+    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "0xc9c9c9" }] },
+    { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "0x9e9e9e" }] }
+];
+
 const formatCurrency = (num) => `$ ${Math.round(num || 0).toLocaleString('es-AR')}`;
 const formatKey = (key) => key ? (key.charAt(0).toUpperCase() + key.slice(1)) : '';
 
+// Reemplaza la función getStaticMapUrl completa con esta versión corregida
+
 const getStaticMapUrl = (puntos, apiKey) => {
     if (!puntos || puntos.length === 0 || !apiKey) return '';
+
     const baseUrl = 'https://maps.googleapis.com/maps/api/staticmap?';
-    const size = 'size=640x400';
+    const size = 'size=600x350';
     const maptype = 'roadmap';
+
+    const styleParams = professionalMapStyle.map(rule => {
+        const stylers = Object.entries(rule.stylers[0]).map(([key, value]) => `${key}:${value}`).join('|');
+        return `style=feature:${rule.featureType || 'all'}|element:${rule.elementType || 'all'}|${stylers}`;
+    }).join('&');
+
     const markers = puntos.map((p, index) =>
         `markers=color:0xffc107|label:${String.fromCharCode(65 + index)}|${p.lat},${p.lng}`
     ).join('&');
     const path = `path=color:0x0D47A1|weight:5|${puntos.map(p => `${p.lat},${p.lng}`).join('|')}`;
-    return `${baseUrl}${size}&${maptype}&${markers}&${path}&key=${apiKey}`;
+
+    // ¿Por qué este cambio?
+    // Nos aseguramos de que toda la cadena de texto de la URL esté
+    // encerrada entre comillas invertidas (`), para que JavaScript
+    // pueda reemplazar correctamente ${baseUrl}, ${size}, etc., por sus valores.
+    return `${baseUrl}${size}&${maptype}&${markers}&${path}&${styleParams}&key=${apiKey}`;
 };
 
 const generarUrlGoogleMaps = (puntos) => {
@@ -899,7 +939,7 @@ async function getHtmlContent(presupuesto) {
     </html>`;
 }
 
-export async function generarPresupuestoPDF_Avanzado(presupuesto, stream) {
+export async function generarPresupuestoPDF_Avanzado(presupuesto, stream, tipoPdf) {
     let browser; // Declaramos la variable fuera del try para que sea accesible en el finally
     try {
         // Lógica inteligente: ¿estamos en producción o en desarrollo?
@@ -924,15 +964,21 @@ export async function generarPresupuestoPDF_Avanzado(presupuesto, stream) {
         const page = await browser.newPage();
 
         // La función getHtmlContent debe estar definida más arriba en tu archivo, como ya la tienes.
-        const htmlContent = await getHtmlContent(presupuesto);
+        let htmlContent;
+        if (tipoPdf === 'propuesta') {
+            console.log('📄 Generando PDF tipo: Propuesta Comercial');
+            htmlContent = await getPropuestaComercialHtml(presupuesto);
+        } else {
+            console.log('📄 Generando PDF tipo: Desglose de Costos');
+            htmlContent = await getHtmlContent(presupuesto); // Esta es la función que ya tenías
+        }
 
         await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
         const pdfBuffer = await page.pdf({
             format: 'A4',
             printBackground: true,
-            displayHeaderFooter: true,
-            margin: { top: '0.5in', bottom: '0.5in', left: '0.3in', right: '0.3in' }
+            margin: { top: '0.2in', bottom: '0.2in', left: '0.2in', right: '0.2in' }
         });
 
         console.log('📄 PDF generado.');
@@ -948,4 +994,183 @@ export async function generarPresupuestoPDF_Avanzado(presupuesto, stream) {
         }
         stream.end();
     }
+}
+// Reemplaza la función getPropuestaComercialHtml completa con esta versión final
+
+async function getPropuestaComercialHtml(presupuesto) {
+    const {
+        puntosEntrega = [],
+        totalKilometros = 0,
+        frecuencia = {},
+        vehiculo = {},
+        resumenCostos = {},
+        cliente,
+        terminos
+    } = presupuesto || {};
+
+    const apiKey = process.env.Maps_API_KEY;
+    const fechaEmision = format(new Date(presupuesto.fechaCreacion), 'dd/MM/yyyy');
+    
+    const googleMapsUrl = generarUrlGoogleMaps(puntosEntrega);
+    const qrCodeDataUrl = await generarQrCodeDataUrl(googleMapsUrl);
+    // Ajustamos el tamaño del mapa para que encaje mejor en la columna
+    const mapUrl = getStaticMapUrl(puntosEntrega, apiKey, "350x350");
+
+    const tipoVehiculo = vehiculo.datos?.tipoVehiculo ? (vehiculo.datos.tipoVehiculo.charAt(0).toUpperCase() + vehiculo.datos.tipoVehiculo.slice(1)) : 'No especificado';
+    
+    let resumenFrecuencia = '';
+    if (frecuencia.tipo === 'mensual') {
+        const viajesSemanales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1);
+        resumenFrecuencia = `Servicio Mensual (${viajesSemanales} viajes/semana)`;
+    } else {
+        resumenFrecuencia = `Servicio Esporádico (${frecuencia.vueltasTotales || 1} viajes totales)`;
+    }
+
+    return `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Propuesta de Servicio Logístico</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+            :root {
+                --font-family: 'Montserrat', sans-serif;
+                --color-primary: #0D47A1;
+                --color-secondary: #1E88E5;
+                --color-accent: #FFC107;
+                --color-text: #333;
+                --color-text-light: #757575;
+                --color-bg-light: #f8f9fa;
+            }
+            html { -webkit-print-color-adjust: exact; }
+            body {
+                font-family: var(--font-family); color: var(--color-text);
+                margin: 0; padding: 30px; font-size: 10px;
+            }
+            .header {
+                display: flex; justify-content: space-between; align-items: flex-start;
+                padding-bottom: 15px; border-bottom: 3px solid var(--color-primary);
+            }
+            .header-title h1 { margin: 0; color: var(--color-primary); font-size: 22px; }
+            .header-details p { margin: 0; font-size: 11px; line-height: 1.5; text-align: right; }
+            .section { margin-bottom: 20px; page-break-inside: avoid; }
+            .section-title { font-size: 13px; font-weight: 700; color: var(--color-secondary); margin: 0 0 10px 0; border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; }
+            
+            .details-card {
+                background-color: var(--color-bg-light); border: 1px solid #e0e0e0;
+                border-radius: 8px; padding: 15px; display: grid;
+                grid-template-columns: 1fr 1fr; gap: 10px 20px;
+                margin: 15px 0;
+            }
+            .summary-item { display: flex; align-items: center; font-size: 11px; }
+            .summary-item strong { font-weight: 500; color: var(--color-text-light); width: 110px; }
+
+            .itinerary-container { display: flex; gap: 20px; align-items: flex-start; }
+            .itinerary-list { flex: 0 0 55%; }
+            .itinerary-list ol { margin: 0; padding: 0; list-style-type: none; counter-reset: list-item; }
+            .itinerary-list li { 
+                background-color: #fafafa;
+                border: 1px solid #eee;
+                border-left: 3px solid var(--color-accent);
+                padding: 8px 12px;
+                margin-bottom: 6px;
+                border-radius: 4px;
+                font-size: 10px;
+                counter-increment: list-item;
+            }
+            .itinerary-list li::before {
+                content: counter(list-item);
+                background-color: var(--color-primary);
+                color: white;
+                font-weight: 700;
+                border-radius: 50%;
+                width: 18px;
+                height: 18px;
+                display: inline-block;
+                text-align: center;
+                line-height: 18px;
+                margin-right: 10px;
+            }
+            .itinerary-map { flex: 1; }
+            .map-image { width: 100%; border-radius: 6px; border: 1px solid #e0e0e0; }
+
+            .price-and-qr-section { display: flex; gap: 15px; align-items: stretch; }
+            .price-box { flex: 2; background-color: var(--color-bg-light); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #e0e0e0; display: flex; flex-direction: column; justify-content: center; }
+            .qr-box { flex: 1; background-color: var(--color-bg-light); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #e0e0e0; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+            
+            .price-box .price-label { font-size: 13px; color: var(--color-text-light); }
+            .price-box .price-value { font-size: 28px; font-weight: 700; color: var(--color-primary); margin: 5px 0; }
+            .price-box .price-terms { font-size: 9px; color: var(--color-text-light); }
+            
+            .qr-box img { max-width: 90px; margin-bottom: 8px; }
+            .qr-box p { margin: 0; font-size: 9px; color: var(--color-text-light); line-height: 1.3; }
+            
+            .footer { margin-top: 20px; padding-top: 10px; border-top: 1px solid #e0e0e0; font-size: 9px; color: #9e9e9e; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+             <div class="header-title"><h1>Propuesta Comercial</h1></div>
+             <div class="header-details">
+                 <p><strong>N° de Propuesta:</strong> ${presupuesto._id}</p>
+                 <p><strong>Fecha de Emisión:</strong> ${fechaEmision}</p>
+             </div>
+        </div>
+        
+        ${cliente ? `<p style="font-size: 12px; margin: 20px 0 15px 0;"><strong>Para:</strong> ${cliente}</p>` : ''}
+
+        <div class="section">
+            <h3 class="section-title">Resumen del Servicio</h3>
+            <div class="details-card">
+                <div class="summary-item"><strong>Frecuencia:</strong><span>${resumenFrecuencia}</span></div>
+                <div class="summary-item"><strong>Distancia / Viaje:</strong><span>${totalKilometros.toFixed(2)} km</span></div>
+                <div class="summary-item"><strong>Total de Paradas:</strong><span>${puntosEntrega.length} puntos</span></div>
+                <div class="summary-item"><strong>Tipo de Vehículo:</strong><span>${tipoVehiculo}</span></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3 class="section-title">Itinerario Propuesto</h3>
+            <div class="itinerary-container">
+                <div class="itinerary-list">
+                    <ol>
+                        ${puntosEntrega.map(p => `<li>${p.nombre.split('–').pop().trim()}</li>`).join('')}
+                    </ol>
+                </div>
+                <div class="itinerary-map">
+                    ${mapUrl ? `<img src="${mapUrl}" alt="Mapa de la ruta" class="map-image">` : ''}
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3 class="section-title">Propuesta Económica</h3>
+            <div class="price-and-qr-section">
+                <div class="price-box">
+                    <p class="price-label">Valor Total del Servicio</p>
+                    <p class="price-value">$${(resumenCostos.totalFinal || 0).toLocaleString('es-AR')}</p>
+                    <p class="price-terms">El valor expresado no incluye IVA.</p>
+                </div>
+                ${qrCodeDataUrl ? `
+                <div class="qr-box">
+                    <img src="${qrCodeDataUrl}" alt="Código QR para ver en Google Maps">
+                    <p>Escanee para abrir la ruta en su dispositivo móvil</p>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+        
+        ${terminos ? `
+        <div class="section">
+            <h3 class="section-title">Términos y Próximos Pasos</h3>
+            <p style="font-size: 10px; color: var(--color-text-light); line-height: 1.5; white-space: pre-wrap;">${terminos}</p>
+        </div>
+        ` : ''}
+
+        <div class="footer">
+            Propuesta válida por 15 días desde la fecha de emisión. | Gracias por su confianza.
+        </div>
+    </body>
+    </html>`;
 }

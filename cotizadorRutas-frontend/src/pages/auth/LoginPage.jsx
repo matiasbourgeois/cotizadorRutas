@@ -65,7 +65,7 @@ const LoginPage = () => {
 
     return (
         <Container size={420} my={40}>
-            <Title ta="center" c="deep-blue.7">Cotizador de Rutas</Title> 
+            <Title ta="center" c="deep-blue.7">Cotizador Logistico</Title> 
             <Title ta="center" c="deep-blue.7">
                 Iniciar Sesión
             </Title>

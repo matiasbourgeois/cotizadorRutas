@@ -146,6 +146,8 @@ export const crearPresupuesto = async (req, res) => {
         ganancia,
         totalFinal
       },
+      cliente: configuracion.cliente,
+      terminos: configuracion.terminos,
       usuario: req.usuario._id
     });
 
@@ -217,10 +219,31 @@ export const generarPdfPresupuesto = async (req, res) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=propuesta-${presupuesto._id}.pdf`);
 
-    await generarPresupuestoPDF_Avanzado(presupuesto, res, 'seccionRuta');
+    await generarPresupuestoPDF_Avanzado(presupuesto, res, 'desglose');
 
   } catch (error) {
     console.error("Error en el controlador al generar PDF avanzado:", error);
     res.status(500).send("Error al generar el PDF del presupuesto.");
+  }
+};
+
+// Pega esta nueva función en el controlador
+
+export const generarPdfPropuesta = async (req, res) => {
+  try {
+    const presupuesto = await Presupuesto.findById(req.params.id);
+    if (!presupuesto) {
+      return res.status(404).send('Presupuesto no encontrado');
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=propuesta-${presupuesto._id}.pdf`);
+
+    // Le indicamos que genere el PDF tipo 'propuesta'
+    await generarPresupuestoPDF_Avanzado(presupuesto, res, 'propuesta');
+
+  } catch (error) {
+    console.error("Error al generar PDF de propuesta:", error);
+    res.status(500).send("Error al generar el PDF de la propuesta.");
   }
 };
