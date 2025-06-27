@@ -1,104 +1,130 @@
-// ruta: src/pages/recursoHumanoPaso/ModalConfiguracionEmpleado.jsx
+// Archivo: src/pages/recursoHumanoPaso/ModalConfiguracionEmpleado.jsx (Versión Final Definitiva)
 
-import { useEffect, useState } from "react";
-import { Modal, Button, SimpleGrid, Group, NumberInput, Textarea, Stack, Tabs, rem, Title } from "@mantine/core";
+import { useEffect } from "react";
+import { Modal, Button, Grid, Group, NumberInput, Textarea, Stack, Tabs, rem, Text, Paper, Title } from "@mantine/core";
 import clienteAxios from "../../api/clienteAxios";
-import { Settings, Wallet, FileText, MessageCircle } from "lucide-react";
-import { API_URL } from '../../apiConfig';
+import { useForm } from '@mantine/form'; // ✅ 1. Importamos el hook que soluciona el bug del foco
+import { Wallet, Percent, Truck, HandCoins, FileText, MessageCircle } from "lucide-react"; // Íconos relevantes
+
+// Componente estable para los campos numéricos
+const CampoNumerico = ({ form, label, name, description, unidad = " " }) => (
+    <NumberInput
+      label={label}
+      description={description}
+      {...form.getInputProps(name)}
+      thousandSeparator=","
+      decimalScale={2}
+      min={0}
+      rightSection={<Text fz="xs" c="dimmed">{unidad}</Text>}
+      rightSectionWidth={60}
+    />
+);
 
 const ModalConfiguracionEmpleado = ({ show, onClose, recursoHumano, onGuardarCambios }) => {
-  const [formData, setFormData] = useState({});
-  const [isSaving, setIsSaving] = useState(false);
+  
+  // ✅ 2. Configuramos el formulario con todos los campos necesarios
+  const form = useForm({
+    initialValues: {
+      sueldoBasico: 0,
+      adicionalActividadPorc: 0,
+      adicionalNoRemunerativoFijo: 0,
+      adicionalKmRemunerativo: 0,
+      viaticoPorKmNoRemunerativo: 0,
+      adicionalCargaDescargaCadaXkm: 0,
+      kmPorUnidadDeCarga: 0,
+      porcentajeCargasSociales: 0,
+      porcentajeOverheadContratado: 0,
+      observaciones: "",
+    },
+  });
 
+  // ✅ 3. Rellenamos el formulario con los datos del recurso cuando el modal se abre
   useEffect(() => {
     if (recursoHumano) {
-      setFormData({ ...recursoHumano });
+      form.setValues(recursoHumano);
     }
-  }, [recursoHumano]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recursoHumano, show]);
 
-  const handleChange = (name, value) => {
-    const finalValue = typeof value === 'string' && value.trim() === '' ? '' : parseFloat(value) || 0;
-    setFormData((prev) => ({ ...prev, [name]: finalValue }));
-  };
-  
-  const handleGuardar = async () => {
-    setIsSaving(true);
+  const handleGuardar = async (values) => {
     try {
-      const res = await clienteAxios.put(`/recursos-humanos/${formData._id}`, formData);
-      onGuardarCambios(res.data);
+      const { data } = await clienteAxios.put(`/recursos-humanos/${recursoHumano._id}`, values);
+      onGuardarCambios(data);
       onClose();
     } catch (error) {
       console.error("❌ Error al guardar cambios:", error);
       alert("Ocurrió un error al guardar los cambios.");
-    } finally {
-      setIsSaving(false);
     }
   };
-
-  const CampoNumerico = ({ label, name, unidad = "" }) => (
-    <NumberInput
-      label={label}
-      name={name}
-      value={formData[name] ?? ''}
-      onChange={(value) => handleChange(name, value)}
-      placeholder={`Valor actual: ${recursoHumano[name] ?? "(no definido)"}`}
-      description={unidad || '\u00A0'}
-      allowDecimal
-      thousandSeparator=","
-      decimalScale={2}
-      min={0}
-    />
-  );
 
   if (!recursoHumano) return null;
 
   return (
-    <Modal opened={show} onClose={onClose} title={`Configuración Avanzada – ${recursoHumano.nombre}`} size="xl" centered>
-      <Tabs defaultValue="economicos" color="cyan">
-        <Tabs.List>
-          <Tabs.Tab value="economicos" leftSection={<Wallet style={{ width: rem(16), height: rem(16) }} />}>Parámetros Económicos</Tabs.Tab>
-          <Tabs.Tab value="contratacion" leftSection={<FileText style={{ width: rem(16), height: rem(16) }} />}>Contratación</Tabs.Tab>
-          <Tabs.Tab value="obs" leftSection={<MessageCircle style={{ width: rem(16), height: rem(16) }} />}>Observaciones</Tabs.Tab>
-        </Tabs.List>
+    <Modal opened={show} onClose={onClose} title={`Configuración Avanzada: ${recursoHumano.nombre}`} size="lg" centered>
+      <form onSubmit={form.onSubmit(handleGuardar)}>
+        <Tabs defaultValue="salario" color="cyan">
+            {/* ✅ 4. Pestañas reorganizadas por especialidad */}
+            <Tabs.List grow>
+                <Tabs.Tab value="salario" leftSection={<Wallet size={16} />}>Salario Base</Tabs.Tab>
+                <Tabs.Tab value="variables" leftSection={<Truck size={16} />}>Costos Variables</Tabs.Tab>
+                <Tabs.Tab value="indirectos" leftSection={<FileText size={16} />}>Costos Indirectos</Tabs.Tab>
+                <Tabs.Tab value="obs" leftSection={<MessageCircle size={16} />}>Observaciones</Tabs.Tab>
+            </Tabs.List>
 
-        <Tabs.Panel value="economicos" pt="lg">
-            <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
-                <CampoNumerico label="Sueldo Básico" name="sueldoBasico" unidad="$ ARS" />
-                <CampoNumerico label="% Adicional por Actividad" name="adicionalActividadPorc" unidad="%" />
-                <CampoNumerico label="Adicional No Remunerativo Fijo" name="adicionalNoRemunerativoFijo" unidad="$ ARS" />
-                <CampoNumerico label="Adicional por Km (Remunerativo)" name="adicionalKmRemunerativo" unidad="$ por km" />
-                <CampoNumerico label="Viático por Km (No Remun.)" name="viaticoPorKmNoRemunerativo" unidad="$ por km" />
-                <CampoNumerico label="Adicional Carga/Descarga" name="adicionalCargaDescargaCadaXkm" unidad="$ por lote de km" />
-                <CampoNumerico label="Km por unidad de Carga/Descarga" name="kmPorUnidadDeCarga" unidad="km" />
-            </SimpleGrid>
-        </Tabs.Panel>
-        
-        <Tabs.Panel value="contratacion" pt="lg">
-          <Stack>
-            {recursoHumano.tipoContratacion === "empleado" && (
-                <CampoNumerico label="% Cargas Sociales" name="porcentajeCargasSociales" unidad="Porcentaje sobre remunerativo" />
-            )}
-            {recursoHumano.tipoContratacion === "contratado" && (
-                <CampoNumerico label="% Overhead Contratado" name="porcentajeOverheadContratado" unidad="Monotributo, Seguro, etc." />
-            )}
-          </Stack>
-        </Tabs.Panel>
-        
-        <Tabs.Panel value="obs" pt="lg">
-            <Textarea
-              label="Anotaciones sobre el recurso humano"
-              name="observaciones"
-              value={formData.observaciones || ""}
-              onChange={(e) => setFormData(prev => ({...prev, observaciones: e.currentTarget.value}))}
-              autosize
-              minRows={4}
-            />
-        </Tabs.Panel>
-      </Tabs>
-      <Group justify="flex-end" mt="xl">
-        <Button variant="default" onClick={onClose}>Cancelar</Button>
-        <Button onClick={handleGuardar} loading={isSaving}>Guardar Cambios</Button>
-      </Group>
+            <Tabs.Panel value="salario" pt="xl">
+                <Grid>
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                        <CampoNumerico form={form} label="Sueldo Básico" name="sueldoBasico" description="Sueldo bruto de convenio." unidad="$ ARS" />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                        <CampoNumerico form={form} label="Adicional por Actividad" name="adicionalActividadPorc" description="Porcentaje sobre el básico." unidad="%" />
+                    </Grid.Col>
+                     <Grid.Col span={12}>
+                        <CampoNumerico form={form} label="Adicional Fijo (No Remunerativo)" name="adicionalNoRemunerativoFijo" description="Monto fijo que no recibe descuentos." unidad="$ ARS" />
+                    </Grid.Col>
+                </Grid>
+            </Tabs.Panel>
+            
+            <Tabs.Panel value="variables" pt="xl">
+                <Stack gap="lg">
+                    <Paper withBorder p="md" radius="sm">
+                        <Title order={6} c="dimmed" mb="xs">POR KILÓMETRO RECORRIDO</Title>
+                        <Grid>
+                            <Grid.Col span={{ base: 12, sm: 6 }}><CampoNumerico form={form} label="Adicional por Km (Remun.)" name="adicionalKmRemunerativo" description="Pago extra por km." unidad="$ / km" /></Grid.Col>
+                            <Grid.Col span={{ base: 12, sm: 6 }}><CampoNumerico form={form} label="Viático por Km (No Remun.)" name="viaticoPorKmNoRemunerativo" description="Compensación de gastos." unidad="$ / km" /></Grid.Col>
+                        </Grid>
+                    </Paper>
+                    <Paper withBorder p="md" radius="sm">
+                        <Title order={6} c="dimmed" mb="xs">POR CARGA Y DESCARGA</Title>
+                        <Grid>
+                            <Grid.Col span={{ base: 12, sm: 6 }}><CampoNumerico form={form} label="Adicional por Lote de Km" name="adicionalCargaDescargaCadaXkm" description="Bonus por distancia." unidad="$ ARS" /></Grid.Col>
+                            <Grid.Col span={{ base: 12, sm: 6 }}><CampoNumerico form={form} label="Cada cuántos Km se paga" name="kmPorUnidadDeCarga" description="Frecuencia del bonus." unidad="km" /></Grid.Col>
+                        </Grid>
+                    </Paper>
+                </Stack>
+            </Tabs.Panel>
+            
+            <Tabs.Panel value="indirectos" pt="lg">
+                <Text size="sm" c="dimmed" mb="md">
+                  Estos costos dependen de la modalidad de contratación del personal.
+                </Text>
+                {recursoHumano.tipoContratacion === "empleado" ? (
+                    <CampoNumerico form={form} label="% Cargas Sociales" name="porcentajeCargasSociales" description="Aportes y contribuciones sobre el sueldo remunerativo." unidad="%" />
+                ) : (
+                    <CampoNumerico form={form} label="% Overhead Contratado" name="porcentajeOverheadContratado" description="Costos asociados al monotributo, seguro, etc." unidad="%" />
+                )}
+            </Tabs.Panel>
+
+            <Tabs.Panel value="obs" pt="lg">
+                <Textarea label="Anotaciones sobre el colaborador" autosize minRows={8} {...form.getInputProps('observaciones')} />
+            </Tabs.Panel>
+        </Tabs>
+
+        <Group justify="flex-end" mt="xl">
+            <Button variant="default" onClick={onClose}>Cancelar</Button>
+            <Button type="submit">Guardar Cambios</Button>
+        </Group>
+      </form>
     </Modal>
   );
 };

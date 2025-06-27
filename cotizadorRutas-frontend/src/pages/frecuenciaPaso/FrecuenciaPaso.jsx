@@ -1,17 +1,19 @@
-// Archivo: cotizadorRutas-frontend/src/pages/frecuenciaPaso/FrecuenciaPaso.jsx (Versión Rediseño "Cockpit")
+// Archivo: src/pages/frecuenciaPaso/FrecuenciaPaso.jsx (Versión con Resumen Contextual)
 
 import { useState } from "react";
 import clienteAxios from "../../api/clienteAxios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCotizacion } from "../../context/Cotizacion";
+// ✅ 1. Añadimos 'Grid' para poder crear las columnas
 import { 
-    Stack, Title, NumberInput, Group, Textarea, Button, Paper, Text, UnstyledButton, useMantineTheme 
+    Stack, Title, NumberInput, Group, Textarea, Button, Paper, Text, UnstyledButton, useMantineTheme, Grid 
 } from "@mantine/core";
 import { Calendar, Repeat, MessageSquare, ArrowRight, ArrowLeft } from "lucide-react";
 import { notifications } from '@mantine/notifications';
 import { motion, AnimatePresence } from "framer-motion";
+import ResumenPaso from "../../components/ResumenPaso"; // ✅ 2. Importamos nuestro nuevo componente de resumen
 
-// --- Componente interno para las tarjetas de selección ---
+// --- Componente interno SelectionCard (sin cambios) ---
 const SelectionCard = ({ icon: Icon, label, description, selected, ...props }) => {
     const theme = useMantineTheme();
     return (
@@ -36,7 +38,7 @@ const SelectionCard = ({ icon: Icon, label, description, selected, ...props }) =
     );
 };
 
-// --- Componente interno para el calendario semanal ---
+// --- Componente interno WeekdayPicker (sin cambios) ---
 const WeekdayPicker = ({ value, onChange }) => {
     const theme = useMantineTheme();
     const days = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -90,7 +92,6 @@ const FrecuenciaPaso = () => {
     const { setFrecuencia } = useCotizacion();
 
     const handleSubmit = async () => {
-        // ... (lógica de submit no cambia)
         setIsSaving(true);
         const data = {
           tipo,
@@ -101,8 +102,10 @@ const FrecuenciaPaso = () => {
           rutaId: idRuta
         };
         try {
-          await clienteAxios.post(`/frecuencias-ruta`, data);
+          // Actualizamos el contexto ANTES de navegar
           setFrecuencia(data);
+          // Opcional: podrías guardar esto en la BD aquí o todo junto al final
+          // await clienteAxios.post(`/frecuencias-ruta`, data);
           navigate(`/cotizador/vehiculo/${idRuta}`);
         } catch (error) {
           console.error("❌ Error al guardar frecuencia:", error);
@@ -113,91 +116,59 @@ const FrecuenciaPaso = () => {
     };
 
     return (
-        <Paper withBorder p="xl" radius="md" shadow="sm">
-            <Stack gap="xl">
-                <Title order={3} c="deep-blue.8">¿Cuál es la frecuencia del servicio?</Title>
+        // ✅ 3. Usamos un Grid para dividir la pantalla en dos columnas
+        <Grid gutter="xl">
+            {/* Columna Izquierda: El formulario principal (ocupa 8 de 12 columnas en pantallas medianas y grandes) */}
+            <Grid.Col span={{ base: 12, md: 8 }}>
+                <Paper withBorder p="xl" radius="md" shadow="sm" style={{ height: '100%' }}>
+                    <Stack gap="xl">
+                        <Title order={3} c="deep-blue.8">¿Cuál es la frecuencia del servicio?</Title>
 
-                <Group grow align="stretch">
-                    <SelectionCard
-                        icon={Repeat}
-                        label="Esporádico"
-                        description="Para uno o varios viajes puntuales."
-                        selected={tipo === 'esporadico'}
-                        onClick={() => setTipo('esporadico')}
-                    />
-                    <SelectionCard
-                        icon={Calendar}
-                        label="Mensual"
-                        description="Para operativas recurrentes y fijas."
-                        selected={tipo === 'mensual'}
-                        onClick={() => setTipo('mensual')}
-                    />
-                </Group>
-                
-                <AnimatePresence>
-                    {tipo === 'esporadico' && (
-                        <motion.div
-                            key="esporadico"
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                        >
-                           <Paper withBorder p="md" radius="sm" mt="md">
-                                <NumberInput
-                                    label="Cantidad total de viajes a cotizar"
-                                    value={vueltasTotales}
-                                    onChange={(value) => setVueltasTotales(Number(value))}
-                                    min={1}
-                                    allowDecimal={false}
-                                />
-                           </Paper>
-                        </motion.div>
-                    )}
+                        {/* El resto de tu formulario no cambia */}
+                        <Group grow align="stretch">
+                           <SelectionCard icon={Repeat} label="Esporádico" description="Para uno o varios viajes puntuales." selected={tipo === 'esporadico'} onClick={() => setTipo('esporadico')}/>
+                           <SelectionCard icon={Calendar} label="Mensual" description="Para operativas recurrentes y fijas." selected={tipo === 'mensual'} onClick={() => setTipo('mensual')}/>
+                        </Group>
+                        <AnimatePresence>
+                            {tipo === 'esporadico' && (
+                                <motion.div key="esporadico" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                                   <Paper withBorder p="md" radius="sm" mt="md">
+                                        <NumberInput label="Cantidad total de viajes a cotizar" value={vueltasTotales} onChange={(value) => setVueltasTotales(Number(value))} min={1} allowDecimal={false}/>
+                                   </Paper>
+                                </motion.div>
+                            )}
+                            {tipo === 'mensual' && (
+                                 <motion.div key="mensual" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                                   <Paper withBorder p="md" radius="sm" mt="md">
+                                        <Stack>
+                                            <Text fw={500} size="sm">Selecciona los días de la semana</Text>
+                                            <WeekdayPicker value={diasSeleccionados} onChange={setDiasSeleccionados} />
+                                            <NumberInput label="¿Cuántas vueltas se realizarán por día seleccionado?" value={viajesPorDia} onChange={(value) => setViajesPorDia(Number(value))} min={1} allowDecimal={false}/>
+                                        </Stack>
+                                   </Paper>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        <Textarea label="Observaciones Adicionales" placeholder="Comentarios sobre la frecuencia, horarios preferidos, etc." value={observaciones} onChange={(e) => setObservaciones(e.target.value)} leftSection={<MessageSquare size={16} />} autosize minRows={3}/>
 
-                    {tipo === 'mensual' && (
-                         <motion.div
-                            key="mensual"
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                        >
-                           <Paper withBorder p="md" radius="sm" mt="md">
-                                <Stack>
-                                    <Text fw={500} size="sm">Selecciona los días de la semana</Text>
-                                    <WeekdayPicker value={diasSeleccionados} onChange={setDiasSeleccionados} />
-                                    <NumberInput
-                                        label="¿Cuántas vueltas se realizarán por día seleccionado?"
-                                        value={viajesPorDia}
-                                        onChange={(value) => setViajesPorDia(Number(value))}
-                                        min={1}
-                                        allowDecimal={false}
-                                    />
-                                </Stack>
-                           </Paper>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-                
-                <Textarea
-                    label="Observaciones Adicionales"
-                    placeholder="Comentarios sobre la frecuencia, horarios preferidos, etc."
-                    value={observaciones}
-                    onChange={(e) => setObservaciones(e.target.value)}
-                    leftSection={<MessageSquare size={16} />}
-                    autosize
-                    minRows={3}
-                />
-
-                <Group justify="space-between" mt="md">
-                    <Button variant="default" onClick={() => navigate(-1)} leftSection={<ArrowLeft size={16} />}>
-                        Volver
-                    </Button>
-                    <Button onClick={handleSubmit} loading={isSaving} rightSection={<ArrowRight size={16} />} size="md">
-                        Siguiente: Vehículo
-                    </Button>
-                </Group>
-            </Stack>
-        </Paper>
+                        {/* Los botones de navegación se mantienen igual */}
+                        <Group justify="space-between" mt="md">
+                            <Button variant="default" onClick={() => navigate(-1)} leftSection={<ArrowLeft size={16} />}>
+                                Volver
+                            </Button>
+                            <Button onClick={handleSubmit} loading={isSaving} rightSection={<ArrowRight size={16} />} size="md">
+                                Siguiente: Vehículo
+                            </Button>
+                        </Group>
+                    </Stack>
+                </Paper>
+            </Grid.Col>
+            
+            {/* ✅ 4. Columna Derecha: Nuestro nuevo componente de resumen (ocupa 4 de 12 columnas) */}
+            <Grid.Col span={{ base: 12, md: 4 }}>
+                <ResumenPaso />
+            </Grid.Col>
+        </Grid>
     );
 };
 

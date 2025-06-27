@@ -1,6 +1,6 @@
-// Archivo: cotizadorRutas-frontend/src/pages/puntosEntregaPaso/PuntosEntregaPaso.jsx (Versión con Sincronización Total)
+// Archivo: cotizadorRutas-frontend/src/pages/puntosEntregaPaso/PuntosEntregaPaso.jsx (Versión Definitiva Corregida)
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import BuscadorDireccion from "../../components/BuscadorDireccion";
 import TablaPuntos from "../../components/TablaPuntos";
 import MapaRuta from "../../components/MapaRuta";
@@ -9,64 +9,68 @@ import { useNavigate } from "react-router-dom";
 import clienteAxios from "../../api/clienteAxios";
 import { useCotizacion } from "../../context/Cotizacion";
 import { Grid, Stack, Group, Button, Text, Center, Paper, Select, Title } from "@mantine/core";
-import { Navigation, Route, Sparkles, Box, MapPinOff } from "lucide-react";
+import { Navigation, Route, Sparkles, MapPinOff } from "lucide-react";
 import { notifications } from '@mantine/notifications';
 
 export default function PuntosEntregaPaso() {
     const navigate = useNavigate();
-    const { cotizacion, setPuntosEntrega, setDetallesCarga } = useCotizacion();
+    
+    // ✅ CORRECCIÓN PRINCIPAL: Desestructuramos directamente las propiedades que necesitamos del contexto.
+    // Ya no usamos un objeto "cotizacion" intermedio.
+    const { 
+        puntosEntrega, 
+        directionsResult,
+        detallesCarga,
+        setPuntosEntrega, 
+        setDetallesCarga, 
+        setDirectionsResult 
+    } = useCotizacion();
 
-    const puntos = cotizacion.puntosEntrega?.puntos || [];
+    // Ahora esta línea funciona porque 'puntosEntrega' se recibe directamente.
+    const puntos = puntosEntrega?.puntos || [];
 
-    const [optimizar, setOptimizar] = useState(false);
-    const [recalculo, setRecalculo] = useState(0);
-    // --- ✅ INICIO: CAMBIO CLAVE EN EL ESTADO INICIAL ---
-    // ¿Por qué este cambio?
-    // Ahora, el estado local 'datosRuta' se inicializa directamente con los
-    // valores del contexto. Si estamos volviendo a la página, el resumen
-    // de distancia y duración aparecerá inmediatamente.
     const [datosRuta, setDatosRuta] = useState(
-      cotizacion.puntosEntrega?.distanciaKm 
-      ? { distanciaKm: cotizacion.puntosEntrega.distanciaKm, duracionMin: cotizacion.puntosEntrega.duracionMin } 
+      puntosEntrega?.distanciaKm 
+      ? { distanciaKm: puntosEntrega.distanciaKm, duracionMin: puntosEntrega.duracionMin } 
       : null
     );
-    // --- ✅ FIN: CAMBIO CLAVE ---
 
     const [isSaving, setIsSaving] = useState(false);
-    
-    // Este useEffect ahora solo se encarga de redibujar el mapa si es necesario
-    useEffect(() => {
-        if (puntos.length >= 2 && cotizacion.puntosEntrega?.distanciaKm) {
-            handleCalcular(false);
-        }
-    }, []);
 
+    const limpiarRutaGuardada = () => {
+        setDatosRuta(null);
+        setDirectionsResult(null);
+    };
+    
     const agregarPunto = (punto) => {
         if (!punto) return;
         const nuevosPuntos = [...puntos, punto];
-        setPuntosEntrega({ ...cotizacion.puntosEntrega, puntos: nuevosPuntos });
-        setOptimizar(false);
-        setDatosRuta(null); // Reseteamos el resumen para forzar un nuevo cálculo
+        // Pasamos el objeto 'puntosEntrega' completo para mantener su estructura
+        setPuntosEntrega({ ...puntosEntrega, puntos: nuevosPuntos });
+        limpiarRutaGuardada();
     };
 
     const handleEliminarPunto = (index) => {
         const nuevosPuntos = puntos.filter((_, i) => i !== index);
-        setPuntosEntrega({ ...cotizacion.puntosEntrega, puntos: nuevosPuntos });
-        setDatosRuta(null);
+        setPuntosEntrega({ ...puntosEntrega, puntos: nuevosPuntos });
+        limpiarRutaGuardada();
     };
     
     const handleReordenarPuntos = (nuevosPuntos) => {
-        setPuntosEntrega({ ...cotizacion.puntosEntrega, puntos: nuevosPuntos });
-        setDatosRuta(null);
+        setPuntosEntrega({ ...puntosEntrega, puntos: nuevosPuntos });
+        limpiarRutaGuardada();
     };
 
-    const handleOptimizarOrden = useCallback((nuevosPuntos) => {
-        setPuntosEntrega({ ...cotizacion.puntosEntrega, puntos: nuevosPuntos });
-        setOptimizar(false);
-    }, [cotizacion.puntosEntrega, setPuntosEntrega]); 
+    // Esta función recibe los datos calculados desde el componente hijo (MapaRuta)
+    const handleRutaCalculada = (datos) => {
+        setDatosRuta(datos.resumen);
+        setDirectionsResult(datos.directions);
+        // Guardamos todo en el contexto para persistir la información
+        setPuntosEntrega({ puntos: puntos, ...datos.resumen });
+    };
 
     const handleCargaChange = (value) => {
-        setDetallesCarga(prev => ({ ...prev, tipo: value }));
+        setDetallesCarga({ ...detallesCarga, tipo: value });
     };
 
     const handleSiguiente = async () => {
@@ -80,7 +84,9 @@ export default function PuntosEntregaPaso() {
             const payload = { puntos: ordenados, distanciaKm: datosRuta.distanciaKm, duracionMin: datosRuta.duracionMin };
             const res = await clienteAxios.post('/rutas', payload);
             
-            setPuntosEntrega({ ...payload, rutaId: res.data._id });
+            setPuntosEntrega({ ...puntosEntrega, ...payload, rutaId: res.data._id });
+            // Guardamos el resultado del mapa también al avanzar
+            setDirectionsResult(directionsResult);
             navigate(`/cotizador/frecuencia/${res.data._id}`);
         } catch (err) {
             console.error("❌ Error al guardar ruta:", err);
@@ -88,11 +94,6 @@ export default function PuntosEntregaPaso() {
         } finally {
             setIsSaving(false);
         }
-    };
-
-    const handleCalcular = (optimizado = false) => {
-        setOptimizar(optimizado);
-        setRecalculo(prev => prev + 1);
     };
 
     return (
@@ -107,14 +108,13 @@ export default function PuntosEntregaPaso() {
                                 puntos={puntos} 
                                 onReordenar={handleReordenarPuntos}
                                 onEliminar={handleEliminarPunto}
-                                setOptimizar={setOptimizar} 
                             />
                             <Paper withBorder p="md" mt="lg" radius="md" bg="gray.0">
                                 <Stack>
                                     <Text fw={500} c="dimmed">Detalles de la Carga</Text>
                                     <Select
                                         label="Tipo de Carga"
-                                        value={cotizacion.detallesCarga.tipo}
+                                        value={detallesCarga.tipo}
                                         onChange={handleCargaChange}
                                         data={[
                                             { value: 'general', label: 'Carga General' },
@@ -133,10 +133,8 @@ export default function PuntosEntregaPaso() {
                             {puntos.length > 0 ? (
                                 <MapaRuta
                                     puntos={puntos}
-                                    optimizar={optimizar}
-                                    onOptimizarOrden={handleOptimizarOrden}
-                                    onDatosRuta={setDatosRuta}
-                                    recalculo={recalculo}
+                                    initialDirections={directionsResult}
+                                    onRutaCalculada={handleRutaCalculada}
                                 />
                             ) : (
                                 <Center h={400} bg="gray.0" style={{ borderRadius: 'var(--mantine-radius-md)' }}>
@@ -151,17 +149,6 @@ export default function PuntosEntregaPaso() {
                         </Stack>
                     </Grid.Col>
                 </Grid>
-                
-                {puntos.length >= 2 && !datosRuta && (
-                    <Group grow mt="md">
-                        <Button variant="default" onClick={() => handleCalcular(false)} leftSection={<Route size={16} />}>
-                            Calcular Ruta
-                        </Button>
-                        <Button onClick={() => handleCalcular(true)} leftSection={<Sparkles size={16} />}>
-                            Optimizar y Calcular
-                        </Button>
-                    </Group>
-                )}
 
                 <Group justify="flex-end" mt="xl">
                     <Button

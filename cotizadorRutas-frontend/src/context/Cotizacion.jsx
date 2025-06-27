@@ -1,4 +1,4 @@
-// Archivo: cotizadorRutas-frontend/src/context/Cotizacion.jsx (Versión Robusta)
+// Archivo: src/context/Cotizacion.jsx (Versión Final Definitiva)
 
 import React, { createContext, useContext, useState } from "react";
 
@@ -6,54 +6,71 @@ const CotizacionContext = createContext();
 
 export const useCotizacion = () => useContext(CotizacionContext);
 
-// Definimos un estado inicial claro para todo el cotizador
 const initialState = {
   puntosEntrega: null,
+  directionsResult: null,
   frecuencia: null,
   vehiculo: null,
   recursoHumano: null,
   detallesCarga: { tipo: 'general', pesoKg: 0, valorDeclarado: 0 },
+  resumenCostos: null,
+  detalleVehiculo: null,
+  detalleRecurso: null,
 };
 
 export const CotizacionProvider = ({ children }) => {
-  // ¿Por qué este cambio?
-  // 1.  Ahora tenemos un único estado 'cotizacion' que contiene todo.
-  // 2.  Este estado siempre empieza con una estructura definida (initialState),
-  //     por lo que 'cotizacion.puntosEntrega' nunca será indefinido, será 'null' al principio.
   const [cotizacion, setCotizacion] = useState(initialState);
 
-  // Creamos funciones específicas para modificar cada parte del estado
+  // Las funciones para actualizar el estado no cambian
   const setPuntosEntrega = (puntos) => {
     setCotizacion(prev => ({ ...prev, puntosEntrega: puntos }));
   };
-
   const setFrecuencia = (frecuencia) => {
     setCotizacion(prev => ({ ...prev, frecuencia: frecuencia }));
   };
-
   const setVehiculo = (vehiculo) => {
     setCotizacion(prev => ({ ...prev, vehiculo: vehiculo }));
   };
-
   const setRecursoHumano = (recursoHumano) => {
     setCotizacion(prev => ({ ...prev, recursoHumano: recursoHumano }));
   };
-  
   const setDetallesCarga = (detalles) => {
     setCotizacion(prev => ({ ...prev, detallesCarga: detalles }));
+  };
+  const setDirectionsResult = (directions) => {
+    setCotizacion(prev => ({ ...prev, directionsResult: directions }));
+  };
+  const setResumenCostos = (resumen) => {
+    setCotizacion(prev => ({ ...prev, resumenCostos: resumen }));
+  };
+
+  const setDetalleVehiculo = (detalle) => {
+    setCotizacion(prev => ({ ...prev, detalleVehiculo: detalle }));
+  };
+  const setDetalleRecurso = (detalle) => {
+    setCotizacion(prev => ({ ...prev, detalleRecurso: detalle }));
   };
 
   return (
     <CotizacionContext.Provider
+      // ✅ --- LA SOLUCIÓN DEFINITIVA ESTÁ AQUÍ --- ✅
+      // En lugar de anidar el estado dentro de un objeto { cotizacion: cotizacion },
+      // ahora "esparcimos" todas las propiedades del estado directamente en el 'value'.
+      // Esto permite que los demás componentes accedan a 'vehiculo', 'frecuencia', etc.
+      // de la forma en que lo están intentando hacer.
       value={{
-        // Pasamos el objeto completo de la cotización
-        cotizacion,
-        // Y pasamos las funciones para modificarlo
+        ...cotizacion, // <-- Esta línea es la clave del arreglo.
+
+        // Y también pasamos todas las funciones para modificar el estado.
         setPuntosEntrega,
         setFrecuencia,
         setVehiculo,
         setRecursoHumano,
         setDetallesCarga,
+        setDirectionsResult,
+        setResumenCostos,
+        setDetalleVehiculo, 
+        setDetalleRecurso,
       }}
     >
       {children}
