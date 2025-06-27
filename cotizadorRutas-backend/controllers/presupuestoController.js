@@ -7,12 +7,19 @@ import calcularCostoTotalRecurso from '../services/calculos/costoRecursoHumanoSe
 
 const COSTO_ADICIONAL_KM_PELIGROSA = 250;
 
+
 export const calcularPresupuesto = async (req, res) => {
   try {
-    const { puntosEntrega, frecuencia, vehiculo, recursoHumano, configuracion, detallesCarga } = req.body;
+    const { puntosEntrega, frecuencia, detallesCarga } = req.body;
+    
+    // ✅ 1. Manejo flexible de datos: Si no vienen, los tratamos como null u objetos vacíos
+    const vehiculo = req.body.vehiculo || null;
+    const recursoHumano = req.body.recursoHumano || null;
+    const configuracion = req.body.configuracion || {};
 
-    if (!puntosEntrega || !frecuencia || !vehiculo || !recursoHumano || !configuracion) {
-      return res.status(400).json({ error: 'Faltan datos para el cálculo.' });
+    // La validación ahora es más simple
+    if (!puntosEntrega || !frecuencia) {
+      return res.status(400).json({ error: 'Faltan datos de ruta o frecuencia para el cálculo.' });
     }
 
     const kmsPorViaje = puntosEntrega?.distanciaKm || 0;
@@ -24,40 +31,35 @@ export const calcularPresupuesto = async (req, res) => {
     }
     const esViajeRegular = frecuencia?.tipo === "mensual";
 
-    const costoVehiculo = calcularCostoVehiculo(
-      vehiculo,
-      kmsPorViaje,
-      cantidadViajesMensuales,
-      esViajeRegular,
-      detallesCarga
-    );
+    // ✅ 2. Cálculo condicional: Solo calculamos el costo si el dato existe. Si no, es 0.
+    const costoVehiculo = vehiculo 
+      ? calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadViajesMensuales, esViajeRegular, detallesCarga)
+      : { totalFinal: 0, detalle: {} }; // Si no hay vehículo, el costo es 0
 
-    const costoRecurso = calcularCostoTotalRecurso(
-      recursoHumano,
-      kmsPorViaje,
-      cantidadViajesMensuales,
-      esViajeRegular
-    );
+    const costoRecurso = recursoHumano
+      ? calcularCostoTotalRecurso(recursoHumano, kmsPorViaje, cantidadViajesMensuales, esViajeRegular)
+      : { totalFinal: 0, detalle: {} }; // Si no hay RRHH, el costo es 0
 
+    // El resto de la lógica funciona igual, pero ahora con valores seguros (0 si no hay dato)
     const totalVehiculo = costoVehiculo.totalFinal;
     const totalRecurso = costoRecurso.totalFinal;
     const totalPeajes = (configuracion.costoPeajes || 0) * cantidadViajesMensuales;
     const otrosCostos = configuracion.otrosCostos || 0;
 
-
     const subtotalOperativoParcial = totalVehiculo + totalRecurso;
-    const porcentajeAdmin = configuracion.costoAdministrativo || 0;
+    const porcentajeAdmin = configuracion.costoAdministrativo || 10;
     const totalAdministrativo = Math.round((subtotalOperativoParcial * porcentajeAdmin) / 100);
 
     let costoAdicionalPeligrosa = 0;
     if (detallesCarga?.tipo === 'peligrosa') {
       const kmsTotalesMensuales = kmsPorViaje * cantidadViajesMensuales;
+      const COSTO_ADICIONAL_KM_PELIGROSA = 250;
       costoAdicionalPeligrosa = kmsTotalesMensuales * COSTO_ADICIONAL_KM_PELIGROSA;
     }
 
     const totalOperativo = totalVehiculo + totalRecurso + totalPeajes + totalAdministrativo + otrosCostos + costoAdicionalPeligrosa;
 
-    const porcentajeGanancia = configuracion.porcentajeGanancia || 0;
+    const porcentajeGanancia = configuracion.porcentajeGanancia || 15;
     const ganancia = Math.round((totalOperativo * porcentajeGanancia) / 100);
     const totalFinal = totalOperativo + ganancia;
 

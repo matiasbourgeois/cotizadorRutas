@@ -30,77 +30,62 @@ const estiloMapaGrisElegante = [
     { featureType: "water", stylers: [{ color: "#d0d0d0" }] },
 ];
 
-export default function MapaRuta({ puntos, optimizar, onOptimizarOrden, onDatosRuta, recalculo }) {
+// ✅ PASO 1: La función ahora recibe las nuevas props que definimos antes
+export default function MapaRuta({ puntos, initialDirections, onRutaCalculada }) {
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_Maps_API_KEY,
         libraries,
     });
 
-    const [directions, setDirections] = useState(null);
+    // ✅ PASO 2: El estado local se inicializa con el valor que viene del contexto (initialDirections)
+    const [directions, setDirections] = useState(initialDirections || null);
     const mapRef = useRef(null);
 
+    // ✅ PASO 3: Reemplaza tu 'useEffect' completo por este. Es más simple y robusto.
     useEffect(() => {
-        if (!isLoaded || puntos.length < 2) {
-            setDirections(null);
+        // Condición 1: Si ya tenemos una ruta en el estado (porque venía del contexto),
+        // la dibujamos y no hacemos nada más.
+        if (initialDirections) {
+            setDirections(initialDirections);
             return;
         }
 
-        const service = new window.google.maps.DirectionsService();
-
-        // Si la orden es optimizar, hacemos el proceso de 2 pasos
-        if (optimizar) {
-            // PASO 1: Pedir solo el ORDEN ÓPTIMO con el truco de ida y vuelta
-            const requestOrden = {
-                origin: { lat: puntos[0].lat, lng: puntos[0].lng },
-                destination: { lat: puntos[0].lat, lng: puntos[0].lng },
-                waypoints: puntos.slice(1).map(p => ({ location: { lat: p.lat, lng: p.lng }, stopover: true })),
-                travelMode: "DRIVING",
-                optimizeWaypoints: true,
-            };
-
-            service.route(requestOrden, (result, status) => {
-                if (status === "OK" && result.routes[0]?.waypoint_order) {
-                    const orden = result.routes[0].waypoint_order;
-                    const puntosIntermedios = puntos.slice(1);
-                    const puntosOptimizados = [
-                        puntos[0],
-                        ...orden.map((i) => puntosIntermedios[i]),
-                    ];
-                    // Le pasamos el nuevo orden al componente padre. Esto causará un re-render
-                    // y el useEffect se volverá a ejecutar, pero esta vez con optimizar=false
-                    onOptimizarOrden(puntosOptimizados);
-                } else {
-                     console.error("No se pudo obtener el orden optimizado:", status);
-                     onOptimizarOrden(puntos); // Devolvemos el orden original en caso de error
-                }
-            });
-        } else {
-            // PASO 2: Calcular y dibujar la ruta con el orden de puntos actual (sea el original o el ya optimizado)
+        // Condición 2: Si NO teníamos una ruta guardada, pero hay puntos suficientes
+        // y el mapa está listo, procedemos a calcularla.
+        if (isLoaded && puntos.length >= 2) {
+            const service = new window.google.maps.DirectionsService();
             const requestRuta = {
                 origin: { lat: puntos[0].lat, lng: puntos[0].lng },
                 destination: { lat: puntos[puntos.length - 1].lat, lng: puntos[puntos.length - 1].lng },
                 waypoints: puntos.slice(1, -1).map(p => ({ location: { lat: p.lat, lng: p.lng }, stopover: true })),
                 travelMode: "DRIVING",
-                optimizeWaypoints: false, // Nunca optimizamos en este paso, solo dibujamos
             };
 
             service.route(requestRuta, (result, status) => {
                 if (status === "OK") {
                     const distanciaMetros = result.routes[0].legs.reduce((sum, leg) => sum + leg.distance.value, 0);
                     const duracionSegundos = result.routes[0].legs.reduce((sum, leg) => sum + leg.duration.value, 0);
-                    const distanciaKm = parseFloat((distanciaMetros / 1000).toFixed(2));
-                    const duracionMin = Math.round(duracionSegundos / 60);
+                    
+                    // Devolvemos tanto el resumen como el objeto 'directions' para guardarlo en el contexto
+                    onRutaCalculada({
+                        resumen: {
+                            distanciaKm: parseFloat((distanciaMetros / 1000).toFixed(2)),
+                            duracionMin: Math.round(duracionSegundos / 60),
+                        },
+                        directions: result
+                    });
 
-                    // Actualizamos el resumen y el mapa con los datos CORRECTOS del viaje de solo ida
-                    onDatosRuta({ distanciaKm, duracionMin });
-                    setDirections(result);
+                    setDirections(result); // Actualizamos el estado local para dibujar en el mapa
                 } else {
-                    console.error("Error al dibujar la ruta final:", status);
+                    console.error(`Error al obtener la ruta: ${status}`);
                 }
             });
+        } else {
+            // Si no se cumple ninguna condición (ej: se eliminan los puntos), limpiamos la ruta.
+            setDirections(null);
         }
-
-    }, [puntos, optimizar, recalculo, isLoaded, onDatosRuta, onOptimizarOrden]);
+    // ✅ PASO 4: El array de dependencias ahora solo necesita saber si los puntos cambian o si el mapa cargó.
+    }, [puntos, isLoaded, initialDirections]);
 
 
     if (loadError) return <p>Error al cargar Google Maps</p>;
@@ -137,6 +122,7 @@ export default function MapaRuta({ puntos, optimizar, onOptimizarOrden, onDatosR
                     }}
                 />
             ))}
+            {/* ✅ PASO 5: No hay cambios aquí, pero ahora 'directions' se rellena de forma fiable */}
             {directions && (
                 <DirectionsRenderer
                     directions={directions}

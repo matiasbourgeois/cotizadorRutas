@@ -1,40 +1,45 @@
-// ruta: src/pages/vehiculoPaso/ModalCrearVehiculo.jsx
+// Archivo: src/pages/vehiculoPaso/ModalCrearVehiculo.jsx (Versión Final Pulida)
 
 import { useState } from "react";
-// ✅ --- LA SOLUCIÓN ESTÁ EN ESTA LÍNEA --- ✅
-import { Modal, Button, Select, TextInput, Checkbox, Group, Stack } from "@mantine/core";
+import { Modal, Button, Select, TextInput, Checkbox, Group, Stack, Grid, Divider, Text } from "@mantine/core";
 import { YearPickerInput } from '@mantine/dates';
 import clienteAxios from "../../api/clienteAxios";
-import 'dayjs/locale/es'; // Soporte para español en fechas
-import { API_URL } from '../../apiConfig';
+import 'dayjs/locale/es';
+import { useForm } from '@mantine/form';
+import { Car, Fuel, Tag, Calendar } from 'lucide-react'; // Íconos para los campos
 
 const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
-  const [formData, setFormData] = useState({
-    tipoVehiculo: "utilitario",
-    patente: "",
-    marca: "",
-    modelo: "",
-    año: new Date(),
-    tipoCombustible: "nafta",
-    tieneGNC: false
-  });
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const form = useForm({
+    mode: 'uncontrolled', 
+    initialValues: {
+      tipoVehiculo: "utilitario",
+      patente: "",
+      marca: "",
+      modelo: "",
+      año: new Date(),
+      tipoCombustible: "nafta",
+      tieneGNC: false
+    },
+    validate: {
+      patente: (value) => (value.trim().length >= 6 ? null : 'La patente debe tener al menos 6 caracteres'),
+      marca: (value) => (value.trim().length > 0 ? null : 'La marca es obligatoria'),
+      modelo: (value) => (value.trim().length > 0 ? null : 'El modelo es obligatorio'),
+    },
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values) => {
     setIsSaving(true);
     try {
       const dataEnviar = {
-        ...formData,
-        año: new Date(formData.año).getFullYear()
+        ...values,
+        año: new Date(values.año).getFullYear()
       };
       const res = await clienteAxios.post('/vehiculos', dataEnviar);
       onVehiculoCreado(res.data);
-      onClose(); // Cierra el modal al tener éxito
+      form.reset();
+      onClose();
     } catch (error) {
       console.error("❌ Error al crear vehículo:", error);
       alert("Error al crear vehículo. Ver consola.");
@@ -44,44 +49,46 @@ const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
   };
 
   return (
-    <Modal opened={show} onClose={onClose} title="Agregar Nuevo Vehículo" centered>
-      <form onSubmit={handleSubmit}>
-        <Stack>
-          <Select
-            label="Tipo de vehículo"
-            name="tipoVehiculo"
-            value={formData.tipoVehiculo}
-            onChange={(value) => handleChange('tipoVehiculo', value)}
-            data={['utilitario', 'mediano', 'grande', 'camion']}
-            required
-          />
-          <TextInput label="Patente" name="patente" value={formData.patente} onChange={(e) => handleChange('patente', e.currentTarget.value)} required />
-          <TextInput label="Marca" name="marca" value={formData.marca} onChange={(e) => handleChange('marca', e.currentTarget.value)} required />
-          <TextInput label="Modelo" name="modelo" value={formData.modelo} onChange={(e) => handleChange('modelo', e.currentTarget.value)} required />
-          <YearPickerInput
-            label="Año"
-            value={formData.año}
-            onChange={(date) => handleChange('año', date)}
-            locale="es"
-          />
-          <Select
-            label="Tipo de combustible"
-            name="tipoCombustible"
-            value={formData.tipoCombustible}
-            onChange={(value) => handleChange('tipoCombustible', value)}
-            data={['nafta', 'gasoil']}
-            required
-          />
-          {formData.tipoCombustible === "nafta" && (
-            <Checkbox
-              label="¿Tiene GNC?"
-              name="tieneGNC"
-              checked={formData.tieneGNC}
-              onChange={(e) => handleChange('tieneGNC', e.currentTarget.checked)}
-            />
-          )}
+    <Modal opened={show} onClose={onClose} title="Asistente de Alta de Vehículo" size="lg" centered>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        <Stack gap="lg">
+          
+          {/* ✅ Usamos Dividers para separar lógicamente el formulario */}
+          <Divider label={<Text fw={500}>Datos de Identificación</Text>} labelPosition="left" />
+
+          <Grid>
+            <Grid.Col span={{ base: 12, sm: 6 }}>
+              <TextInput withAsterisk label="Marca" placeholder="Ej: Fiat" leftSection={<Car size={16}/>} {...form.getInputProps('marca')} />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 6 }}>
+              <TextInput withAsterisk label="Modelo" placeholder="Ej: Fiorino" {...form.getInputProps('modelo')} />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 6 }}>
+               <TextInput withAsterisk label="Patente" placeholder="Formato AA 123 BB" leftSection={<Tag size={16}/>} {...form.getInputProps('patente')} />
+            </Grid.Col>
+             <Grid.Col span={{ base: 12, sm: 6 }}>
+                <YearPickerInput label="Año de fabricación" placeholder="Selecciona el año" leftSection={<Calendar size={16}/>} {...form.getInputProps('año')} locale="es" />
+            </Grid.Col>
+          </Grid>
+
+          <Divider label={<Text fw={500}>Especificaciones Técnicas</Text>} labelPosition="left" mt="md" />
+          
+          <Grid>
+            <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Select withAsterisk label="Tipo de vehículo" data={['utilitario', 'mediano', 'grande', 'camion']} {...form.getInputProps('tipoVehiculo')} />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Select withAsterisk label="Tipo de combustible" data={['nafta', 'gasoil']} leftSection={<Fuel size={16}/>} {...form.getInputProps('tipoCombustible')} />
+            </Grid.Col>
+            {form.values.tipoCombustible === "nafta" && (
+                <Grid.Col span={12}>
+                    <Checkbox mt="xs" label="¿Este vehículo está equipado con GNC?" {...form.getInputProps('tieneGNC', { type: 'checkbox' })} />
+                </Grid.Col>
+            )}
+          </Grid>
+          
           <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={onClose}>Cancelar</Button>
+            <Button variant="default" onClick={onClose} disabled={isSaving}>Cancelar</Button>
             <Button type="submit" loading={isSaving}>Crear Vehículo</Button>
           </Group>
         </Stack>
