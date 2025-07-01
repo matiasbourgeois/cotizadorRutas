@@ -49,7 +49,7 @@ const TablaPuntos = ({ puntos, onReordenar, onEliminar }) => {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th w={50}></Table.Th>
-                <Table.Th>Punto de Entrega</Table.Th>
+                <Table.Th>Puntos de Entrega</Table.Th>
                 <Table.Th w={60}></Table.Th>
               </Table.Tr>
             </Table.Thead>
