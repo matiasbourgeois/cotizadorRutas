@@ -22,9 +22,20 @@ const recursoHumanoSchema = new mongoose.Schema({
   minKmNoRemunerativo: { type: Number, default: 350 },
   adicionalNoRemunerativoFijo: { type: Number, default: 50000 },
 
+  // ==================== NUEVOS CAMPOS ====================
+  horasLaboralesMensuales: { 
+    type: Number, 
+    default: 192 
+  },
+  minimoMinutosFacturables: { 
+    type: Number, 
+    default: 120 
+  },
+  // =======================================================
+
   // Costos adicionales según tipo de contratación
-  porcentajeCargasSociales: { type: Number, default: 30 },          // Solo aplica a empleados
-  porcentajeOverheadContratado: { type: Number, default: 10 },      // Solo aplica a contratados
+  porcentajeCargasSociales: { type: Number, default: 30 },
+  porcentajeOverheadContratado: { type: Number, default: 10 },
 
   observaciones: String,
 
@@ -38,4 +49,3 @@ const recursoHumanoSchema = new mongoose.Schema({
 });
 
 export default mongoose.model("RecursoHumano", recursoHumanoSchema);
-

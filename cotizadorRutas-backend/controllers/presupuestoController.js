@@ -12,35 +12,33 @@ export const calcularPresupuesto = async (req, res) => {
   try {
     const { puntosEntrega, frecuencia, detallesCarga } = req.body;
     
-    // ✅ 1. Manejo flexible de datos: Si no vienen, los tratamos como null u objetos vacíos
     const vehiculo = req.body.vehiculo || null;
     const recursoHumano = req.body.recursoHumano || null;
     const configuracion = req.body.configuracion || {};
 
-    // La validación ahora es más simple
     if (!puntosEntrega || !frecuencia) {
       return res.status(400).json({ error: 'Faltan datos de ruta o frecuencia para el cálculo.' });
     }
 
     const kmsPorViaje = puntosEntrega?.distanciaKm || 0;
+    const duracionMin = puntosEntrega?.duracionMin || 0;
+
     let cantidadViajesMensuales = 0;
     if (frecuencia?.tipo === "mensual") {
       cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33;
     } else if (frecuencia?.tipo === "esporadico") {
       cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
     }
-    const esViajeRegular = frecuencia?.tipo === "mensual";
 
-    // ✅ 2. Cálculo condicional: Solo calculamos el costo si el dato existe. Si no, es 0.
+    // <<< CAMBIO CLAVE: Se actualizan los parámetros para la función del vehículo.
     const costoVehiculo = vehiculo 
-      ? calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadViajesMensuales, esViajeRegular, detallesCarga)
-      : { totalFinal: 0, detalle: {} }; // Si no hay vehículo, el costo es 0
+      ? calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadViajesMensuales, duracionMin, detallesCarga)
+      : { totalFinal: 0, detalle: {} };
 
     const costoRecurso = recursoHumano
-      ? calcularCostoTotalRecurso(recursoHumano, kmsPorViaje, cantidadViajesMensuales, esViajeRegular)
-      : { totalFinal: 0, detalle: {} }; // Si no hay RRHH, el costo es 0
+      ? calcularCostoTotalRecurso(recursoHumano, kmsPorViaje, duracionMin, frecuencia)
+      : { totalFinal: 0, detalle: {} };
 
-    // El resto de la lógica funciona igual, pero ahora con valores seguros (0 si no hay dato)
     const totalVehiculo = costoVehiculo.totalFinal;
     const totalRecurso = costoRecurso.totalFinal;
     const totalPeajes = (configuracion.costoPeajes || 0) * cantidadViajesMensuales;
@@ -53,7 +51,6 @@ export const calcularPresupuesto = async (req, res) => {
     let costoAdicionalPeligrosa = 0;
     if (detallesCarga?.tipo === 'peligrosa') {
       const kmsTotalesMensuales = kmsPorViaje * cantidadViajesMensuales;
-      const COSTO_ADICIONAL_KM_PELIGROSA = 250;
       costoAdicionalPeligrosa = kmsTotalesMensuales * COSTO_ADICIONAL_KM_PELIGROSA;
     }
 
@@ -102,10 +99,11 @@ export const crearPresupuesto = async (req, res) => {
     } else if (frecuencia?.tipo === "esporadico") {
       cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
     }
-    const esViajeRegular = frecuencia?.tipo === "mensual";
 
-    const calculoVehiculo = calcularCostoVehiculo(vehiculo.datos, kmsPorViaje, cantidadViajesMensuales, esViajeRegular, detallesCarga);
-    const calculoRecurso = calcularCostoTotalRecurso(recursoHumano.datos, kmsPorViaje, cantidadViajesMensuales, esViajeRegular);
+    // <<< CAMBIO CLAVE: Se actualizan los parámetros también aquí.
+    const calculoVehiculo = calcularCostoVehiculo(vehiculo.datos, kmsPorViaje, cantidadViajesMensuales, duracionMin, detallesCarga);
+    
+    const calculoRecurso = calcularCostoTotalRecurso(recursoHumano.datos, kmsPorViaje, duracionMin, frecuencia);
 
     const totalVehiculo = calculoVehiculo.totalFinal;
     const totalRecurso = calculoRecurso.totalFinal;
@@ -128,7 +126,6 @@ export const crearPresupuesto = async (req, res) => {
     const totalFinal = totalOperativo + ganancia;
 
     const presupuestoParaGuardar = new Presupuesto({
-      // ✅ CORRECCIÓN: Se asigna directamente el array de puntos.
       puntosEntrega: puntosEntrega,
       totalKilometros,
       duracionMin,
@@ -160,6 +157,9 @@ export const crearPresupuesto = async (req, res) => {
     res.status(400).json({ error: 'Error al crear presupuesto', detalles: error.message });
   }
 };
+
+// El resto de las funciones (obtener, actualizar, eliminar, generar PDF) no necesitan cambios.
+// Las pego aquí para que tengas el archivo completo.
 
 export const obtenerPresupuestos = async (req, res) => {
   try {
@@ -229,8 +229,6 @@ export const generarPdfPresupuesto = async (req, res) => {
   }
 };
 
-// Pega esta nueva función en el controlador
-
 export const generarPdfPropuesta = async (req, res) => {
   try {
     const presupuesto = await Presupuesto.findById(req.params.id);
@@ -241,7 +239,6 @@ export const generarPdfPropuesta = async (req, res) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=propuesta-${presupuesto._id}.pdf`);
 
-    // Le indicamos que genere el PDF tipo 'propuesta'
     await generarPresupuestoPDF_Avanzado(presupuesto, res, 'propuesta');
 
   } catch (error) {

@@ -1,70 +1,93 @@
 // ruta: cotizadorRutas-backend/services/calculos/costoVehiculoService.js
-/**
- * Calcula el costo mensual estimado de operar un vehículo en base a sus características,
- * los kilómetros por viaje, la cantidad de viajes al mes y si es un viaje regular o esporádico.
- *
- * @param {Object} vehiculo - Objeto con los datos del vehículo.
- * @param {number} kmsPorViaje - Kilómetros por viaje calculados en el Paso 1.
- * @param {number} cantidadViajesMensuales - Definido en el Paso 2 (Frecuencia).
- * @param {boolean} esViajeRegular - true = regular, false = esporádico (viene del Paso 2).
- * @returns {Object} Objeto con detalle del cálculo y total final.
- */
-export default function calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadViajesMensuales, esViajeRegular, detallesCarga) {
-  const viajesMensualesEstándar = 22;
-  const usoCompleto = cantidadViajesMensuales >= viajesMensualesEstándar;
-  const proporcionUso = usoCompleto ? 1 : (cantidadViajesMensuales / viajesMensualesEstándar);
+export default function calcularCostoVehiculo(
+  vehiculo,
+  kmsPorViaje,
+  cantidadViajesMensuales,
+  // Los siguientes dos parámetros son nuevos y clave para la lógica de tiempo
+  duracionMin,
+  detallesCarga
+) {
+  // =================================================================
+  // == Etapa 1: Preparación y Cálculos Iniciales
+  // =================================================================
+
+  const TIEMPO_CARGA_DESCARGA = 30;
+  const UMBRAL_JORNADA_COMPLETA = 180;
+  const JORNADA_COMPLETA_MINUTOS = 480; // 8 horas
+
+  // Calculamos el tiempo real de ocupación del vehículo.
+  const tiempoTotalMisionVehiculo = duracionMin + TIEMPO_CARGA_DESCARGA;
   const kmsMensuales = kmsPorViaje * cantidadViajesMensuales;
 
-  // 1. Depreciación del vehículo
-const anioActual = new Date().getFullYear();
-const anioFabricacion = vehiculo.año || anioActual;
-const antiguedad = anioActual - anioFabricacion;
-const incluirDepreciacion = antiguedad <= 10;
+  // =================================================================
+  // == Etapa 2: Costos Variables (Sin cambios)
+  // =================================================================
+  // Esta sección no se modifica. Los costos que dependen de los KM se
+  // siguen calculando de la misma manera precisa que antes.
 
-const valorResidual = (vehiculo.precioVehiculoNuevo || 0) * ((vehiculo.valorResidualPorcentaje || 0) / 100);
-const valorADepreciar = (vehiculo.precioVehiculoNuevo || 0) - valorResidual;
-
-const depreciacion = (incluirDepreciacion && valorADepreciar > 0 && vehiculo.kmsVidaUtilVehiculo && kmsMensuales > 0)
+  // 2.1 Depreciación del vehículo
+  const anioActual = new Date().getFullYear();
+  const anioFabricacion = vehiculo.año || anioActual;
+  const antiguedad = anioActual - anioFabricacion;
+  const incluirDepreciacion = antiguedad <= 10;
+  const valorResidual = (vehiculo.precioVehiculoNuevo || 0) * ((vehiculo.valorResidualPorcentaje || 0) / 100);
+  const valorADepreciar = (vehiculo.precioVehiculoNuevo || 0) - valorResidual;
+  const depreciacion = (incluirDepreciacion && valorADepreciar > 0 && vehiculo.kmsVidaUtilVehiculo > 0 && kmsMensuales > 0)
     ? (valorADepreciar / (vehiculo.kmsVidaUtilVehiculo / kmsMensuales))
     : 0;
 
-  // 2. Costo de cubiertas
+  // 2.2 Costo de cubiertas
   const totalCubiertas = vehiculo.precioCubierta * vehiculo.cantidadCubiertas;
-  const cubiertas = vehiculo.kmsVidaUtilCubiertas && kmsMensuales > 0
+  const cubiertas = vehiculo.kmsVidaUtilCubiertas > 0 && kmsMensuales > 0
     ? (totalCubiertas / (vehiculo.kmsVidaUtilCubiertas / kmsMensuales))
     : 0;
 
-  // 3. Costo de aceite
-  const aceite = vehiculo.kmsCambioAceite && kmsMensuales > 0
+  // 2.3 Costo de aceite
+  const aceite = vehiculo.kmsCambioAceite > 0 && kmsMensuales > 0
     ? (vehiculo.precioCambioAceite / (vehiculo.kmsCambioAceite / kmsMensuales))
     : 0;
 
-  // 4. Costo de combustible
+  // 2.4 Costo de combustible (considerando carga refrigerada)
   let precioLitroCombustibleEfectivo = vehiculo.precioLitroCombustible;
-
-  // ✅ LÓGICA PARA CARGA REFRIGERADA
   if (detallesCarga?.tipo === 'refrigerada') {
-    // Aumentamos el costo del combustible en un 25%
     precioLitroCombustibleEfectivo *= 1.25;
   }
-
   const kmsPorLitro = vehiculo.rendimientoKmLitro || 1;
   const combustiblePorKm = vehiculo.usaGNC
     ? vehiculo.precioGNC / kmsPorLitro
-    // Usamos la variable modificada
     : precioLitroCombustibleEfectivo / kmsPorLitro;
   const combustible = combustiblePorKm * kmsMensuales;
 
-  // 5. Costos fijos mensuales
-  const fijosTotales =
+  // =================================================================
+  // == Etapa 3: Costos Fijos Prorrateados (NUEVA LÓGICA)
+  // =================================================================
+  // Esta es la sección mejorada. Asigna los costos fijos según el
+  // tiempo de ocupación del vehículo en lugar de la cantidad de viajes.
+
+  const costosFijosMensualesTotales =
     (vehiculo.costoMantenimientoPreventivoMensual || 0) +
     (vehiculo.costoSeguroMensual || 0) +
     (vehiculo.costoPatenteMunicipal || 0) +
     (vehiculo.costoPatenteProvincial || 0);
+  
+  const costoFijoDiario = costosFijosMensualesTotales / 22;
+  let proporcionUsoDiario = 0;
 
-  const costosFijosProrrateados = fijosTotales * proporcionUso;
+  if (tiempoTotalMisionVehiculo < UMBRAL_JORNADA_COMPLETA) {
+    // Para VIAJES CORTOS, se asigna una fracción del costo fijo diario.
+    proporcionUsoDiario = tiempoTotalMisionVehiculo / JORNADA_COMPLETA_MINUTOS;
+  } else {
+    // Para VIAJES LARGOS, se asigna el 100% del costo fijo diario.
+    proporcionUsoDiario = 1;
+  }
 
-  // 6. Total final
+  const costoFijoPorViaje = costoFijoDiario * proporcionUsoDiario;
+  const costosFijosProrrateados = costoFijoPorViaje * cantidadViajesMensuales;
+
+  // =================================================================
+  // == Etapa 4: Total Final
+  // =================================================================
+
   const totalFinal =
     depreciacion +
     cubiertas +
@@ -72,10 +95,8 @@ const depreciacion = (incluirDepreciacion && valorADepreciar > 0 && vehiculo.kms
     combustible +
     costosFijosProrrateados;
 
-  // Resultado detallado
   return {
-    usoCompleto: esViajeRegular,
-    proporcionUso: Number(proporcionUso.toFixed(3)),
+    proporcionUso: proporcionUsoDiario.toFixed(3), // Ahora refleja la proporción diaria
     kmsMensuales,
     detalle: {
       depreciacion: Math.round(depreciacion),
