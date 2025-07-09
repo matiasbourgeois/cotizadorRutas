@@ -10,13 +10,15 @@ import RutaProtegida from "./layouts/RutaProtegida";
 // Vistas Públicas
 import LoginPage from "./pages/auth/LoginPage";
 
-// Vistas Privadas (Pasos del Cotizador)
+// --- CAMBIO CLAVE: Importamos el componente real ---
 import PuntosEntregaPaso from "./pages/puntosEntregaPaso/PuntosEntregaPaso";
 import FrecuenciaPaso from "./pages/frecuenciaPaso/FrecuenciaPaso";
 import VehiculoPaso from "./pages/vehiculoPaso/VehiculoPaso";
 import RecursoHumanoPaso from "./pages/recursoHumanoPaso/RecursoHumanoPaso";
 import ConfiguracionPresupuestoPaso from "./pages/configuracionPaso/ConfiguracionPresupuestoPaso";
 import HistorialPage from "./pages/HistorialPage";
+// Importamos nuestra nueva página desde su carpeta correcta
+import PropuestaPage from "./pages/propuestaPage/PropuestaPage"; 
 
 export default function App() {
   return (
@@ -27,6 +29,9 @@ export default function App() {
       {/* ---- RUTAS PRIVADAS (requieren login) ---- */}
       <Route path="/" element={<RutaProtegida />}>
         <Route path="/historial" element={<HistorialPage />} />
+
+        {/* La ruta ahora apunta a nuestro componente real */}
+        <Route path="/propuesta/:id" element={<PropuestaPage />} />
 
         <Route
           path="/"

@@ -1,7 +1,8 @@
 // ruta: cotizadorRutas-backend/controllers/presupuestoController.js
 
 import Presupuesto from '../models/Presupuesto.js';
-import { generarPresupuestoPDF_Avanzado } from '../services/generadorPdfAvanzado.js';
+// --- CAMBIO CLAVE: Importamos el NUEVO servicio y podemos eliminar el viejo ---
+import { generarPdf } from '../services/pdf-generator/generadorPdfService.js'; 
 import calcularCostoVehiculo from '../services/calculos/costoVehiculoService.js';
 import calcularCostoTotalRecurso from '../services/calculos/costoRecursoHumanoService.js';
 
@@ -30,7 +31,6 @@ export const calcularPresupuesto = async (req, res) => {
       cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
     }
 
-    // <<< CAMBIO CLAVE: Se actualizan los parámetros para la función del vehículo.
     const costoVehiculo = vehiculo 
       ? calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadViajesMensuales, duracionMin, detallesCarga)
       : { totalFinal: 0, detalle: {} };
@@ -100,7 +100,6 @@ export const crearPresupuesto = async (req, res) => {
       cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
     }
 
-    // <<< CAMBIO CLAVE: Se actualizan los parámetros también aquí.
     const calculoVehiculo = calcularCostoVehiculo(vehiculo.datos, kmsPorViaje, cantidadViajesMensuales, duracionMin, detallesCarga);
     
     const calculoRecurso = calcularCostoTotalRecurso(recursoHumano.datos, kmsPorViaje, duracionMin, frecuencia);
@@ -158,9 +157,6 @@ export const crearPresupuesto = async (req, res) => {
   }
 };
 
-// El resto de las funciones (obtener, actualizar, eliminar, generar PDF) no necesitan cambios.
-// Las pego aquí para que tengas el archivo completo.
-
 export const obtenerPresupuestos = async (req, res) => {
   try {
     const presupuestos = await Presupuesto.find({ usuario: req.usuario._id }).sort({ fechaCreacion: -1 });
@@ -210,7 +206,7 @@ export const eliminarPresupuesto = async (req, res) => {
   }
 };
 
-
+// --- CAMBIO CLAVE: Las funciones de PDF ahora llaman al nuevo servicio ---
 export const generarPdfPresupuesto = async (req, res) => {
   try {
     const presupuesto = await Presupuesto.findById(req.params.id);
@@ -218,13 +214,15 @@ export const generarPdfPresupuesto = async (req, res) => {
       return res.status(404).send('Presupuesto no encontrado');
     }
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=propuesta-${presupuesto._id}.pdf`);
+    // Llamamos a nuestro nuevo servicio, pidiendo el PDF de tipo 'desglose'
+    const pdfBuffer = await generarPdf(presupuesto, 'desglose');
 
-    await generarPresupuestoPDF_Avanzado(presupuesto, res, 'desglose');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=desglose-${presupuesto._id}.pdf`);
+    res.send(pdfBuffer);
 
   } catch (error) {
-    console.error("Error en el controlador al generar PDF avanzado:", error);
+    console.error("Error en el controlador al generar PDF:", error);
     res.status(500).send("Error al generar el PDF del presupuesto.");
   }
 };
@@ -236,10 +234,12 @@ export const generarPdfPropuesta = async (req, res) => {
       return res.status(404).send('Presupuesto no encontrado');
     }
 
+    // Llamamos a nuestro nuevo servicio, pidiendo el PDF de tipo 'propuesta'
+    const pdfBuffer = await generarPdf(presupuesto, 'propuesta');
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=propuesta-${presupuesto._id}.pdf`);
-
-    await generarPresupuestoPDF_Avanzado(presupuesto, res, 'propuesta');
+    res.send(pdfBuffer);
 
   } catch (error) {
     console.error("Error al generar PDF de propuesta:", error);

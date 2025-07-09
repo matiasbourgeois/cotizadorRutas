@@ -1,0 +1,108 @@
+/* =================================
+   ESTILOS PARA LA VISTA EN PANTALLA
+   ================================= */
+.propuesta-background {
+    background-color: #e9ecef; /* Un gris muy suave de fondo */
+    padding: 30px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.page-container {
+    max-width: 210mm; /* Ancho de una hoja A4 */
+    margin: 0 auto;
+}
+
+.page {
+    background-color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden; /* Evita desbordamientos */
+    /* Simula la proporción de una hoja A4 */
+    width: 210mm;
+    height: 297mm;
+    box-sizing: border-box; /* Importante para que el padding no sume al tamaño */
+    padding: 40px;
+}
+
+.print-button-container {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* --- Portada --- */
+.page-portada {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.portada-logo { max-height: 80px; margin-bottom: 40px; }
+.portada-content h1 { font-size: 38px; color: #3A56A5; margin: 0; }
+.portada-content .linea-decorativa { width: 100px; height: 4px; background-color: #11B7CD; margin: 25px 0; }
+.portada-content p { font-size: 16px; color: #6c757d; margin: 0; }
+.portada-content h2 { font-size: 32px; color: #212529; margin: 5px 0 0 0; }
+.portada-footer { position: absolute; bottom: 40px; font-size: 11px; color: #6c757d; }
+
+/* --- Contenido General de Páginas --- */
+.header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #11B7CD; padding-bottom: 15px; }
+.header-logo { max-height: 50px; }
+.header-info { text-align: right; }
+.header-info h3 { margin: 0; font-size: 18px; color: #3A56A5; }
+.header-info p { margin: 2px 0 0; font-size: 11px; color: #6c757d; }
+.content { padding: 40px 0; }
+.section-title { font-weight: 700; color: #09ADC3; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; margin-top: 30px; margin-bottom: 20px; font-size: 18px; }
+.footer { position: absolute; bottom: 40px; left: 40px; right: 40px; border-top: 1px solid #e0e0e0; padding-top: 10px; text-align: center; }
+.card { padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa; }
+.price-card { text-align: center; }
+.price-value { color: #11B7CD; font-size: 52px !important; margin: 10px 0 !important; }
+
+/* =================================
+   ESTILOS PARA IMPRESIÓN (LA MAGIA)
+   ================================= */
+@media print {
+    /* Ocultamos lo que no queremos imprimir */
+    .propuesta-background, .print-button-container {
+        background: none !important;
+        padding: 0 !important;
+    }
+    .print-button-container {
+        display: none !important;
+    }
+
+    /* La página ocupa todo el espacio de la hoja */
+    .page {
+        box-shadow: none !important;
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100vh !important; /* Cada página es el 100% del alto de la vista de impresión */
+        page-break-after: always; /* Cada .page será una nueva hoja en el PDF */
+    }
+    .page:last-child {
+        page-break-after: auto; /* Evitamos una hoja en blanco al final */
+    }
+
+    body {
+        -webkit-print-color-adjust: exact !important; /* Fuerza al navegador a imprimir colores de fondo */
+        print-color-adjust: exact !important;
+        background-color: white !important;
+    }
+}
+
+/* Estilos para el nuevo header con tablas */
+.header-logo-cell {
+    width: 50%;
+    vertical-align: top;
+}
+.header-logo-cell img {
+    max-height: 50px;
+}
+.header-info-cell {
+    width: 50%;
+    text-align: right;
+    vertical-align: top;
+}
+.header-info-cell h3, .header-info-cell p {
+    margin: 0;
+}

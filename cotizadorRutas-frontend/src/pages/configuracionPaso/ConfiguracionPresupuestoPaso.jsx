@@ -1,25 +1,22 @@
-// Archivo: src/pages/configuracionPaso/ConfiguracionPresupuestoPaso.jsx (Versión Final Definitiva Corregida)
+// Archivo: src/pages/configuracionPaso/ConfiguracionPresupuestoPaso.jsx (Versión Correcta y Funcional)
 
 import { useState, useEffect } from "react";
 import { useCotizacion } from "../../context/Cotizacion";
 import clienteAxios from "../../api/clienteAxios";
 import { useNavigate } from "react-router-dom";
 import { notifications } from '@mantine/notifications';
-// ✅ LÍNEA CORREGIDA: Se añade 'TextInput' a la lista de importaciones
 import { 
-    Stack, Title, Grid, Paper, NumberInput, Textarea, Button, Group, Text, Alert,
-    Center, Loader, Slider, useMantineTheme, Menu, TextInput, rem
+    Stack, Title, Grid, Paper, NumberInput, Textarea, Button, Group, Text, Menu, TextInput, rem, Slider 
 } from "@mantine/core";
-import { ArrowLeft, Calculator, FileDown, AlertCircle, ChevronDown } from "lucide-react";
-import ResumenPaso from "../../components/ResumenPaso";
+import { ArrowLeft, Send, ChevronDown, FileDown } from "lucide-react"; // Se recuperan todos los íconos
+import ResumenPaso from "../../components/ResumenPaso"; // Se mantiene el componente de resumen
 
 const ConfiguracionPresupuestoPaso = () => {
     const navigate = useNavigate();
-    const theme = useMantineTheme();
     
     const { 
         puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga,
-        setResumenCostos, resumenCostos 
+        setResumenCostos, resumenCostos, detalleVehiculo, detalleRecurso
     } = useCotizacion();
 
     const [config, setConfig] = useState({
@@ -31,13 +28,12 @@ const ConfiguracionPresupuestoPaso = () => {
         terminos: "Para aprobar esta propuesta, por favor, responda a este correo electrónico. La cotización tiene una validez de 15 días."
     });
     const [loading, setLoading] = useState(false);
-    const [presupuestoGuardado, setPresupuestoGuardado] = useState(null);
 
+    // El useEffect para el cálculo en tiempo real no se modifica
     useEffect(() => {
         if (!puntosEntrega || !frecuencia || !vehiculo || !recursoHumano) {
             return;
         }
-
         const debounceCalc = setTimeout(() => {
             const payload = { 
                 puntosEntrega, frecuencia, vehiculo, recursoHumano, 
@@ -52,63 +48,69 @@ const ConfiguracionPresupuestoPaso = () => {
                     console.error("Error en el cálculo en tiempo real:", error);
                 });
         }, 300);
-
         return () => clearTimeout(debounceCalc);
-
     }, [config, puntosEntrega, frecuencia, vehiculo, recursoHumano, setResumenCostos, detallesCarga]);
 
 
-    const handleGuardarYGenerar = async (tipoPdf = 'propuesta') => {
+    // --- 👇👇 LÓGICA DE GUARDADO Y PRESENTACIÓN CORREGIDA 👇👇 ---
+    const handleFinalizar = async (tipoAccion = 'propuesta') => {
         if (!resumenCostos) {
             notifications.show({ title: 'Error', message: 'No hay un presupuesto calculado para guardar.', color: 'red' });
             return;
         }
         setLoading(true);
         try {
-            // 1. Guardar la cotización en la BD
+            // 1. Guardamos la cotización en la base de datos
             const payload = {
                 puntosEntrega: puntosEntrega.puntos,
                 totalKilometros: puntosEntrega.distanciaKm,
                 duracionMin: puntosEntrega.duracionMin,
                 frecuencia,
-                vehiculo: { datos: vehiculo, calculo: (await clienteAxios.post('/presupuestos/calcular', {puntosEntrega, frecuencia, vehiculo, recursoHumano, configuracion: config, detallesCarga})).data.detalleVehiculo },
-                recursoHumano: { datos: recursoHumano, calculo: (await clienteAxios.post('/presupuestos/calcular', {puntosEntrega, frecuencia, vehiculo, recursoHumano, configuracion: config, detallesCarga})).data.detalleRecurso },
+                vehiculo: { datos: vehiculo, calculo: detalleVehiculo },
+                recursoHumano: { datos: recursoHumano, calculo: detalleRecurso },
                 configuracion: config,
                 detallesCarga,
                 resumenCostos: resumenCostos,
+                cliente: config.cliente,
+                terminos: config.terminos
             };
             const { data: presupuestoGuardado } = await clienteAxios.post('/presupuestos', payload);
-            setPresupuestoGuardado(presupuestoGuardado);
             
-            notifications.show({ title: '¡Éxito!', message: 'Cotización guardada. Generando PDF...', color: 'green' });
+            notifications.show({ title: '¡Éxito!', message: 'Cotización guardada.', color: 'green' });
 
-            // 2. Descargar el PDF solicitado
-            const urlDescarga = tipoPdf === 'propuesta' ? `/presupuestos/${presupuestoGuardado._id}/propuesta` : `/presupuestos/${presupuestoGuardado._id}/pdf`;
-            const nombreArchivo = `${tipoPdf}-${presupuestoGuardado._id}.pdf`;
-            
-            const res = await clienteAxios.get(urlDescarga, { responseType: 'blob' });
-            const url = window.URL.createObjectURL(new Blob([res.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', nombreArchivo);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
+            // 2. Decidimos qué hacer después de guardar
+            if (tipoAccion === 'propuesta') {
+                // Abre la nueva página de propuesta web
+                window.open(`/propuesta/${presupuestoGuardado._id}`, '_blank');
+            } else { // 'desglose'
+                // La lógica para descargar el PDF de desglose se mantiene
+                const urlDescarga = `/presupuestos/${presupuestoGuardado._id}/pdf`;
+                const res = await clienteAxios.get(urlDescarga, { responseType: 'blob' });
+                const url = window.URL.createObjectURL(new Blob([res.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `desglose-${presupuestoGuardado._id}.pdf`);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }
 
         } catch (error) {
             console.error("Error al finalizar:", error);
-            notifications.show({ title: 'Error', message: 'No se pudo guardar o generar el PDF.', color: 'red' });
+            notifications.show({ title: 'Error', message: 'No se pudo guardar o generar el documento.', color: 'red' });
         } finally {
             setLoading(false);
         }
     };
 
     return (
+        // La estructura de 2 columnas se mantiene intacta
         <Grid gutter="xl">
+            {/* COLUMNA IZQUIERDA: PANEL DE CONTROL (SIN CAMBIOS) */}
             <Grid.Col span={{ base: 12, md: 8 }}>
                 <Paper withBorder p="xl" radius="md" shadow="sm">
                     <Stack gap="xl">
-                        <Title order={2} c="deep-blue.7">Deal Desk: Ajustes Finales</Title>
+                        <Title order={2} c="deep-blue.7">Ajustes Finales del Presupuesto</Title>
                         
                         <Stack gap="lg" mt="md">
                             <Text fw={500}>Porcentaje de Ganancia: {config.porcentajeGanancia}%</Text>
@@ -165,6 +167,7 @@ const ConfiguracionPresupuestoPaso = () => {
                             minRows={4}
                         />
 
+                        {/* EL BOTÓN CON MENÚ DESPLEGABLE SE MANTIENE */}
                         <Group justify="space-between" mt="xl">
                             <Button variant="default" onClick={() => navigate(-1)} leftSection={<ArrowLeft size={16} />}>
                                 Volver
@@ -173,11 +176,12 @@ const ConfiguracionPresupuestoPaso = () => {
                             <Group gap={0}>
                                 <Button
                                     size="md"
-                                    onClick={() => handleGuardarYGenerar('propuesta')}
+                                    onClick={() => handleFinalizar('propuesta')}
                                     loading={loading}
                                     style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+                                    leftSection={<Send size={16}/>}
                                 >
-                                    Finalizar y Generar Propuesta
+                                    Finalizar y Ver Propuesta
                                 </Button>
                                 <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
                                     <Menu.Target>
@@ -192,7 +196,7 @@ const ConfiguracionPresupuestoPaso = () => {
                                     <Menu.Dropdown>
                                         <Menu.Item
                                             leftSection={<FileDown size={16} />}
-                                            onClick={() => handleGuardarYGenerar('desglose')}
+                                            onClick={() => handleFinalizar('desglose')}
                                         >
                                             Descargar Desglose Interno
                                         </Menu.Item>
@@ -204,6 +208,7 @@ const ConfiguracionPresupuestoPaso = () => {
                 </Paper>
             </Grid.Col>
             
+            {/* COLUMNA DERECHA: SE MANTIENE EL INFORME DE MISIÓN */}
             <Grid.Col span={{ base: 12, md: 4 }}>
                 <ResumenPaso />
             </Grid.Col>
