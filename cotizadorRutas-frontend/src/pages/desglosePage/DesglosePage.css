@@ -1,11 +1,15 @@
-/* Estilos para la página de Desglose Interno */
+/* =================================================================== */
+/* ==      ESTILOS PARA DESGLOSE DE COSTOS (VERSIÓN FINAL PRINT)    == */
+/* =================================================================== */
 
+/* --- Estilos Generales y de Contenedor de Página --- */
 .propuesta-background {
-    background-color: #f1f3f5;
-    padding: 40px;
+    background-color: #f8f9fa;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .page-container {
@@ -13,109 +17,111 @@
 }
 
 .page {
-    background-color: white;
+    background-color: white !important; /* Importante para impresión */
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.07);
-    margin: 0 auto 40px auto;
+    margin: 0 auto 30px auto;
     position: relative;
     width: 210mm;
     min-height: 297mm;
     box-sizing: border-box;
-    padding: 50px;
+    padding: 40px 50px;
     display: flex;
     flex-direction: column;
 }
 
-.print-button-container {
-    text-align: center;
-    margin-bottom: 40px;
-    width: 100%;
-}
-
-.main-title {
-    color: #3A56A5;
-    font-weight: 700;
-    font-size: 32px;
-    margin-bottom: 0.5rem;
-}
-
-.header-table { width: 100%; border-bottom: 1px solid #dee2e6; padding-bottom: 20px; margin-bottom: 20px; }
-.header-logo-cell img { max-height: 55px; }
-.header-info-cell { text-align: right; vertical-align: middle; }
-.header-info-cell h3 { margin: 0; font-size: 20px; font-weight: 600; color: #343a40; }
-.header-info-cell p { margin: 2px 0 0; font-size: 12px; color: #868e96; }
-
-.footer { position: absolute; bottom: 50px; left: 50px; right: 50px; border-top: 1px solid #f1f3f5; padding-top: 15px; text-align: center; }
-.section-title { font-weight: 600; color: #3A56A5; margin-top: 40px; margin-bottom: 20px; font-size: 22px; }
 .content { flex-grow: 1; }
+.print-button-container { text-align: center; margin-bottom: 30px; width: 100%; }
 
-.chapter-title {
-    color: #495057;
-    font-weight: 600;
-    font-size: 26px;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e9ecef;
-}
+/* --- Header y Footer --- */
+.header-simple { text-align: right; border-bottom: 1px solid #dee2e6; padding-bottom: 15px; margin-bottom: 25px; }
+.header-title-main { font-weight: 600; color: #343a40; }
+.header-subtitle { font-size: var(--mantine-font-size-sm); color: #868e96; }
+.footer { position: absolute; bottom: 40px; left: 50px; right: 50px; border-top: 1px solid #f1f3f5; padding-top: 15px; text-align: center; }
 
-.spec-sheet-container {
-    background-color: #fdfdfe;
-}
+/* --- Títulos y Secciones --- */
+.main-title-cover { font-size: 32px; font-weight: 700; color: #212529; line-height: 1.2; }
+.chapter-title { font-weight: 700; font-size: 26px; color: #184e77; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid #ade8f4; }
+.section-title-light { font-size: 16px; font-weight: 600; color: #495057; margin-bottom: var(--mantine-spacing-sm); text-transform: uppercase; letter-spacing: 0.5px; }
+.section-subtitle { font-size: 18px; font-weight: 600; color: #118ab2; }
 
-.data-section {
-    background-color: #fdfdfe;
-    height: 100%; /* Para que las columnas tengan la misma altura */
-}
+/* --- Tarjetas KPI --- */
+.kpi-card-vertical { display: flex; flex-direction: column; height: 100%; justify-content: center; }
+.kpi-card-vertical.kpi-profit { background-color: var(--mantine-color-teal-0); border-color: var(--mantine-color-teal-2); }
+.kpi-card-vertical.kpi-profit .kpi-secondary-value { color: var(--mantine-color-teal-8); }
+.kpi-main-value { font-size: 48px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; color: var(--mantine-color-blue-7); margin-top: 4px; }
+.kpi-secondary-value { font-size: 32px; font-weight: 700; line-height: 1; color: #343a40; margin-top: 4px; }
 
-.section-subtitle {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--mantine-color-cyan-8);
-}
+/* --- InfoLine y otros componentes --- */
+.info-line-group { display: flex; justify-content: space-between; align-items: center; padding: var(--mantine-spacing-sm) 0; border-bottom: 1px solid var(--mantine-color-gray-1); }
+.info-line-group:last-of-type { border-bottom: none; }
+.info-line-label { font-size: var(--mantine-font-size-sm); }
+.info-line-value { font-size: var(--mantine-font-size-sm); font-weight: 600; }
+.waterfall-container .cost-block { display: flex; justify-content: space-between; align-items: center; padding: var(--mantine-spacing-sm) var(--mantine-spacing-md); border: 1px solid var(--mantine-color-gray-2); border-radius: var(--mantine-radius-md); background-color: var(--mantine-color-gray-0); }
+.waterfall-container .subtotal-block { background-color: var(--mantine-color-red-0); border-color: var(--mantine-color-red-2); }
+.waterfall-container .final-price-block { background-color: var(--mantine-color-teal-0); border-color: var(--mantine-color-teal-2); padding: var(--mantine-spacing-lg); }
+.final-price-value { color: var(--mantine-color-teal-8); letter-spacing: -1px; }
 
-.total-card {
-    background-color: var(--mantine-color-indigo-0); /* Color para la tarjeta de fijos */
-}
-
-/* Estilos para impresión de Header/Footer en cada página parcial */
+/* ====================================================================== */
+/* ==   REGLAS DE IMPRESIÓN - LA CLAVE PARA EL ÉXITO DEL PDF           == */
+/* ====================================================================== */
 @media print {
-    @page { size: A4; margin: 0; }
-    html, body { width: 210mm; height: auto; margin: 0 !important; padding: 0 !important; background: white !important; }
-    .propuesta-background { padding: 0 !important; margin: 0 !important; background: none !important; }
-    .print-button-container { display: none !important; }
-    .page { 
-        box-shadow: none !important; 
-        margin: 0 !important; 
-        width: 100% !important; 
-        height: 297mm !important;
-        page-break-after: always; 
-        overflow: hidden; 
+    /* --- Reseteo y configuración de la página de impresión --- */
+    @page {
+        size: A4;
+        margin: 0;
     }
-    .page:last-child { page-break-after: auto; }
-    .header-table-placeholder { display: block !important; visibility: hidden; height: 105px; margin-bottom: 20px; }
-    .footer-placeholder { display: block !important; visibility: hidden; height: 50px; }
-}
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        -webkit-print-color-adjust: exact !important; /* Fuerza a Chrome/Safari a imprimir fondos */
+        print-color-adjust: exact !important; /* Estándar para forzar la impresión de fondos */
+    }
 
-.header-table-placeholder, .footer-placeholder {
-    display: none;
-}
+    /* --- Ocultar elementos no deseados --- */
+    .propuesta-background {
+        padding: 0 !important;
+        margin: 0 !important;
+        background: none !important;
+    }
+    .print-button-container {
+        display: none !important;
+    }
+    /* Ocultamos el mapa de google en la impresión porque suele dar problemas y consumir recursos */
+    .map-container-final, 
+    [src*="maps.google.com"],
+    .gm-style {
+        display: none !important;
+    }
 
-.cost-block {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--mantine-spacing-sm);
-    border-radius: var(--mantine-radius-md);
-    border: 1px solid var(--mantine-color-gray-2);
-}
+    /* --- Forzar el layout de las páginas --- */
+    .page {
+        box-shadow: none !important;
+        margin: 0 !important;
+        width: 100% !important;
+        height: 297mm !important;
+        page-break-after: always;
+        overflow: hidden !important;
+    }
+    .page:last-child {
+        page-break-after: auto;
+    }
+    .header-table-placeholder, .footer-placeholder {
+        display: none !important; /* No necesitamos placeholders si controlamos el layout */
+    }
 
-.cost-block.final-price {
-    padding: var(--mantine-spacing-lg);
-    background-color: var(--mantine-color-gray-0);
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--mantine-spacing-xs);
-}
+    /* --- Forzar colores y fondos en elementos específicos --- */
+    .main-kpi-card, .kpi-card-vertical.kpi-profit, .waterfall-container .cost-block, .mantine-Badge-root, .mantine-ThemeIcon-root {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 
-.cost-block.final-price > .mantine-Group-root {
-    margin-bottom: var(--mantine-spacing-sm);
+    /* --- Ajustes finos de tipografía para legibilidad en papel --- */
+    body, .mantine-Text-root {
+        color: #000 !important; /* Usar negro puro para el texto */
+    }
+    .main-kpi-card .mantine-Text-root {
+        color: white !important; /* Excepto en la tarjeta principal */
+        text-shadow: none !important;
+    }
 }
