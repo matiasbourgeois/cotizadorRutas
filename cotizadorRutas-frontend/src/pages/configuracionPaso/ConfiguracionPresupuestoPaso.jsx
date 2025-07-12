@@ -1,58 +1,70 @@
-// Archivo: src/pages/configuracionPaso/ConfiguracionPresupuestoPaso.jsx (Versión Correcta y Funcional)
+// Archivo: src/pages/configuracionPaso/ConfiguracionPresupuestoPaso.jsx (Refactorizado con useForm)
 
 import { useState, useEffect } from "react";
 import { useCotizacion } from "../../context/Cotizacion";
 import clienteAxios from "../../api/clienteAxios";
 import { useNavigate } from "react-router-dom";
 import { notifications } from '@mantine/notifications';
-import { 
-    Stack, Title, Grid, Paper, NumberInput, Textarea, Button, Group, Text, Menu, TextInput, rem, Slider 
+// ✅ 1. Importamos el hook useForm
+import { useForm } from "@mantine/form";
+import {
+    Stack, Title, Grid, Paper, NumberInput, Textarea, Button, Group, Text, Menu, TextInput, rem, Slider
 } from "@mantine/core";
-import { ArrowLeft, Send, ChevronDown, FileDown } from "lucide-react"; // Se recuperan todos los íconos
-import ResumenPaso from "../../components/ResumenPaso"; // Se mantiene el componente de resumen
+import { ArrowLeft, Send, ChevronDown, FileDown } from "lucide-react";
+import ResumenPaso from "../../components/ResumenPaso";
 
 const ConfiguracionPresupuestoPaso = () => {
     const navigate = useNavigate();
-    
-    const { 
+
+    const {
         puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga,
-        setResumenCostos, resumenCostos, detalleVehiculo, detalleRecurso
+        setResumenCostos, resumenCostos, detalleVehiculo, detalleRecurso,
+        setDetalleVehiculo, setDetalleRecurso
     } = useCotizacion();
 
-    const [config, setConfig] = useState({
-        costoPeajes: 0,
-        costoAdministrativo: 10,
-        otrosCostos: 0,
-        porcentajeGanancia: 15,
-        cliente: "",
-        terminos: "Para aprobar esta propuesta, por favor, responda a este correo electrónico. La cotización tiene una validez de 15 días."
+    // ✅ 2. Reemplazamos el useState por useForm para manejar la configuración
+    const form = useForm({
+        initialValues: {
+            costoPeajes: 0,
+            costoAdministrativo: 10,
+            otrosCostos: 0,
+            porcentajeGanancia: 15,
+            cliente: "",
+            terminos: "Para aprobar esta propuesta, por favor, responda a este correo electrónico. La cotización tiene una validez de 15 días."
+        },
     });
+
     const [loading, setLoading] = useState(false);
 
-    // El useEffect para el cálculo en tiempo real no se modifica
     useEffect(() => {
         if (!puntosEntrega || !frecuencia || !vehiculo || !recursoHumano) {
             return;
         }
         const debounceCalc = setTimeout(() => {
-            const payload = { 
-                puntosEntrega, frecuencia, vehiculo, recursoHumano, 
-                configuracion: config,
-                detallesCarga 
+            const payload = {
+                puntosEntrega, frecuencia, vehiculo, recursoHumano,
+                configuracion: form.values, // Usamos los valores del formulario
+                detallesCarga
             };
             clienteAxios.post('/presupuestos/calcular', payload)
                 .then(response => {
+                    // ANTES: solo se actualizaba el resumen
+                    // setResumenCostos(response.data.resumenCostos);
+
+                    // ✅ AHORA: Actualizamos toda la información relevante
                     setResumenCostos(response.data.resumenCostos);
+                    setDetalleVehiculo(response.data.detalleVehiculo);
+                    setDetalleRecurso(response.data.detalleRecurso);
                 })
                 .catch(error => {
                     console.error("Error en el cálculo en tiempo real:", error);
                 });
         }, 300);
         return () => clearTimeout(debounceCalc);
-    }, [config, puntosEntrega, frecuencia, vehiculo, recursoHumano, setResumenCostos, detallesCarga]);
+        // ✅ 3. El useEffect ahora depende de form.values
+    }, [form.values, puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga, setResumenCostos]);
 
 
-    // --- 👇👇 LÓGICA DE GUARDADO Y PRESENTACIÓN CORREGIDA 👇👇 ---
     const handleFinalizar = async (tipoAccion = 'propuesta') => {
         if (!resumenCostos) {
             notifications.show({ title: 'Error', message: 'No hay un presupuesto calculado para guardar.', color: 'red' });
@@ -60,7 +72,6 @@ const ConfiguracionPresupuestoPaso = () => {
         }
         setLoading(true);
         try {
-            // 1. Guardamos la cotización en la base de datos
             const payload = {
                 puntosEntrega: puntosEntrega.puntos,
                 totalKilometros: puntosEntrega.distanciaKm,
@@ -68,24 +79,20 @@ const ConfiguracionPresupuestoPaso = () => {
                 frecuencia,
                 vehiculo: { datos: vehiculo, calculo: detalleVehiculo },
                 recursoHumano: { datos: recursoHumano, calculo: detalleRecurso },
-                configuracion: config,
+                configuracion: form.values, // Usamos los valores del formulario
                 detallesCarga,
                 resumenCostos: resumenCostos,
-                cliente: config.cliente,
-                terminos: config.terminos
+                cliente: form.values.cliente,
+                terminos: form.values.terminos
             };
             const { data: presupuestoGuardado } = await clienteAxios.post('/presupuestos', payload);
-            
+
             notifications.show({ title: '¡Éxito!', message: 'Cotización guardada.', color: 'green' });
 
-            // 2. Decidimos qué hacer después de guardar
             if (tipoAccion === 'propuesta') {
-                // Abre la nueva página de propuesta web
                 window.open(`/propuesta/${presupuestoGuardado._id}`, '_blank');
-            } else { // 'desglose'
-                // La lógica para descargar el PDF de desglose se mantiene
-                const urlDescarga = `/presupuestos/${presupuestoGuardado._id}/pdf`;
-                const res = await clienteAxios.get(urlDescarga, { responseType: 'blob' });
+            } else { // ✅ Lógica corregida para 'desglose'
+                window.open(`/desglose/${presupuestoGuardado._id}`, '_blank');
                 const url = window.URL.createObjectURL(new Blob([res.data]));
                 const link = document.createElement('a');
                 link.href = url;
@@ -104,29 +111,26 @@ const ConfiguracionPresupuestoPaso = () => {
     };
 
     return (
-        // La estructura de 2 columnas se mantiene intacta
         <Grid gutter="xl">
-            {/* COLUMNA IZQUIERDA: PANEL DE CONTROL (SIN CAMBIOS) */}
             <Grid.Col span={{ base: 12, md: 8 }}>
                 <Paper withBorder p="xl" radius="md" shadow="sm">
                     <Stack gap="xl">
                         <Title order={2} c="deep-blue.7">Ajustes Finales del Presupuesto</Title>
-                        
+
                         <Stack gap="lg" mt="md">
-                            <Text fw={500}>Porcentaje de Ganancia: {config.porcentajeGanancia}%</Text>
+                            {/* ✅ 4. Conectamos cada campo al formulario con getInputProps */}
+                            <Text fw={500}>Porcentaje de Ganancia: {form.values.porcentajeGanancia}%</Text>
                             <Slider
                                 color="cyan"
-                                value={config.porcentajeGanancia}
-                                onChange={value => setConfig(prev => ({ ...prev, porcentajeGanancia: value }))}
                                 marks={[{ value: 10 }, { value: 15 }, { value: 20 }, { value: 25 }, { value: 30 }]}
+                                {...form.getInputProps('porcentajeGanancia')}
                             />
 
-                            <Text fw={500} mt="md">Costos Administrativos: {config.costoAdministrativo}%</Text>
+                            <Text fw={500} mt="md">Costos Administrativos: {form.values.costoAdministrativo}%</Text>
                             <Slider
                                 color="gray"
-                                value={config.costoAdministrativo}
-                                onChange={value => setConfig(prev => ({ ...prev, costoAdministrativo: value }))}
                                 marks={[{ value: 5 }, { value: 10 }, { value: 15 }]}
+                                {...form.getInputProps('costoAdministrativo')}
                             />
                         </Stack>
 
@@ -135,71 +139,46 @@ const ConfiguracionPresupuestoPaso = () => {
                                 <NumberInput
                                     label="Costos Adicionales de Ruta"
                                     description="Peajes, tasas, etc. (valor total por viaje)"
-                                    value={config.costoPeajes}
-                                    onChange={value => setConfig(prev => ({ ...prev, costoPeajes: Number(value) || 0 }))}
                                     prefix="$ "
+                                    {...form.getInputProps('costoPeajes')}
                                 />
                             </Grid.Col>
-                             <Grid.Col span={{ base: 12, sm: 6 }}>
+                            <Grid.Col span={{ base: 12, sm: 6 }}>
                                 <NumberInput
                                     label="Otros Costos Fijos"
                                     description="Cualquier otro gasto mensual no contemplado"
-                                    value={config.otrosCostos}
-                                    onChange={value => setConfig(prev => ({ ...prev, otrosCostos: Number(value) || 0 }))}
                                     prefix="$ "
+                                    {...form.getInputProps('otrosCostos')}
                                 />
                             </Grid.Col>
                             <Grid.Col span={12}>
                                 <TextInput
                                     label="Cliente / Empresa"
                                     placeholder="Nombre del destinatario de la propuesta"
-                                    value={config.cliente}
-                                    onChange={event => setConfig(prev => ({ ...prev, cliente: event.currentTarget.value }))}
+                                    {...form.getInputProps('cliente')}
                                 />
                             </Grid.Col>
                         </Grid>
-                        
+
                         <Textarea
                             label="Términos y Próximos Pasos"
-                            value={config.terminos}
-                            onChange={event => setConfig(prev => ({ ...prev, terminos: event.currentTarget.value }))}
                             autosize
                             minRows={4}
+                            {...form.getInputProps('terminos')}
                         />
 
-                        {/* EL BOTÓN CON MENÚ DESPLEGABLE SE MANTIENE */}
                         <Group justify="space-between" mt="xl">
                             <Button variant="default" onClick={() => navigate(-1)} leftSection={<ArrowLeft size={16} />}>
                                 Volver
                             </Button>
-                            
                             <Group gap={0}>
-                                <Button
-                                    size="md"
-                                    onClick={() => handleFinalizar('propuesta')}
-                                    loading={loading}
-                                    style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
-                                    leftSection={<Send size={16}/>}
-                                >
-                                    Finalizar y Ver Propuesta
-                                </Button>
+                                <Button size="md" onClick={() => handleFinalizar('propuesta')} loading={loading} style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }} leftSection={<Send size={16} />}>Finalizar y Ver Propuesta</Button>
                                 <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
                                     <Menu.Target>
-                                        <Button
-                                            size="md"
-                                            loading={loading}
-                                            style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, paddingLeft: rem(8), paddingRight: rem(8) }}
-                                        >
-                                            <ChevronDown size={18} />
-                                        </Button>
+                                        <Button size="md" loading={loading} style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, paddingLeft: rem(8), paddingRight: rem(8) }}><ChevronDown size={18} /></Button>
                                     </Menu.Target>
                                     <Menu.Dropdown>
-                                        <Menu.Item
-                                            leftSection={<FileDown size={16} />}
-                                            onClick={() => handleFinalizar('desglose')}
-                                        >
-                                            Descargar Desglose Interno
-                                        </Menu.Item>
+                                        <Menu.Item leftSection={<FileDown size={16} />} onClick={() => handleFinalizar('desglose')}>Descargar Desglose Interno</Menu.Item>
                                     </Menu.Dropdown>
                                 </Menu>
                             </Group>
@@ -207,8 +186,7 @@ const ConfiguracionPresupuestoPaso = () => {
                     </Stack>
                 </Paper>
             </Grid.Col>
-            
-            {/* COLUMNA DERECHA: SE MANTIENE EL INFORME DE MISIÓN */}
+
             <Grid.Col span={{ base: 12, md: 4 }}>
                 <ResumenPaso />
             </Grid.Col>

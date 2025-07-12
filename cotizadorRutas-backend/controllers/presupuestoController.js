@@ -1,7 +1,6 @@
 // ruta: cotizadorRutas-backend/controllers/presupuestoController.js
 
 import Presupuesto from '../models/Presupuesto.js';
-// --- CAMBIO CLAVE: Importamos el NUEVO servicio y podemos eliminar el viejo ---
 import calcularCostoVehiculo from '../services/calculos/costoVehiculoService.js';
 import calcularCostoTotalRecurso from '../services/calculos/costoRecursoHumanoService.js';
 

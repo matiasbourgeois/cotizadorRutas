@@ -1,36 +1,150 @@
 /* =================================
-   ESTILOS PARA LA VISTA EN PANTALLA
+   ESTILOS GENERALES Y DE IMPRESIÓN
    ================================= */
+body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
 .propuesta-background {
-    background-color: #e9ecef; /* Un gris muy suave de fondo */
-    padding: 30px;
-    font-family: 'Montserrat', sans-serif;
+    background-color: #f1f3f5;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .page-container {
-    max-width: 210mm; /* Ancho de una hoja A4 */
-    margin: 0 auto;
+    width: 210mm;
 }
 
 .page {
     background-color: white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    margin-bottom: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.07);
+    margin: 0 auto 40px auto;
     position: relative;
-    overflow: hidden; /* Evita desbordamientos */
-    /* Simula la proporción de una hoja A4 */
     width: 210mm;
-    height: 297mm;
-    box-sizing: border-box; /* Importante para que el padding no sume al tamaño */
-    padding: 40px;
+    min-height: 297mm;
+    box-sizing: border-box;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
 }
 
 .print-button-container {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+    width: 100%;
 }
 
-/* --- Portada --- */
+/* Reemplaza tu bloque @media print completo con este */
+
+@media print {
+    /* ✅ REGLAS MÁS EXPLÍCITAS PARA EL NAVEGADOR */
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important; /* Fondo blanco para impresión */
+    }
+
+    .propuesta-background {
+        padding: 0 !important;
+        margin: 0 !important;
+        background: none !important;
+    }
+    
+    .print-button-container {
+        display: none !important;
+    }
+
+    .page {
+        width: 100%; /* Ocupa el 100% del body (que ya mide 210mm) */
+        height: 100%; /* Ocupa el 100% del body (que ya mide 297mm) */
+        margin: 0 !important;
+        box-shadow: none !important;
+        page-break-after: always;
+        overflow: hidden;
+    }
+    
+    .page:last-child {
+        page-break-after: auto; 
+    }
+}
+/* =================================
+   COMPONENTES REUTILIZABLES
+   ================================= */
+.header-table {
+    width: 100%;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.header-logo-cell img {
+    max-height: 90px !important;
+}
+
+.header-info-cell {
+    text-align: right;
+    vertical-align: middle;
+}
+
+.header-info-cell h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.header-info-cell p {
+    font-size: 12px;
+    color: #868e96;
+}
+
+.footer {
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
+    right: 50px;
+    border-top: 1px solid #f1f3f5;
+    padding-top: 15px;
+    text-align: center;
+}
+
+.section-title {
+    font-weight: 600;
+    color: #3A56A5;
+    margin-top: 25px;
+    /* Reducimos el margen superior general */
+    margin-bottom: 15px;
+    /* Reducimos el margen inferior general */
+    font-size: 22px;
+}
+
+.section-title:first-of-type {
+    margin-top: 0;
+    /* Aseguramos que el primer título no tenga margen superior */
+}
+
+.section-subtitle {
+    font-weight: 600;
+    color: #495057;
+    font-size: 18px;
+    margin-bottom: 1rem;
+}
+
+.content {
+    flex-grow: 1;
+}
+
+/* =================================
+   ESTILOS POR PÁGINA
+   ================================= */
+
+/* --- PÁGINA 1: PORTADA --- */
 .page-portada {
     display: flex;
     flex-direction: column;
@@ -38,71 +152,169 @@
     align-items: center;
     text-align: center;
 }
-.portada-logo { max-height: 80px; margin-bottom: 40px; }
-.portada-content h1 { font-size: 38px; color: #3A56A5; margin: 0; }
-.portada-content .linea-decorativa { width: 100px; height: 4px; background-color: #11B7CD; margin: 25px 0; }
-.portada-content p { font-size: 16px; color: #6c757d; margin: 0; }
-.portada-content h2 { font-size: 32px; color: #212529; margin: 5px 0 0 0; }
-.portada-footer { position: absolute; bottom: 40px; font-size: 11px; color: #6c757d; }
 
-/* --- Contenido General de Páginas --- */
-.header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #11B7CD; padding-bottom: 15px; }
-.header-logo { max-height: 50px; }
-.header-info { text-align: right; }
-.header-info h3 { margin: 0; font-size: 18px; color: #3A56A5; }
-.header-info p { margin: 2px 0 0; font-size: 11px; color: #6c757d; }
-.content { padding: 40px 0; }
-.section-title { font-weight: 700; color: #09ADC3; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; margin-top: 30px; margin-bottom: 20px; font-size: 18px; }
-.footer { position: absolute; bottom: 40px; left: 40px; right: 40px; border-top: 1px solid #e0e0e0; padding-top: 10px; text-align: center; }
-.card { padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa; }
-.price-card { text-align: center; }
-.price-value { color: #11B7CD; font-size: 52px !important; margin: 10px 0 !important; }
-
-/* =================================
-   ESTILOS PARA IMPRESIÓN (LA MAGIA)
-   ================================= */
-@media print {
-    /* Ocultamos lo que no queremos imprimir */
-    .propuesta-background, .print-button-container {
-        background: none !important;
-        padding: 0 !important;
-    }
-    .print-button-container {
-        display: none !important;
-    }
-
-    /* La página ocupa todo el espacio de la hoja */
-    .page {
-        box-shadow: none !important;
-        margin: 0 !important;
-        width: 100% !important;
-        height: 100vh !important; /* Cada página es el 100% del alto de la vista de impresión */
-        page-break-after: always; /* Cada .page será una nueva hoja en el PDF */
-    }
-    .page:last-child {
-        page-break-after: auto; /* Evitamos una hoja en blanco al final */
-    }
-
-    body {
-        -webkit-print-color-adjust: exact !important; /* Fuerza al navegador a imprimir colores de fondo */
-        print-color-adjust: exact !important;
-        background-color: white !important;
-    }
+.portada-logo {
+    width: 100%;             /* Ocupa el 100% del ancho de su contenedor */
+    max-width: 700px;        /* Un límite para que no se vea excesivamente grande */
+    height: auto;            /* La altura se ajusta automáticamente */
+    margin-bottom: 50px;     /* Mantenemos el espacio inferior */
+    border-radius: var(--mantine-radius-md); /* Opcional: añade bordes redondeados */
+}
+.portada-content h1 {
+    font-size: 42px;
+    color: #3A56A5;
+    margin: 0;
+    font-weight: 700;
 }
 
-/* Estilos para el nuevo header con tablas */
-.header-logo-cell {
-    width: 50%;
-    vertical-align: top;
+.portada-content .linea-decorativa {
+    width: 80px;
+    height: 5px;
+    background-color: #11B7CD;
+    margin: 30px auto;
+    border-radius: 5px;
 }
-.header-logo-cell img {
-    max-height: 50px;
-}
-.header-info-cell {
-    width: 50%;
-    text-align: right;
-    vertical-align: top;
-}
-.header-info-cell h3, .header-info-cell p {
+
+.portada-content p {
+    font-size: 18px;
+    color: #adb5bd;
     margin: 0;
 }
+
+.portada-content h2 {
+    font-size: 34px;
+    color: #212529;
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+.portada-footer {
+    position: absolute;
+    bottom: 50px;
+    font-size: 12px;
+    color: #adb5bd;
+}
+
+/* --- PÁGINA 2: RESUMEN, PRECIO Y MAPA --- */
+.kpi-card {
+    transition: all 0.2s ease-in-out;
+    background-color: #fdfdfe;
+}
+
+.price-card-compact {
+    text-align: center;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    padding: 20px;
+    border-radius: var(--mantine-radius-md);
+}
+
+.price-value-compact {
+    color: #11B7CD;
+    font-size: 52px !important;
+    margin: 5px 0 !important;
+    font-weight: 700;
+    letter-spacing: -2px;
+}
+
+.map-container-compact {
+    height: 35vh;
+    width: 100%;
+}
+
+/* --- PÁGINA 3: ITINERARIO Y CIERRE --- */
+.itinerary-wrapper {
+    position: relative;
+    padding-left: 20px;
+    border-left: 2px solid #e9ecef;
+}
+
+.itinerary-node {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    padding-bottom: 25px;
+}
+
+.itinerary-node:last-child {
+    padding-bottom: 0;
+}
+
+.itinerary-icon {
+    position: absolute;
+    left: -21px;
+    top: -2px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #11B7CD;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
+
+.itinerary-details {
+    margin-left: 35px;
+}
+
+.itinerary-point-name {
+    color: #343a40;
+}
+
+.itinerary-point-address {
+    line-height: 1.4;
+}
+
+.qr-paper-final {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.qr-code-image-final {
+    border: 1px solid #dee2e6;
+    border-radius: var(--mantine-radius-md);
+    padding: 8px;
+    background: white;
+    max-width: 160px;
+}
+
+.terms-textarea {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #495057;
+}
+
+.signature-area {
+    margin-top: 40px;
+}
+
+.signature-box {
+    text-align: center;
+}
+
+.signature-line {
+    border-bottom: 1px solid #495057;
+    margin: 40px auto 10px auto;
+    width: 80%;
+}
+
+.signature-title {
+    font-size: 12px;
+    color: #868e96;
+}
+
+.compact-title {
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+

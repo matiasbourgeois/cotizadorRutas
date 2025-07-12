@@ -17,8 +17,8 @@ import VehiculoPaso from "./pages/vehiculoPaso/VehiculoPaso";
 import RecursoHumanoPaso from "./pages/recursoHumanoPaso/RecursoHumanoPaso";
 import ConfiguracionPresupuestoPaso from "./pages/configuracionPaso/ConfiguracionPresupuestoPaso";
 import HistorialPage from "./pages/HistorialPage";
-// Importamos nuestra nueva página desde su carpeta correcta
-import PropuestaPage from "./pages/propuestaPage/PropuestaPage"; 
+import PropuestaPage from "./pages/propuestaPage/PropuestaPage";
+import DesglosePage from "./pages/desglosePage/DesglosePage"; 
 
 export default function App() {
   return (
@@ -32,6 +32,7 @@ export default function App() {
 
         {/* La ruta ahora apunta a nuestro componente real */}
         <Route path="/propuesta/:id" element={<PropuestaPage />} />
+        <Route path="/desglose/:id" element={<DesglosePage />} />
 
         <Route
           path="/"
