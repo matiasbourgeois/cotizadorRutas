@@ -1,9 +1,9 @@
-// Archivo: cotizadorRutas-frontend/src/pages/historial/HistorialPage.jsx (Versión Final)
+// Archivo: cotizadorRutas-frontend/src/pages/historial/HistorialPage.jsx (Versión Final con Paginación)
 
 import { useState, useEffect } from 'react';
-import { Title, Table, ScrollArea, Group, Button, Text, Center, Loader, Paper, ActionIcon, Tooltip, Badge, Stack, Menu } from '@mantine/core';
-import { Link, useNavigate } from 'react-router-dom';
-import { Download, Trash2, FileX, Plus, Route, MoreVertical } from 'lucide-react';
+import { Title, Table, ScrollArea, Group, Button, Text, Center, Loader, Paper, ActionIcon, Badge, Stack, Menu, Pagination } from '@mantine/core'; // ✅ 1. Importamos Pagination
+import { useNavigate } from 'react-router-dom';
+import { Trash2, FileX, Plus, Route, MoreVertical, ExternalLink } from 'lucide-react';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import clienteAxios from '../api/clienteAxios';
@@ -13,8 +13,9 @@ const HistorialPage = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // --- LÓGICA PARA OBTENER, DESCARGAR Y ELIMINAR DATOS ---
-  // (Esta lógica interna no cambia)
+  // ✅ 2. Añadimos estados para la paginación
+  const [activePage, setPage] = useState(1);
+  const itemsPerPage = 7; // Puedes ajustar cuántos items quieres por página
 
   const obtenerPresupuestos = async () => {
     try {
@@ -36,50 +37,6 @@ const HistorialPage = () => {
   useEffect(() => {
     obtenerPresupuestos();
   }, []);
-
-  const handleDescargarPdf = async (id, tipo = 'propuesta', e) => {
-    const targetButton = e.currentTarget;
-    targetButton.disabled = true;
-    notifications.show({
-      id: `descargando-${id}`,
-      title: 'Generando PDF',
-      message: 'Por favor, espera mientras se genera tu documento...',
-      loading: true,
-      autoClose: false,
-    });
-    try {
-      const urlDescarga = tipo === 'propuesta' ? `/presupuestos/${id}/propuesta` : `/presupuestos/${id}/pdf`;
-      const res = await clienteAxios.get(urlDescarga, { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `presupuesto-${id}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      notifications.update({
-        id: `descargando-${id}`,
-        title: '¡Éxito!',
-        message: 'Tu PDF se ha descargado correctamente.',
-        color: 'green',
-        loading: false,
-        autoClose: 5000,
-      });
-    } catch (error) {
-      console.error("Error al descargar PDF:", error);
-      notifications.update({
-        id: `descargando-${id}`,
-        title: 'Error de descarga',
-        message: 'No se pudo generar o descargar el PDF.',
-        color: 'red',
-        loading: false,
-        autoClose: 5000,
-      });
-    } finally {
-      targetButton.disabled = false;
-    }
-  };
 
   const handleEliminar = (id) => {
     modals.openConfirmModal({
@@ -112,9 +69,16 @@ const HistorialPage = () => {
       },
     });
   };
+  
+  // ✅ 3. Lógica para paginar los datos
+  const totalItems = presupuestos.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginatedData = presupuestos.slice(
+    (activePage - 1) * itemsPerPage,
+    activePage * itemsPerPage
+  );
 
-  // --- ✅ INICIO: NUEVO DISEÑO PARA LAS FILAS DE LA TABLA ---
-  const rows = presupuestos.map((presupuesto) => {
+  const rows = paginatedData.map((presupuesto) => {
     const origen = presupuesto.puntosEntrega?.[0]?.nombre.split('–')[0].trim() || 'Ruta no definida';
     const destino = presupuesto.puntosEntrega?.length > 1
       ? presupuesto.puntosEntrega[presupuesto.puntosEntrega.length - 1].nombre.split('–')[0].trim()
@@ -125,13 +89,10 @@ const HistorialPage = () => {
 
     return (
       <Table.Tr key={presupuesto._id}>
-        {/* Columna 1: Fecha y ID */}
         <Table.Td>
           <Text fz="sm" fw={500}>{new Date(presupuesto.fechaCreacion).toLocaleDateString()}</Text>
           <Text fz="xs" c="dimmed">{presupuesto._id}</Text>
         </Table.Td>
-
-        {/* Columna 2: Descripción de la cotización (más informativa) */}
         <Table.Td>
           <Group>
             <Route size={24} color="#4682B4" />
@@ -141,26 +102,14 @@ const HistorialPage = () => {
             </Stack>
           </Group>
         </Table.Td>
-
-        {/* Columna 3: Tipo de Servicio */}
         <Table.Td>
           <Badge color={tipoServicio === 'Mensual' ? 'blue' : 'gray'} variant="light" size="sm">
             {tipoServicio}
           </Badge>
         </Table.Td>
-
-        {/* Columna 4: Monto */}
         <Table.Td>
           <Text fw={500} ta="right">${presupuesto.resumenCostos.totalFinal.toLocaleString('es-AR')}</Text>
         </Table.Td>
-
-        {/* Columna 5: Acciones */}
-        {/* ¿Por qué este cambio?
-    Usamos el componente Menu de Mantine para agrupar las acciones.
-    Menu.Target es el botón visible (un ícono en este caso).
-    Menu.Dropdown contiene las opciones que aparecen al hacer clic.
-    Cada Menu.Item llama a su función correspondiente.
-*/}
         <Table.Td>
           <Group justify="flex-end">
             <Menu shadow="md" width={220}>
@@ -169,24 +118,21 @@ const HistorialPage = () => {
                   <MoreVertical size={16} />
                 </ActionIcon>
               </Menu.Target>
-
               <Menu.Dropdown>
                 <Menu.Label>Acciones</Menu.Label>
                 <Menu.Item
-                  leftSection={<Download size={14} />}
-                  onClick={(e) => handleDescargarPdf(presupuesto._id, 'propuesta', e)}
+                  leftSection={<ExternalLink size={14} />}
+                  onClick={() => window.open(`/propuesta/${presupuesto._id}`, '_blank')}
                 >
-                  Descargar Propuesta (Cliente)
+                  Ver Propuesta (Cliente)
                 </Menu.Item>
                 <Menu.Item
-                  leftSection={<Download size={14} />}
-                  onClick={(e) => handleDescargarPdf(presupuesto._id, 'desglose', e)}
+                  leftSection={<ExternalLink size={14} />}
+                  onClick={() => window.open(`/desglose/${presupuesto._id}`, '_blank')}
                 >
-                  Descargar Desglose (Interno)
+                  Ver Desglose (Interno)
                 </Menu.Item>
-
                 <Menu.Divider />
-
                 <Menu.Item
                   color="red"
                   leftSection={<Trash2 size={14} />}
@@ -201,7 +147,6 @@ const HistorialPage = () => {
       </Table.Tr>
     );
   });
-  // --- ✅ FIN: NUEVO DISEÑO DE FILAS ---
 
   if (loading) {
     return <Center style={{ height: '50vh' }}><Loader color="cyan" /></Center>;
@@ -218,7 +163,6 @@ const HistorialPage = () => {
 
       <ScrollArea>
         <Table miw={800} verticalSpacing="md" highlightOnHover>
-          {/* --- ✅ INICIO: ENCABEZADOS DE TABLA CORREGIDOS --- */}
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Fecha y ID</Table.Th>
@@ -228,7 +172,6 @@ const HistorialPage = () => {
               <Table.Th ta="right">Acciones</Table.Th>
             </Table.Tr>
           </Table.Thead>
-          {/* --- ✅ FIN: ENCABEZADOS CORREGIDOS --- */}
           <Table.Tbody>
             {rows.length > 0 ? rows : (
               <Table.Tr>
@@ -249,6 +192,23 @@ const HistorialPage = () => {
           </Table.Tbody>
         </Table>
       </ScrollArea>
+      
+      {/* ✅ 4. AÑADIMOS EL COMPONENTE DE PAGINACIÓN */}
+      {totalPages > 1 && (
+        <Group justify="space-between" align="center" mt="xl">
+          <Text c="dimmed" size="sm">
+            Mostrando <b>{paginatedData.length}</b> de <b>{totalItems}</b> cotizaciones
+          </Text>
+          <Pagination
+            total={totalPages}
+            value={activePage}
+            onChange={setPage}
+            color="cyan"
+            radius="xl"
+            withEdges
+          />
+        </Group>
+      )}
     </Paper>
   );
 };
