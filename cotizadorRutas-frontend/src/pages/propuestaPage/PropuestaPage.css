@@ -37,44 +37,7 @@ body {
     width: 100%;
 }
 
-/* Reemplaza tu bloque @media print completo con este */
 
-@media print {
-    /* ✅ REGLAS MÁS EXPLÍCITAS PARA EL NAVEGADOR */
-    @page {
-        size: A4;
-        margin: 0;
-    }
-
-    html, body {
-        margin: 0 !important;
-        padding: 0 !important;
-        background: white !important; /* Fondo blanco para impresión */
-    }
-
-    .propuesta-background {
-        padding: 0 !important;
-        margin: 0 !important;
-        background: none !important;
-    }
-    
-    .print-button-container {
-        display: none !important;
-    }
-
-    .page {
-        width: 100%; /* Ocupa el 100% del body (que ya mide 210mm) */
-        height: 100%; /* Ocupa el 100% del body (que ya mide 297mm) */
-        margin: 0 !important;
-        box-shadow: none !important;
-        page-break-after: always;
-        overflow: hidden;
-    }
-    
-    .page:last-child {
-        page-break-after: auto; 
-    }
-}
 /* =================================
    COMPONENTES REUTILIZABLES
    ================================= */
@@ -317,4 +280,3 @@ body {
     margin-top: 20px;
     margin-bottom: 15px;
 }
-
