@@ -1,103 +1,128 @@
-// Archivo: cotizadorRutas-frontend/src/pages/desglosePage/partials/CapituloRecursoHumanoCostos.jsx (Versión Rediseñada)
+// cotizadorRutas-frontend/src/pages/desglosePage/partials/CapituloRecursoHumanoCostos.jsx
 
-import { Paper, Title, Grid, Stack, Divider, Text, Group, Alert, RingProgress, Center, Badge } from '@mantine/core';
-import { Info, UserCheck } from 'lucide-react';
+import { Paper, Title, Grid, Stack, Divider, Text, Group, Alert, RingProgress, Center, ThemeIcon, Badge } from '@mantine/core';
+import { Info, UserCheck, TrendingUp, Clock, Route } from 'lucide-react';
 
-const InfoLine = ({ label, value, unit = '' }) => (
-    <Group justify="space-between" wrap="nowrap" className="info-line-group">
-        <Text size="sm" className="info-line-label">{label}:</Text>
-        <Text size="sm" fw={600} ta="right" className="info-line-value">
-            {value} <Text span c="dimmed" fz="xs">{unit}</Text>
+// Componente para una línea de costo
+const CostoLine = ({ label, value, isSubtotal = false }) => (
+    <Group justify="space-between" wrap="nowrap" mt={isSubtotal ? 'sm' : 'xs'}>
+        <Text size="sm" fw={isSubtotal ? 700 : 400}>{label}:</Text>
+        <Text size="sm" fw={isSubtotal ? 700 : 500}>
+            ${(value || 0).toLocaleString('es-AR')}
         </Text>
     </Group>
 );
 
+// Componente para una métrica clave
+const KpiMetrica = ({ icon, value, label, unit }) => (
+    <Group>
+        <ThemeIcon variant="light" size={36} radius="md">{icon}</ThemeIcon>
+        <div>
+            <Text fw={700} fz="lg">{value} <Text span fz="sm" c="dimmed">{unit}</Text></Text>
+            <Text fz="xs" c="dimmed">{label}</Text>
+        </div>
+    </Group>
+);
+
+
 const CapituloRecursoHumanoCostos = ({ presupuesto }) => {
-    if (!presupuesto?.recursoHumano?.calculo?.detalle) {
-        return null;
-    }
+    if (!presupuesto?.recursoHumano?.calculo?.detalle) { return null; }
 
     const { calculo } = presupuesto.recursoHumano;
     const { detalle, totalFinal } = calculo;
 
-    // --- Cálculos para el Gráfico ---
+    // --- Cálculos para el Gráfico y KPIs ---
     const totalRemunerativo = (detalle.costoBaseRemunerativo || 0) + (detalle.adicionalKm || 0) + (detalle.adicionalPorCargaDescarga || 0);
     const totalNoRemunerativo = (detalle.viaticoKm || 0) + (detalle.adicionalFijoNoRemunerativo || 0);
     const totalIndirecto = detalle.costoIndirecto || 0;
 
+    const costoPorKm = detalle.kmRealesTotales > 0 ? (totalFinal / detalle.kmRealesTotales) : 0;
+    
+    const duracionTotalMisionMin = (presupuesto.duracionMin || 0) + 30;
+    const viajesProyectados = presupuesto.frecuencia.tipo === 'mensual'
+      ? ((presupuesto.frecuencia.diasSeleccionados?.length || 0) * (presupuesto.frecuencia.viajesPorDia || 1) * 4.33)
+      : (presupuesto.frecuencia.vueltasTotales || 1);
+  
+    const horasTotalesMensuales = (duracionTotalMisionMin * viajesProyectados) / 60;
+    const costoPorHora = horasTotalesMensuales > 0 ? (totalFinal / horasTotalesMensuales) : 0;
+
     const seccionesGrafico = [
-        { value: totalFinal > 0 ? (totalRemunerativo / totalFinal) * 100 : 0, color: 'blue', tooltip: `Remunerativo: $${totalRemunerativo.toLocaleString()}` },
-        { value: totalFinal > 0 ? (totalNoRemunerativo / totalFinal) * 100 : 0, color: 'teal', tooltip: `No Remunerativo: $${totalNoRemunerativo.toLocaleString()}` },
-        { value: totalFinal > 0 ? (totalIndirecto / totalFinal) * 100 : 0, color: 'grape', tooltip: `Costos Indirectos: $${totalIndirecto.toLocaleString()}` },
+        { value: totalFinal > 0 ? (totalRemunerativo / totalFinal) * 100 : 0, color: 'blue', tooltip: `Remunerativo: $${totalRemunerativo.toLocaleString('es-AR')}` },
+        { value: totalFinal > 0 ? (totalNoRemunerativo / totalFinal) * 100 : 0, color: 'teal', tooltip: `No Remunerativo: $${totalNoRemunerativo.toLocaleString('es-AR')}` },
+        { value: totalFinal > 0 ? (totalIndirecto / totalFinal) * 100 : 0, color: 'grape', tooltip: `Indirectos: $${totalIndirecto.toLocaleString('es-AR')}` },
     ].filter(sec => sec.value > 0);
 
     return (
         <div className="page">
             <div className="header-table-placeholder"></div>
             <div className="content">
-                <Title order={2} className="chapter-title">Capítulo 4: Impacto Económico del Colaborador</Title>
+                <Title order={2} className="chapter-title">Capítulo 5: Impacto Económico del Colaborador</Title>
                 <Text c="dimmed" mb="xl">
-                    Análisis detallado de los costos generados por el colaborador para esta operación específica.
+                    Análisis detallado de los costos generados por el colaborador para esta operación específica, basado en la metodología de cálculo seleccionada.
                 </Text>
 
-                <Grid gutter="xl">
-                    {/* --- COLUMNA IZQUIERDA: GRÁFICO PRINCIPAL Y TOTAL --- */}
-                    <Grid.Col span={{ base: 12, md: 5 }}>
+                {/* ✅ CLASES DE IMPRESIÓN AÑADIDAS AQUÍ 👇 */}
+                <Grid gutter="xl" className="print-grid">
+                    <Grid.Col span={{ base: 12, md: 7 }} className="print-col-7">
+                        <Paper withBorder p="xl" radius="md">
+                            <Stack>
+                                <Alert color="blue" title="Metodología de Cálculo Aplicada" icon={<Info />} radius="md">
+                                    <Text size="sm">
+                                        El sistema aplicó el modo <strong>{detalle.tipoDeCalculo}</strong>, justificado por la duración y frecuencia del servicio.
+                                    </Text>
+                                </Alert>
+                                <Title order={4} className="section-subtitle" mt="md">Desglose de Conceptos</Title>
+                                <Text fw={600} fz="sm" c="dimmed">COSTOS POR TIEMPO Y PERFORMANCE</Text>
+                                <CostoLine label="Costo Base (Sueldo/Jornal)" value={detalle.costoBaseRemunerativo} />
+                                <CostoLine label="Adicional por KM (Remun.)" value={detalle.adicionalKm} />
+                                <CostoLine label="Viáticos por KM (No Remun.)" value={detalle.viaticoKm} />
+                                <CostoLine label="Adicional Carga/Descarga" value={detalle.adicionalPorCargaDescarga} />
+                                <CostoLine label="Adicional Fijo (No Remun.)" value={detalle.adicionalFijoNoRemunerativo} />
+                                <Divider/>
+                                <Title order={6} c="dimmed">COSTOS INDIRECTOS</Title>
+                                <Alert variant="light" color="grape" title={detalle.costoIndirectoLabel} icon={<UserCheck />} radius="md" p="sm">
+                                    <Text fz="xl" fw={700} ta="center">${(detalle.costoIndirecto || 0).toLocaleString('es-AR')}</Text>
+                                </Alert>
+                                <Divider my="sm" variant="dashed" />
+                                <Paper p="sm" radius="md" withBorder bg="gray.0">
+                                    <Group justify="space-between">
+                                        <Title order={3}>Total Costo RRHH</Title>
+                                        <Title order={3} c="blue.8">${totalFinal.toLocaleString('es-AR')}</Title>
+                                    </Group>
+                                </Paper>
+                            </Stack>
+                        </Paper>
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 5 }} className="print-col-5">
                         <Stack>
-                            <Paper withBorder p="lg" radius="md" className="data-section">
-                                <Title order={4} className="section-subtitle">Composición del Costo Total</Title>
-                                <Text size="xs" c="dimmed" mb="xl">Estructura de costos del colaborador.</Text>
+                            <Title order={4} className="section-subtitle">Análisis Visual</Title>
+                            <Paper withBorder p="lg" radius="md" ta="center">
+                                <Title order={6} c="dimmed">Composición del Costo Total</Title>
                                 <RingProgress
-                                    size={220}
-                                    thickness={22}
-                                    rootColor="gray.1"
+                                    size={180}
+                                    thickness={18}
                                     mx="auto"
-                                    label={
-                                        <Stack align="center" gap={0}>
-                                            <Text c="blue.8" fw={700} fz="2.5rem">${totalFinal.toLocaleString()}</Text>
-                                            <Text c="dimmed" fz="xs">Costo Total RRHH</Text>
-                                        </Stack>
-                                    }
+                                    mt="xl"
+                                    label={<Center><ThemeIcon variant="light" color="blue" size={80} radius={80}><TrendingUp size={40}/></ThemeIcon></Center>}
                                     sections={seccionesGrafico}
                                 />
-                                <Stack mt="xl" gap="sm">
-                                    <Group><Paper bg="blue" w={15} h={15} radius="xl" /> <Text size="sm">Conceptos Remunerativos</Text></Group>
-                                    <Group><Paper bg="teal" w={15} h={15} radius="xl" /> <Text size="sm">Conceptos No Remunerativos</Text></Group>
-                                    <Group><Paper bg="grape" w={15} h={15} radius="xl" /> <Text size="sm">Costos Indirectos</Text></Group>
+                                <Stack mt="xl" gap={4}>
+                                   <Text span size="xs"><Badge color="blue" circle /> Remunerativo ({(totalRemunerativo/totalFinal*100).toFixed(1)}%)</Text>
+                                   <Text span size="xs"><Badge color="teal" circle /> No Remunerativo ({(totalNoRemunerativo/totalFinal*100).toFixed(1)}%)</Text>
+                                   <Text span size="xs"><Badge color="grape" circle /> Indirectos ({(totalIndirecto/totalFinal*100).toFixed(1)}%)</Text>
                                 </Stack>
                             </Paper>
-                             <Alert color="blue" title="Tipo de Cálculo Aplicado" icon={<Info />} radius="md">
-                                <Text size="sm">
-                                    Los costos se calcularon bajo la modalidad de <strong>{detalle.tipoDeCalculo}</strong>, basado en la duración y frecuencia del servicio.
-                                </Text>
-                            </Alert>
+                            <Title order={4} className="section-subtitle" mt="md">Métricas de Rendimiento</Title>
+                            <Paper withBorder p="lg" radius="md">
+                                <Stack>
+                                    <KpiMetrica icon={<Route size={22} />} value={`$${costoPorKm.toFixed(2)}`} label="Costo por Kilómetro Real" />
+                                    <Divider />
+                                    <KpiMetrica icon={<Clock size={22} />} value={`$${costoPorHora.toFixed(2)}`} label="Costo por Hora de Misión" />
+                                    <Divider />
+                                    <KpiMetrica icon={<Info size={22} />} value={detalle.kmParaPagar?.toLocaleString('es-AR')} label="KM Pagados (con mínimos)" unit="km" />
+                                </Stack>
+                            </Paper>
                         </Stack>
-                    </Grid.Col>
-
-                    {/* --- COLUMNA DERECHA: DESGLOSE DETALLADO --- */}
-                    <Grid.Col span={{ base: 12, md: 7 }}>
-                        <Paper withBorder p="lg" radius="md" className="data-section">
-                            <Title order={4} className="section-subtitle">Detalle de Conceptos</Title>
-                             <Text size="xs" c="dimmed" mb="md">Descomposición de todos los costos asociados a la operación.</Text>
-
-                            <Divider my="md" label="Conceptos Remunerativos" labelPosition="left" />
-                            <Stack gap="xs">
-                                <InfoLine label="Costo Base (Sueldo/Jornal)" value={`$${(detalle.costoBaseRemunerativo || 0).toLocaleString()}`} />
-                                <InfoLine label="Adicional por KM" value={`$${(detalle.adicionalKm || 0).toLocaleString()}`} />
-                                <InfoLine label="Adicional Carga/Descarga" value={`$${(detalle.adicionalPorCargaDescarga || 0).toLocaleString()}`} />
-                            </Stack>
-
-                            <Divider my="md" label="Conceptos No Remunerativos" labelPosition="left" />
-                            <Stack gap="xs">
-                                <InfoLine label="Viáticos por KM" value={`$${(detalle.viaticoKm || 0).toLocaleString()}`} />
-                                <InfoLine label="Adicional Fijo" value={`$${(detalle.adicionalFijoNoRemunerativo || 0).toLocaleString()}`} />
-                            </Stack>
-
-                            <Divider my="md" label="Costos Indirectos" labelPosition="left" />
-                            <Alert variant="light" color="grape" title={detalle.costoIndirectoLabel || 'Costo Indirecto'} icon={<UserCheck />} radius="md" mt="sm">
-                                <Text fz="xl" fw={700} ta="center">${(detalle.costoIndirecto || 0).toLocaleString()}</Text>
-                            </Alert>
-                        </Paper>
                     </Grid.Col>
                 </Grid>
             </div>

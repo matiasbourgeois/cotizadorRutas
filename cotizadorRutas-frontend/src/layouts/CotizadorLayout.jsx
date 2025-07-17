@@ -1,11 +1,11 @@
-// Archivo: cotizadorRutas-frontend/src/layouts/CotizadorLayout.jsx (Versión Final con "key")
+// Archivo: cotizadorRutas-frontend/src/layouts/CotizadorLayout.jsx (Versión Final con Cálculo Progresivo)
 
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { AppShell, Burger, Group, Text, NavLink, Container, Button, ScrollArea, Flex } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { FileText, Clock, Truck, User, Settings, Check, LogOut, History, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useEffect, useState } from 'react'; // Importamos useState
+import { useEffect, useState } from 'react';
 import { useCotizacion } from '../context/Cotizacion';
 import clienteAxios from '../api/clienteAxios';
 import { useAsistenteContextual } from '../hooks/useAsistenteContextual.js';
@@ -15,26 +15,54 @@ const CotizadorLayout = () => {
     const [opened, { toggle }] = useDisclosure();
     const location = useLocation();
     const { auth, cerrarSesionAuth } = useAuth();
-    
+
     const {
         puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga,
-        setDetalleVehiculo, setDetalleRecurso,
+        setDetalleVehiculo, setDetalleRecurso, setResumenCostos
     } = useCotizacion();
 
     const { consejos } = useAsistenteContextual();
     
-    // ✅ Creamos un estado simple para forzar la re-animación.
     const [animationKey, setAnimationKey] = useState(0);
 
-    // Efecto para el cálculo de costos (sin cambios)
+    // --- ✅ SOLUCIÓN DEFINITIVA ---
     useEffect(() => {
-        // ... (lógica de cálculo de costos)
-    }, [puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga, setDetalleVehiculo, setDetalleRecurso]);
+        // ✅ CONDICIÓN CORREGIDA: Solo necesitamos la ruta y la frecuencia para empezar a calcular.
+        // El cálculo se hará progresivamente a medida que se añadan el vehículo y el recurso.
+        if (!puntosEntrega || !frecuencia) {
+            return;
+        }
 
-    // ✅ Efecto que se ejecuta CADA VEZ que los consejos cambian.
+        const debounceCalc = setTimeout(() => {
+            const payload = {
+                puntosEntrega,
+                frecuencia,
+                vehiculo, // Puede ser null, el backend lo manejará
+                recursoHumano, // Puede ser null, el backend lo manejará
+                detallesCarga,
+                configuracion: {},
+            };
+            
+            clienteAxios.post('/presupuestos/calcular', payload)
+                .then(response => {
+                    setDetalleVehiculo(response.data.detalleVehiculo);
+                    setDetalleRecurso(response.data.detalleRecurso);
+                    setResumenCostos(response.data.resumenCostos);
+                })
+                .catch(error => {
+                    console.error("Error en el cálculo en tiempo real:", error);
+                    setDetalleVehiculo(null);
+                    setDetalleRecurso(null);
+                });
+        }, 300);
+
+        return () => clearTimeout(debounceCalc);
+
+    // El array de dependencias es correcto.
+    }, [puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga]);
+
+
     useEffect(() => {
-        // Incrementamos la 'key' para forzar que el componente Asistente se destruya y se vuelva a crear.
-        // Esto reiniciará la animación CSS de forma limpia y garantizada.
         setAnimationKey(prevKey => prevKey + 1);
     }, [consejos]);
 
@@ -91,7 +119,6 @@ const CotizadorLayout = () => {
                     </div>
                     
                     <ScrollArea style={{ flex: 1 }} mt="md">
-                        {/* ✅ Le pasamos la 'key' a nuestro asistente. */}
                         <AsistenteContextual key={animationKey} consejos={consejos} />
                     </ScrollArea>
                 </Flex>

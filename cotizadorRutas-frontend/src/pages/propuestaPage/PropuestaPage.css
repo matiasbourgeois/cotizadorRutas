@@ -1,282 +1,145 @@
-/* =================================
-   ESTILOS GENERALES Y DE IMPRESIÓN
-   ================================= */
-body {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-}
+/* =================================================================== */
+/* ==   ESTILOS "NIVEL DIOS" PARA PROPUESTA COMERCIAL (PANTALLA Y PDF) == */
+/* =================================================================== */
 
+/* --- Contenedores y Fondo --- */
 .propuesta-background {
     background-color: #f1f3f5;
-    padding: 40px;
+    padding: 20px;
+    font-family: 'Montserrat', sans-serif;
+}
+.prop-page-container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 30px;
 }
-
-.page-container {
-    width: 210mm;
-}
-
-.page {
-    background-color: white;
+.prop-page {
+    background-color: white !important;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.07);
-    margin: 0 auto 40px auto;
     position: relative;
     width: 210mm;
     min-height: 297mm;
     box-sizing: border-box;
-    padding: 50px;
+    padding: 40px 50px;
     display: flex;
     flex-direction: column;
 }
+.content { flex-grow: 1; }
+.prop-print-button-container { text-align: center; width: 100%; margin-bottom: 30px; }
 
-.print-button-container {
-    text-align: center;
-    margin-bottom: 40px;
-    width: 100%;
-}
+/* --- Componentes Reutilizables (Header/Footer) --- */
+.header-table { width: 100%; border-bottom: 1px solid #dee2e6; margin-bottom: 25px; }
+.header-info-cell { text-align: right; vertical-align: middle; }
+.header-info-cell h3 { margin: 0; font-size: 20px; font-weight: 600; color: #343a40; }
+.header-info-cell p { font-size: 12px; color: #868e96; }
+.footer { position: absolute; bottom: 40px; left: 50px; right: 50px; border-top: 1px solid #f1f3f5; padding-top: 15px; text-align: center; }
+.section-title { font-weight: 700; font-size: 24px; color: #212529; margin-bottom: 20px !important; border-bottom: 2px solid var(--mantine-color-cyan-5); padding-bottom: 10px; }
+.section-subtitle { font-weight: 600; color: #495057; font-size: 18px; margin-bottom: 1rem; }
 
-
-/* =================================
-   COMPONENTES REUTILIZABLES
-   ================================= */
-.header-table {
-    width: 100%;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.header-logo-cell img {
-    max-height: 90px !important;
-}
-
-.header-info-cell {
-    text-align: right;
-    vertical-align: middle;
-}
-
-.header-info-cell h3 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: #343a40;
-}
-
-.header-info-cell p {
-    font-size: 12px;
-    color: #868e96;
-}
-
-.footer {
-    position: absolute;
-    bottom: 50px;
-    left: 50px;
-    right: 50px;
-    border-top: 1px solid #f1f3f5;
-    padding-top: 15px;
-    text-align: center;
-}
-
-.section-title {
-    font-weight: 600;
-    color: #3A56A5;
-    margin-top: 25px;
-    /* Reducimos el margen superior general */
-    margin-bottom: 15px;
-    /* Reducimos el margen inferior general */
-    font-size: 22px;
-}
-
-.section-title:first-of-type {
-    margin-top: 0;
-    /* Aseguramos que el primer título no tenga margen superior */
-}
-
-.section-subtitle {
-    font-weight: 600;
-    color: #495057;
-    font-size: 18px;
-    margin-bottom: 1rem;
-}
-
-.content {
-    flex-grow: 1;
-}
-
-/* =================================
-   ESTILOS POR PÁGINA
-   ================================= */
-
-/* --- PÁGINA 1: PORTADA --- */
-.page-portada {
-    display: flex;
-    flex-direction: column;
+/* --- Página 1: Portada Impactante --- */
+.prop-page-portada {
+    padding: 0;
     justify-content: center;
     align-items: center;
     text-align: center;
+    background-image: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80');
+    background-size: cover;
+    background-position: center;
 }
-
-.portada-logo {
-    width: 100%;             /* Ocupa el 100% del ancho de su contenedor */
-    max-width: 700px;        /* Un límite para que no se vea excesivamente grande */
-    height: auto;            /* La altura se ajusta automáticamente */
-    margin-bottom: 50px;     /* Mantenemos el espacio inferior */
-    border-radius: var(--mantine-radius-md); /* Opcional: añade bordes redondeados */
-}
-.portada-content h1 {
-    font-size: 42px;
-    color: #3A56A5;
-    margin: 0;
-    font-weight: 700;
-}
-
-.portada-content .linea-decorativa {
-    width: 80px;
-    height: 5px;
-    background-color: #11B7CD;
-    margin: 30px auto;
-    border-radius: 5px;
-}
-
-.portada-content p {
-    font-size: 18px;
-    color: #adb5bd;
-    margin: 0;
-}
-
-.portada-content h2 {
-    font-size: 34px;
-    color: #212529;
-    margin-top: 15px;
-    font-weight: 600;
-}
-
-.portada-footer {
+.portada-overlay {
     position: absolute;
-    bottom: 50px;
-    font-size: 12px;
-    color: #adb5bd;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Overlay oscuro para legibilidad */
 }
-
-/* --- PÁGINA 2: RESUMEN, PRECIO Y MAPA --- */
-.kpi-card {
-    transition: all 0.2s ease-in-out;
-    background-color: #fdfdfe;
-}
-
-.price-card-compact {
-    text-align: center;
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    padding: 20px;
-    border-radius: var(--mantine-radius-md);
-}
-
-.price-value-compact {
-    color: #11B7CD;
-    font-size: 52px !important;
-    margin: 5px 0 !important;
-    font-weight: 700;
-    letter-spacing: -2px;
-}
-
-.map-container-compact {
-    height: 35vh;
-    width: 100%;
-}
-
-/* --- PÁGINA 3: ITINERARIO Y CIERRE --- */
-.itinerary-wrapper {
+.portada-content {
     position: relative;
-    padding-left: 20px;
-    border-left: 2px solid #e9ecef;
+    z-index: 2;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 40px 60px;
+    border-radius: 12px;
+    max-width: 80%;
 }
+.portada-logo { max-width: 300px; height: auto; margin-bottom: 20px; }
+.portada-content h1 { font-size: 38px; color: #3A56A5; margin: 0; font-weight: 700; }
+.linea-decorativa { width: 80px; height: 5px; background-color: #11B7CD; margin: 25px auto; border-radius: 5px; }
+.portada-content p { font-size: 18px; color: #868e96; margin: 0; }
+.portada-content h2 { font-size: 34px; color: #212529; margin-top: 10px; font-weight: 600; }
+.portada-footer { position: absolute; bottom: 40px; font-size: 12px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); z-index: 2;}
 
-.itinerary-node {
-    display: flex;
-    align-items: flex-start;
-    position: relative;
-    padding-bottom: 25px;
-}
-
-.itinerary-node:last-child {
-    padding-bottom: 0;
-}
-
-.itinerary-icon {
-    position: absolute;
-    left: -21px;
-    top: -2px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #11B7CD;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 4px solid white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 1;
-}
-
-.itinerary-details {
-    margin-left: 35px;
-}
-
-.itinerary-point-name {
-    color: #343a40;
-}
-
-.itinerary-point-address {
-    line-height: 1.4;
-}
-
-.qr-paper-final {
-    background-color: #f8f9fa;
-    border-color: #e9ecef;
+/* --- Página 2: Resumen Ejecutivo --- */
+.prop-grid-resumen { align-items: flex-start; }
+.prop-kpi-card { transition: all 0.2s ease-in-out; }
+.prop-kpi-card:hover { transform: translateY(-3px); box-shadow: var(--mantine-shadow-md); }
+.prop-price-card {
+    background: linear-gradient(135deg, var(--mantine-color-cyan-0) 0%, var(--mantine-color-blue-0) 100%);
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+}
+.price-value {
+    color: #11B7CD;
+    font-size: 56px !important;
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 1;
 }
 
-.qr-code-image-final {
-    border: 1px solid #dee2e6;
-    border-radius: var(--mantine-radius-md);
-    padding: 8px;
-    background: white;
-    max-width: 160px;
-}
+/* --- Página 3: Confianza Operativa --- */
+.prop-map-container { height: 45vh; width: 100%; }
+.itinerary-wrapper { position: relative; padding-left: 20px; border-left: 2px solid #e9ecef; }
+.itinerary-node { display: flex; align-items: flex-start; position: relative; padding-bottom: 25px; }
+.itinerary-icon { position: absolute; left: -21px; top: -2px; width: 40px; height: 40px; border-radius: 50%; background-color: #11B7CD; color: white; display: flex; align-items: center; justify-content: center; border: 4px solid white; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); z-index: 1; }
+.itinerary-details { margin-left: 35px; }
+.qr-code-image-final { border-radius: var(--mantine-radius-md); padding: 5px; background: white; max-width: 100px; }
+.terms-textarea { font-size: 14px; line-height: 1.6; color: #495057; }
+.signature-area { margin-top: 40px; }
+.signature-box { text-align: center; }
+.signature-line { border-bottom: 1px solid #495057; margin: 40px auto 10px auto; width: 80%; }
+.signature-title { font-size: 12px; color: #868e96; }
 
-.terms-textarea {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    color: #495057;
-}
 
-.signature-area {
-    margin-top: 40px;
-}
+/* ====================================================================== */
+/* ==      ✅ REGLAS DE IMPRESIÓN PARA LA PROPUESTA ✅                  == */
+/* ====================================================================== */
+@media print {
+    /* --- Reseteos Generales --- */
+    @page { size: A4; margin: 0; }
+    #root, body, .propuesta-background {
+        background-color: white !important;
+        padding: 0 !important; margin: 0 !important;
+        color: #000 !important;
+    }
+    .prop-print-button-container { display: none !important; }
 
-.signature-box {
-    text-align: center;
-}
-
-.signature-line {
-    border-bottom: 1px solid #495057;
-    margin: 40px auto 10px auto;
-    width: 80%;
-}
-
-.signature-title {
-    font-size: 12px;
-    color: #868e96;
-}
-
-.compact-title {
-    margin-top: 20px;
-    margin-bottom: 15px;
+    /* --- Layout de Página --- */
+    .prop-page-container { display: block !important; }
+    .prop-page {
+        width: 100% !important;
+        height: 297mm !important;
+        min-height: unset !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 1.5cm !important;
+        page-break-after: always;
+        box-sizing: border-box;
+    }
+    .prop-page:last-child { page-break-after: auto; }
+    .footer { position: absolute; bottom: 1.5cm; left: 1.5cm; right: 1.5cm; }
+    
+    /* --- Layouts Internos --- */
+    .prop-grid-resumen, .prop-grid-cierre { display: flex !important; flex-wrap: nowrap !important; gap: 1.5rem !important; }
+    .prop-col-7 { flex: 0 0 58% !important; max-width: 58% !important; }
+    .prop-col-5 { flex: 0 0 40% !important; max-width: 40% !important; }
+    .prop-col-6 { flex: 0 0 48% !important; max-width: 48% !important; }
+    .prop-kpi-card { page-break-inside: avoid; }
+    
+    /* --- Estilos Visuales para Impresión --- */
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-shadow: none !important; }
+    .prop-page-portada { background-image: none !important; background-color: #f1f3f5 !important; }
+    .portada-overlay { display: none; }
+    .portada-content { background-color: transparent !important; }
+    .linea-decorativa, .itinerary-icon { background-color: #11B7CD !important; }
+    .price-value { color: #11B7CD !important; }
 }
