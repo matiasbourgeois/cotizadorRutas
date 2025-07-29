@@ -1,4 +1,4 @@
-// Archivo: src/context/Cotizacion.jsx (Versión Final Definitiva)
+// Archivo: src/context/Cotizacion.jsx (Con la nueva función de reseteo)
 
 import React, { createContext, useContext, useState } from "react";
 
@@ -21,7 +21,6 @@ const initialState = {
 export const CotizacionProvider = ({ children }) => {
   const [cotizacion, setCotizacion] = useState(initialState);
 
-  // Las funciones para actualizar el estado no cambian
   const setPuntosEntrega = (puntos) => {
     setCotizacion(prev => ({ ...prev, puntosEntrega: puntos }));
   };
@@ -43,7 +42,6 @@ export const CotizacionProvider = ({ children }) => {
   const setResumenCostos = (resumen) => {
     setCotizacion(prev => ({ ...prev, resumenCostos: resumen }));
   };
-
   const setDetalleVehiculo = (detalle) => {
     setCotizacion(prev => ({ ...prev, detalleVehiculo: detalle }));
   };
@@ -51,17 +49,16 @@ export const CotizacionProvider = ({ children }) => {
     setCotizacion(prev => ({ ...prev, detalleRecurso: detalle }));
   };
 
+  // ✅ NUEVA FUNCIÓN PARA REINICIAR LA COTIZACIÓN
+  const resetCotizacion = () => {
+    setCotizacion(initialState);
+  };
+
   return (
     <CotizacionContext.Provider
-      // ✅ --- LA SOLUCIÓN DEFINITIVA ESTÁ AQUÍ --- ✅
-      // En lugar de anidar el estado dentro de un objeto { cotizacion: cotizacion },
-      // ahora "esparcimos" todas las propiedades del estado directamente en el 'value'.
-      // Esto permite que los demás componentes accedan a 'vehiculo', 'frecuencia', etc.
-      // de la forma en que lo están intentando hacer.
       value={{
-        ...cotizacion, // <-- Esta línea es la clave del arreglo.
+        ...cotizacion,
 
-        // Y también pasamos todas las funciones para modificar el estado.
         setPuntosEntrega,
         setFrecuencia,
         setVehiculo,
@@ -71,6 +68,7 @@ export const CotizacionProvider = ({ children }) => {
         setResumenCostos,
         setDetalleVehiculo, 
         setDetalleRecurso,
+        resetCotizacion, // <-- ✅ Exportamos la nueva función
       }}
     >
       {children}

@@ -1,26 +1,30 @@
-// Archivo: src/components/ResumenPaso.jsx (Versión Final Definitiva con Vista Expandida)
+// Archivo: src/components/ResumenPaso.jsx (Versión Final con Leyenda de Gráfico)
 
+import { useState } from 'react';
 import { useCotizacion } from '../context/Cotizacion';
-import { Paper, Title, Text, Stack, Group, ThemeIcon, Divider, Center, Loader, Accordion } from '@mantine/core';
-import { MapPin, Clock, Calendar, Truck, User, TrendingUp, Target } from 'lucide-react';
+import { Paper, Title, Text, Stack, Group, ThemeIcon, Divider, Center, Loader, Progress, Grid, Badge } from '@mantine/core';
+import { MapPin, Calendar, Truck, User, Target, AlertCircle, Clock, Route, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from 'react-router-dom';
 
-// Componente interno para un ítem de información principal
-const InfoItem = ({ icon, label, children }) => (
-    <div>
-        <Group gap="xs" mb={5}>
-            <ThemeIcon color="gray" variant="light" size="sm" radius="xl">
-                {icon}
+// -- Sub-componente para Métricas Clave (Parte Superior) --
+const MetricItem = ({ icon: Icon, label, value }) => (
+    <Grid.Col span={6}>
+        <Group gap="sm" wrap="nowrap">
+            <ThemeIcon color="gray" variant="light" size={36} radius="md">
+                <Icon size={18} />
             </ThemeIcon>
-            <Text size="sm" fw={500} c="dimmed">{label}</Text>
+            <div>
+                <Text fz="xs" c="dimmed" lh={1.2}>{label}</Text>
+                <Text fz="sm" fw={600} c="deep-blue.8">{value}</Text>
+            </div>
         </Group>
-        <Text pl={34} size="sm" c="deep-blue.8" fw={500}>{children}</Text>
-    </div>
+    </Grid.Col>
 );
 
-// Componente interno para un desglose de costos
+// -- Sub-componente para el desglose dentro de la tarjeta interactiva --
 const CostoDesglosadoItem = ({ label, valor }) => (
-    <Group justify="space-between" gap="xs">
+    <Group justify="space-between" gap="xs" mt={4}>
         <Text fz="xs" c="dimmed">{label}</Text>
         <Text fz="xs" fw={500}>
             ${(valor || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
@@ -28,129 +32,197 @@ const CostoDesglosadoItem = ({ label, valor }) => (
     </Group>
 );
 
+// -- Sub-componente para las TARJETAS INTERACTIVAS --
+const CostCard = ({ icon: Icon, title, selection, cost, children, isLoading, color }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <Paper 
+                withBorder 
+                p="md" 
+                radius="md" 
+                onClick={() => selection && setIsExpanded(!isExpanded)} 
+                style={{ cursor: selection ? 'pointer' : 'default' }}
+            >
+                <Stack gap="xs">
+                    <Group justify="space-between">
+                        <Group gap="sm">
+                            <ThemeIcon color={color} variant="light" size="lg" radius="md">
+                                <Icon size={20} />
+                            </ThemeIcon>
+                            <Text fz="sm" fw={600}>{title}</Text>
+                        </Group>
+                         {selection && (
+                             <ChevronDown size={20} color="var(--mantine-color-gray-5)" style={{ transform: `rotate(${isExpanded ? 180 : 0}deg)`, transition: 'transform 0.2s ease' }}/>
+                         )}
+                    </Group>
+                    
+                    {selection ? (
+                        <Stack gap={4} pl={42}>
+                            <Text fz="sm" fw={500} truncate>{selection}</Text>
+                            {isLoading ? (
+                                <Center><Loader size="xs" color="gray" /></Center>
+                            ) : (
+                                <Text fz="xl" fw={700} c="deep-blue.7">
+                                    ${(cost || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                                </Text>
+                            )}
+                        </Stack>
+                    ) : (
+                        <Text fz="sm" c="dimmed" pl={42}>Pendiente...</Text>
+                    )}
+
+                    <AnimatePresence>
+                        {isExpanded && !isLoading && (
+                            <motion.div
+                                key="content"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <Divider mt="xs" mb="sm"/>
+                                {children}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </Stack>
+            </Paper>
+        </motion.div>
+    );
+};
+
+
 const ResumenPaso = () => {
-    const { 
+    const {
         puntosEntrega, frecuencia, vehiculo, recursoHumano,
-        detalleVehiculo, detalleRecurso, resumenCostos 
+        detalleVehiculo, detalleRecurso, resumenCostos
     } = useCotizacion();
     
     const location = useLocation();
     const esPasoFinal = location.pathname.includes('/configuracion-final');
 
-    if (!puntosEntrega) return null;
-
-    let frecuenciaTexto = 'No definida';
-    if (frecuencia) {
-        frecuenciaTexto = frecuencia.tipo === 'esporadico'
-            ? `${frecuencia.vueltasTotales} viaje(s) esporádico(s)`
-            : `Mensual, ${frecuencia.diasSeleccionados.length} día(s) por semana`;
+    if (!puntosEntrega) {
+        return (
+            <Paper withBorder p="lg" radius="md" shadow="sm">
+                <Center h={200}>
+                     <Stack align="center" gap="xs">
+                        <AlertCircle size={32} color="var(--mantine-color-gray-4)" />
+                        <Text c="dimmed" size="sm" ta="center">Define una ruta para activar el panel de misión.</Text>
+                    </Stack>
+                </Center>
+            </Paper>
+        );
     }
 
-    const SeccionVehiculo = () => (
-        <Stack gap="xs">
-            {vehiculo ? (
-                <Stack pl={34} gap="xs">
-                    <Text size="sm" fw={500}>{vehiculo.marca} {vehiculo.modelo}</Text>
-                    {detalleVehiculo ? (
-                        <>
-                            <CostoDesglosadoItem label="Combustible y Desgaste" valor={detalleVehiculo.detalle.combustible + detalleVehiculo.detalle.cubiertas + detalleVehiculo.detalle.aceite} />
-                            <CostoDesglosadoItem label="Depreciación" valor={detalleVehiculo.detalle.depreciacion} />
-                            <CostoDesglosadoItem label="Costos Fijos (Seguro, etc.)" valor={detalleVehiculo.detalle.costosFijosProrrateados} />
-                            <Divider style={{ width: '50%', alignSelf: 'flex-end' }} />
-                            <Group justify="flex-end"><Text fz="sm" fw={700}>Subtotal Vehículo:</Text><Text fz="sm" fw={700}>${(detalleVehiculo.totalFinal || 0).toLocaleString('es-AR')}</Text></Group>
-                        </>
-                    ) : <Center><Loader size="xs" type="dots" /></Center>}
-                </Stack>
-            ) : <Text size="sm" c="dimmed" pl={34}>Pendiente de selección...</Text>}
-        </Stack>
-    );
+    let frecuenciaTexto = 'No definida';
+    let kmsTotales = puntosEntrega.distanciaKm || 0;
+    if (frecuencia) {
+        if (frecuencia.tipo === 'esporadico') {
+            frecuenciaTexto = `${frecuencia.vueltasTotales || 1} viaje(s)`;
+            kmsTotales *= (frecuencia.vueltasTotales || 1);
+        } else {
+            const viajesMensuales = (frecuencia.diasSeleccionados.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33;
+            frecuenciaTexto = `~${viajesMensuales.toFixed(1)} viajes/mes`;
+            kmsTotales *= viajesMensuales;
+        }
+    }
+
+    const { 
+        totalVehiculo = 0, totalRecurso = 0, totalOperativo = 0, 
+        totalFinal = 0 
+    } = resumenCostos || {};
     
-    // =======================================================
-    // == SECCIÓN MODIFICADA PARA USAR LA NUEVA LÓGICA
-    // =======================================================
-    const SeccionRRHH = () => (
-         <Stack gap="xs">
-            {recursoHumano ? (
-                <Stack pl={34} gap="xs">
-                    <Text size="sm" fw={500}>{recursoHumano.nombre}</Text>
-                    {detalleRecurso ? (
-                        <>
-                            <CostoDesglosadoItem 
-                                label="Costo Base y Adicionales Remunerativos" 
-                                valor={detalleRecurso.detalle.costoBaseRemunerativo + detalleRecurso.detalle.adicionalKm + detalleRecurso.detalle.adicionalPorCargaDescarga} 
-                            />
-                            <CostoDesglosadoItem 
-                                label="Viáticos y Adicionales No Remunerativos" 
-                                valor={detalleRecurso.detalle.viaticoKm + detalleRecurso.detalle.adicionalFijoNoRemunerativo} 
-                            />
-                             <CostoDesglosadoItem 
-                                label={detalleRecurso.detalle.costoIndirectoLabel || 'Costos Indirectos'}
-                                valor={detalleRecurso.detalle.costoIndirecto}
-                            />
-                            <Divider style={{ width: '50%', alignSelf: 'flex-end' }} />
-                            <Group justify="flex-end">
-                                <Text fz="sm" fw={700}>Subtotal RRHH:</Text>
-                                <Text fz="sm" fw={700}>${(detalleRecurso.totalFinal || 0).toLocaleString('es-AR')}</Text>
-                            </Group>
-                        </>
-                    ) : <Center><Loader size="xs" type="dots" /></Center>}
-                </Stack>
-            ) : <Text size="sm" c="dimmed" pl={34}>Pendiente de selección...</Text>}
-        </Stack>
-    );
+    const totalCostosAdicionales = totalOperativo - totalVehiculo - totalRecurso;
+
+    // --- Cálculos de porcentajes para la leyenda ---
+    const pctVehiculo = totalOperativo > 0 ? (totalVehiculo / totalOperativo) * 100 : 0;
+    const pctRecurso = totalOperativo > 0 ? (totalRecurso / totalOperativo) * 100 : 0;
+    const pctOtros = totalOperativo > 0 ? (totalCostosAdicionales / totalOperativo) * 100 : 0;
+
 
     return (
         <Paper withBorder p="lg" radius="md" shadow="sm">
-            <Stack gap="lg">
-                <Title order={4} c="deep-blue.7">Informe de Misión</Title>
+            <Stack gap="md"> 
+                <Title order={4} c="deep-blue.7">Panel de Misión</Title>
+                <Grid>
+                    <MetricItem icon={MapPin} label="Distancia / viaje" value={`${puntosEntrega.distanciaKm?.toFixed(1) || '0'} km`} />
+                    <MetricItem icon={Clock} label="Tiempo / viaje" value={`${puntosEntrega.duracionMin || '0'} min`} />
+                    <MetricItem icon={Calendar} label="Frecuencia" value={frecuenciaTexto} />
+                    <MetricItem icon={Route} label="Distancia Total" value={`${kmsTotales.toFixed(0)} km`} />
+                </Grid>
                 
-                {esPasoFinal ? (
-                    <Accordion variant="separated">
-                        <Accordion.Item value="ruta-frecuencia">
-                            <Accordion.Control>Datos Generales</Accordion.Control>
-                            <Accordion.Panel>
-                                <InfoItem icon={<MapPin size={16} />} label="Distancia por viaje">{puntosEntrega.distanciaKm?.toFixed(2) || 'N/A'} km</InfoItem>
-                                <InfoItem icon={<Calendar size={16} />} label="Frecuencia">{frecuenciaTexto}</InfoItem>
-                            </Accordion.Panel>
-                        </Accordion.Item>
-                        <Accordion.Item value="vehiculo">
-                             <Accordion.Control icon={<Truck size={16} />}>Desglose Vehículo</Accordion.Control>
-                             <Accordion.Panel><SeccionVehiculo /></Accordion.Panel>
-                        </Accordion.Item>
-                        <Accordion.Item value="rrhh">
-                            <Accordion.Control icon={<User size={16} />}>Desglose RRHH</Accordion.Control>
-                            <Accordion.Panel><SeccionRRHH /></Accordion.Panel>
-                        </Accordion.Item>
-                    </Accordion>
-                ) : (
-                    <>
-                        <InfoItem icon={<MapPin size={16} />} label="Distancia por viaje">{puntosEntrega.distanciaKm?.toFixed(2) || 'N/A'} km</InfoItem>
-                        <InfoItem icon={<Calendar size={16} />} label="Frecuencia">{frecuenciaTexto}</InfoItem>
-                        <Divider />
-                        <SeccionVehiculo />
-                        <SeccionRRHH />
-                    </>
-                )}
-                
+                <Divider mt={4} />
+
+                <AnimatePresence>
+                    {frecuencia && (
+                        <CostCard
+                            icon={Truck}
+                            title="Vehículo"
+                            selection={vehiculo ? `${vehiculo.marca} ${vehiculo.modelo}` : null}
+                            cost={detalleVehiculo?.totalFinal}
+                            isLoading={vehiculo && !detalleVehiculo}
+                            color="cyan"
+                        >
+                            <CostoDesglosadoItem label="Combustible y Desgaste" valor={detalleVehiculo?.detalle.combustible + detalleVehiculo?.detalle.cubiertas + detalleVehiculo?.detalle.aceite} />
+                            <CostoDesglosadoItem label="Depreciación" valor={detalleVehiculo?.detalle.depreciacion} />
+                            <CostoDesglosadoItem label="Costos Fijos Asignados" valor={detalleVehiculo?.detalle.costosFijosProrrateados} />
+                        </CostCard>
+                    )}
+                    {vehiculo && (
+                        <CostCard
+                            icon={User}
+                            title="Recurso Humano"
+                            selection={recursoHumano?.nombre}
+                            cost={detalleRecurso?.totalFinal}
+                            isLoading={recursoHumano && !detalleRecurso}
+                            color="blue"
+                        >
+                            <CostoDesglosadoItem label="Costo Base y Adicionales" valor={detalleRecurso?.detalle.costoBaseRemunerativo + detalleRecurso?.detalle.adicionalKm + detalleRecurso?.detalle.adicionalPorCargaDescarga} />
+                            <CostoDesglosadoItem label="Viáticos y No Remunerativos" valor={detalleRecurso?.detalle.viaticoKm + detalleRecurso?.detalle.adicionalFijoNoRemunerativo} />
+                            <CostoDesglosadoItem label={detalleRecurso?.detalle.costoIndirectoLabel || 'Costos Indirectos'} valor={detalleRecurso?.detalle.costoIndirecto} />
+                        </CostCard>
+                    )}
+                </AnimatePresence>
+
                 {esPasoFinal && resumenCostos && (
-                     <Stack gap="md" mt="md">
-                        <Title order={5} c="dimmed">Propuesta Económica</Title>
-                        <InfoItem icon={<Target size={16} />} label="Costo Operativo Total">
-                            ${(resumenCostos.totalOperativo || 0).toLocaleString('es-AR')}
-                        </InfoItem>
-                        <InfoItem icon={<TrendingUp size={16} />} label="Margen de Ganancia">
-                            ${(resumenCostos.ganancia || 0).toLocaleString('es-AR')}
-                        </InfoItem>
-                        <Paper p="md" bg="cyan.0" radius="md" mt="xs">
+                     <Stack gap="sm">
+                        <Divider label="Resumen Final" labelPosition="center" />
+                        
+                        {/* ✅ GRÁFICO SIN LABELS INTERNOS */}
+                        <Progress.Root size={20} radius="sm">
+                            <Progress.Section value={pctVehiculo} color="cyan" tooltip={`Vehículo: $${totalVehiculo.toLocaleString()}`} />
+                            <Progress.Section value={pctRecurso} color="blue" tooltip={`RRHH: $${totalRecurso.toLocaleString()}`} />
+                            <Progress.Section value={pctOtros} color="indigo" tooltip={`Otros: $${totalCostosAdicionales.toLocaleString()}`} />
+                        </Progress.Root>
+                        
+                        {/* ✅ LEYENDA EXTERNA CON PORCENTAJES */}
+                        <Group justify="center" gap="sm" mt={4}>
+                            <Text fz="xs"> Vehículo ({pctVehiculo.toFixed(1)}%)</Text>
+                            <Text fz="xs"> RRHH ({pctRecurso.toFixed(1)}%)</Text>
+                            <Text fz="xs"> Otros ({pctOtros.toFixed(1)}%)</Text>
+                        </Group>
+                        
+                         <Paper withBorder p="md" radius="md" mt="sm" bg="gray.0">
                             <Group justify="space-between">
-                                <Text fz="lg" fw={700} c="cyan.9">Total Final</Text>
-                                <Text fz="lg" fw={700} c="cyan.9">
-                                    ${(resumenCostos.totalFinal || 0).toLocaleString('es-AR')}
+                                <Text fz="sm" c="dimmed" fw={500}>Costo Operativo</Text>
+                                <Text fz="lg" fw={600}>${totalOperativo.toLocaleString('es-AR')}</Text>
+                            </Group>
+                        </Paper>
+
+                        <Paper p="lg" radius="md" mt={4} bg="teal.0">
+                            <Group justify="space-between" align="flex-start">
+                                <Stack gap={0}>
+                                    <Text fz="lg" fw={700} c="teal.9">Precio Venta</Text>
+                                    <Text fz="xs" c="teal.8" >(sin IVA)</Text>
+                                </Stack>
+                                <Text fz={28} fw={700} c="teal.9" lh={1}>
+                                    ${(totalFinal || 0).toLocaleString('es-AR')}
                                 </Text>
                             </Group>
-                            <Text fz="xs" c="cyan.8" ta="right" mt={5}>(sin IVA)</Text>
                         </Paper>
-                    </Stack>
+                     </Stack>
                 )}
             </Stack>
         </Paper>

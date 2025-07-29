@@ -117,7 +117,7 @@ const FrecuenciaPaso = () => {
 
     return (
         // ✅ 3. Usamos un Grid para dividir la pantalla en dos columnas
-        <Grid gutter="xl">
+        <Grid gutter="md">
             {/* Columna Izquierda: El formulario principal (ocupa 8 de 12 columnas en pantallas medianas y grandes) */}
             <Grid.Col span={{ base: 12, md: 8 }}>
                 <Paper withBorder p="xl" radius="md" shadow="sm" style={{ height: '100%' }}>

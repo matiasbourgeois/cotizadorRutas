@@ -11,7 +11,7 @@ const AsistenteContextual = ({ consejos }) => {
 
     return (
         // ✅ Se eliminó la propiedad shadow="xs" de este componente Paper
-        <Paper p="md" mt="xl" radius="md">
+        <Paper withBorder p="md" mt="md" radius="md" shadow="sm">
             <Group mb="sm">
                 <ThemeIcon variant="light" color="blue" size="lg" radius="xl" className="icon-pulse">
                     <HelpCircle size={20} />

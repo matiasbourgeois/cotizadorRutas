@@ -88,7 +88,7 @@ export default function PuntosEntregaPaso() {
     };
 
     return (
-        <Grid gutter="xl">
+        <Grid gutter="md">
             {/* COLUMNA IZQUIERDA: PANEL DE CONTROL */}
             <Grid.Col span={{ base: 12, lg: 5 }}>
                 <Paper withBorder p="xl" radius="md" shadow="sm" style={{ height: '100%' }}>

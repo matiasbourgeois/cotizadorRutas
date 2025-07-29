@@ -199,7 +199,7 @@ const VehiculoPaso = () => {
     ));
 
     return (
-        <Grid gutter="xl">
+        <Grid gutter="md">
             <Grid.Col span={{ base: 12, md: 8 }}>
                 <Paper withBorder p="xl" radius="md" shadow="sm" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <Stack gap="xl" style={{ flexGrow: 1 }}>

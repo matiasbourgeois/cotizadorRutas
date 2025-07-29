@@ -157,10 +157,33 @@ export const crearPresupuesto = async (req, res) => {
 
 export const obtenerPresupuestos = async (req, res) => {
   try {
-    const presupuestos = await Presupuesto.find({ usuario: req.usuario._id }).sort({ fechaCreacion: -1 });
-    res.json(presupuestos);
+    // Leemos los parámetros de la URL (ej: /presupuestos?page=2)
+    const page = parseInt(req.query.page) || 1;
+    const limit = 7; // Definimos 7 items por página
+
+    const skip = (page - 1) * limit;
+
+    // Hacemos dos consultas en paralelo para máxima eficiencia
+    const [presupuestos, total] = await Promise.all([
+        Presupuesto.find({ usuario: req.usuario._id })
+            .sort({ fechaCreacion: -1 })
+            .skip(skip)
+            .limit(limit),
+        Presupuesto.countDocuments({ usuario: req.usuario._id })
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    // Devolvemos un objeto con toda la info que el frontend necesita
+    res.json({
+        presupuestos,
+        currentPage: page,
+        totalPages,
+        totalItems: total
+    });
+
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener presupuestos' });
+    res.status(500).json({ error: 'Error al obtener presupuestos', detalle: error.message });
   }
 };
 

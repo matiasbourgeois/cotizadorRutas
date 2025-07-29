@@ -47,16 +47,27 @@ export default function calcularCostoVehiculo(
     ? (vehiculo.precioCambioAceite / (vehiculo.kmsCambioAceite / kmsMensuales))
     : 0;
 
-  // 2.4 Costo de combustible (considerando carga refrigerada)
-  let precioLitroCombustibleEfectivo = vehiculo.precioLitroCombustible;
+// 2.4 Costo de combustible (Lógica mejorada para GNC y carga refrigerada)
+let combustiblePorKm;
+const FACTOR_RENDIMIENTO_GNC = 1.15; // 1 m³ de GNC rinde un 15% más que 1L de nafta
+const kmsPorLitroNafta = vehiculo.rendimientoKmLitro || 1;
+
+if (vehiculo.tieneGNC) {
+  // --- Lógica para GNC ---
+  const rendimientoKmGNC = kmsPorLitroNafta * FACTOR_RENDIMIENTO_GNC;
+  combustiblePorKm = (vehiculo.precioGNC || 0) / rendimientoKmGNC;
+
+} else {
+  // --- Lógica para Nafta/Gasoil ---
+  let precioCombustibleEfectivo = vehiculo.precioLitroCombustible || 0;
   if (detallesCarga?.tipo === 'refrigerada') {
-    precioLitroCombustibleEfectivo *= 1.25;
+    // El costo por carga refrigerada solo aplica a vehículos con combustible líquido
+    precioCombustibleEfectivo *= 1.25;
   }
-  const kmsPorLitro = vehiculo.rendimientoKmLitro || 1;
-  const combustiblePorKm = vehiculo.usaGNC
-    ? vehiculo.precioGNC / kmsPorLitro
-    : precioLitroCombustibleEfectivo / kmsPorLitro;
-  const combustible = combustiblePorKm * kmsMensuales;
+  combustiblePorKm = precioCombustibleEfectivo / kmsPorLitroNafta;
+}
+
+const combustible = combustiblePorKm * kmsMensuales;
 
   // =================================================================
   // == Etapa 3: Costos Fijos Prorrateados (NUEVA LÓGICA)

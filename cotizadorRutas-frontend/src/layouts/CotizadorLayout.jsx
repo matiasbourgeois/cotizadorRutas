@@ -1,9 +1,9 @@
-// Archivo: cotizadorRutas-frontend/src/layouts/CotizadorLayout.jsx (Versión Final con Cálculo Progresivo)
+// Archivo: cotizadorRutas-frontend/src/layouts/CotizadorLayout.jsx (Versión Corregida Final)
 
-import { Outlet, useLocation, Link } from 'react-router-dom';
+import { Outlet, useLocation, Link, useNavigate } from 'react-router-dom';
 import { AppShell, Burger, Group, Text, NavLink, Container, Button, ScrollArea, Flex } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { FileText, Clock, Truck, User, Settings, Check, LogOut, History, ChevronRight } from 'lucide-react';
+import { FileText, Clock, Truck, User, Settings, Check, LogOut, History, ChevronRight, RotateCcw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import { useCotizacion } from '../context/Cotizacion';
@@ -15,20 +15,19 @@ const CotizadorLayout = () => {
     const [opened, { toggle }] = useDisclosure();
     const location = useLocation();
     const { auth, cerrarSesionAuth } = useAuth();
-
+    const navigate = useNavigate();
+    
     const {
         puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga,
-        setDetalleVehiculo, setDetalleRecurso, setResumenCostos
+        setDetalleVehiculo, setDetalleRecurso, resetCotizacion, setResumenCostos
     } = useCotizacion();
 
     const { consejos } = useAsistenteContextual();
-    
     const [animationKey, setAnimationKey] = useState(0);
 
-    // --- ✅ SOLUCIÓN DEFINITIVA ---
+    // ✅ CORRECCIÓN 2: Lógica de cálculo progresivo
     useEffect(() => {
-        // ✅ CONDICIÓN CORREGIDA: Solo necesitamos la ruta y la frecuencia para empezar a calcular.
-        // El cálculo se hará progresivamente a medida que se añadan el vehículo y el recurso.
+        // La condición ahora es más flexible: solo necesita la ruta y la frecuencia para empezar a calcular.
         if (!puntosEntrega || !frecuencia) {
             return;
         }
@@ -37,8 +36,8 @@ const CotizadorLayout = () => {
             const payload = {
                 puntosEntrega,
                 frecuencia,
-                vehiculo, // Puede ser null, el backend lo manejará
-                recursoHumano, // Puede ser null, el backend lo manejará
+                vehiculo, // Puede ser null
+                recursoHumano, // Puede ser null
                 detallesCarga,
                 configuracion: {},
             };
@@ -58,7 +57,6 @@ const CotizadorLayout = () => {
 
         return () => clearTimeout(debounceCalc);
 
-    // El array de dependencias es correcto.
     }, [puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga]);
 
 
@@ -66,6 +64,10 @@ const CotizadorLayout = () => {
         setAnimationKey(prevKey => prevKey + 1);
     }, [consejos]);
 
+    const handleReset = () => {
+        resetCotizacion();
+        navigate('/');
+    };
 
     const steps = [
         { path: '/', label: 'Definir Ruta', icon: FileText },
@@ -86,9 +88,22 @@ const CotizadorLayout = () => {
                  <Group h="100%" px="md" justify="space-between">
                     <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
                     <Text fw={700} c="deep-blue.7" size="xl">Cotizador Logístico</Text>
-                    <Button variant="default" leftSection={<LogOut size={16} />} onClick={cerrarSesionAuth}>
-                        Cerrar Sesión
-                    </Button>
+                    
+                    {/* ✅ CORRECCIÓN 1: Botones movidos a la cabecera */}
+                    <Group>
+                        <Button
+                            variant="light"
+                            color="orange"
+                            leftSection={<RotateCcw size={16} />}
+                            onClick={handleReset}
+                        >
+                            Reiniciar Cotización
+                          
+                        </Button>
+                        <Button variant="default" leftSection={<LogOut size={16} />} onClick={cerrarSesionAuth}>
+                            Cerrar Sesión
+                        </Button>
+                    </Group>
                 </Group>
             </AppShell.Header>
 
