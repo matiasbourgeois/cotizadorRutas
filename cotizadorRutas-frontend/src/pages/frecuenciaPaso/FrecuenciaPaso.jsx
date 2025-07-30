@@ -133,7 +133,7 @@ const FrecuenciaPaso = () => {
                             {tipo === 'esporadico' && (
                                 <motion.div key="esporadico" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
                                    <Paper withBorder p="md" radius="sm" mt="md">
-                                        <NumberInput label="Cantidad total de viajes a cotizar" value={vueltasTotales} onChange={(value) => setVueltasTotales(Number(value))} min={1} allowDecimal={false}/>
+                                      <NumberInput label="Cantidad total de viajes a cotizar" value={vueltasTotales} onChange={setVueltasTotales} min={1} allowDecimal={false}/>
                                    </Paper>
                                 </motion.div>
                             )}

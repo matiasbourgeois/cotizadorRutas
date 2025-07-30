@@ -1,15 +1,18 @@
-// Archivo: cotizadorRutas-frontend/src/layouts/CotizadorLayout.jsx (Versión Corregida Final)
+// Archivo: cotizadorRutas-frontend/src/layouts/CotizadorLayout.jsx (Versión con tipografía ajustada)
 
 import { Outlet, useLocation, Link, useNavigate } from 'react-router-dom';
-import { AppShell, Burger, Group, Text, NavLink, Container, Button, ScrollArea, Flex } from '@mantine/core';
+import { AppShell, Burger, Group, Text, Container, Button, ScrollArea, Flex, Stack } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { FileText, Clock, Truck, User, Settings, Check, LogOut, History, ChevronRight, RotateCcw } from 'lucide-react';
+import { FileText, Clock, Truck, User, Settings, Check, LogOut, History, RotateCcw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import { useCotizacion } from '../context/Cotizacion';
 import clienteAxios from '../api/clienteAxios';
 import { useAsistenteContextual } from '../hooks/useAsistenteContextual.js';
 import AsistenteContextual from '../components/AsistenteContextual.jsx';
+
+// Importamos el CSS para la barra de pasos
+import '../styles/Stepper.css';
 
 const CotizadorLayout = () => {
     const [opened, { toggle }] = useDisclosure();
@@ -25,21 +28,21 @@ const CotizadorLayout = () => {
     const { consejos } = useAsistenteContextual();
     const [animationKey, setAnimationKey] = useState(0);
 
-    // ✅ CORRECCIÓN 2: Lógica de cálculo progresivo
+ // Lógica de cálculo progresivo (CORREGIDA PARA LA FASE FINAL)
     useEffect(() => {
-        // La condición ahora es más flexible: solo necesita la ruta y la frecuencia para empezar a calcular.
-        if (!puntosEntrega || !frecuencia) {
+        // ✨ Condición Clave: Si estamos en la página de configuración final,
+        // este cálculo automático se detiene para no interferir.
+        if (location.pathname.includes('/configuracion-final')) {
             return;
         }
 
+        if (!puntosEntrega || !frecuencia) {
+            return;
+        }
         const debounceCalc = setTimeout(() => {
             const payload = {
-                puntosEntrega,
-                frecuencia,
-                vehiculo, // Puede ser null
-                recursoHumano, // Puede ser null
-                detallesCarga,
-                configuracion: {},
+                puntosEntrega, frecuencia, vehiculo, recursoHumano,
+                detallesCarga, configuracion: {},
             };
             
             clienteAxios.post('/presupuestos/calcular', payload)
@@ -54,10 +57,10 @@ const CotizadorLayout = () => {
                     setDetalleRecurso(null);
                 });
         }, 300);
-
         return () => clearTimeout(debounceCalc);
-
-    }, [puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga]);
+    // ✨ Se añade 'location' a las dependencias para que el efecto
+    // se re-evalúe cada vez que cambias de página.
+    }, [puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga, setDetalleVehiculo, setDetalleRecurso, setResumenCostos, location]);
 
 
     useEffect(() => {
@@ -70,13 +73,14 @@ const CotizadorLayout = () => {
     };
 
     const steps = [
-        { path: '/', label: 'Definir Ruta', icon: FileText },
-        { path: '/cotizador/frecuencia', label: 'Frecuencia', icon: Clock },
-        { path: '/cotizador/vehiculo', label: 'Vehículo', icon: Truck },
-        { path: '/cotizador/recurso-humano', label: 'Recurso Humano', icon: User },
-        { path: '/cotizador/configuracion-final', label: 'Resumen y Costos', icon: Settings },
+        { path: '/', label: 'Definir Ruta', icon: FileText, id: 'ruta' },
+        { path: '/cotizador/frecuencia', label: 'Frecuencia', icon: Clock, id: 'frecuencia' },
+        { path: '/cotizador/vehiculo', label: 'Vehículo', icon: Truck, id: 'vehiculo' },
+        { path: '/cotizador/recurso-humano', label: 'Recurso Humano', icon: User, id: 'recurso' },
+        { path: '/cotizador/configuracion-final', label: 'Resumen y Costos', icon: Settings, id: 'final' },
     ];
-    const activeIndex = steps.findLastIndex(step => location.pathname.startsWith(step.path));
+    
+    const activeIndex = steps.findLastIndex(step => location.pathname.startsWith(step.path) && (step.path !== '/' || location.pathname === '/'));
 
     return (
         <AppShell
@@ -88,17 +92,9 @@ const CotizadorLayout = () => {
                  <Group h="100%" px="md" justify="space-between">
                     <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
                     <Text fw={700} c="deep-blue.7" size="xl">Cotizador Logístico</Text>
-                    
-                    {/* ✅ CORRECCIÓN 1: Botones movidos a la cabecera */}
                     <Group>
-                        <Button
-                            variant="light"
-                            color="orange"
-                            leftSection={<RotateCcw size={16} />}
-                            onClick={handleReset}
-                        >
+                        <Button variant="light" color="orange" leftSection={<RotateCcw size={16} />} onClick={handleReset}>
                             Reiniciar Cotización
-                          
                         </Button>
                         <Button variant="default" leftSection={<LogOut size={16} />} onClick={cerrarSesionAuth}>
                             Cerrar Sesión
@@ -111,26 +107,52 @@ const CotizadorLayout = () => {
                 <Flex direction="column" h="100%">
                     <div>
                         <Text c="dimmed" size="sm" mb="sm">Bienvenido, {auth?.nombre || 'Usuario'}</Text>
-                        <NavLink
-                            href="/historial" label="Historial de Cotizaciones"
-                            leftSection={<History size={16} />} rightSection={<ChevronRight size={12} />}
-                            variant="subtle" active={location.pathname === '/historial'}
-                            component={Link} to="/historial" mb="xl"
-                        />
+
+                         <Button
+                            component={Link}
+                            to="/historial"
+                            variant="light"
+                            color="cyan"
+                            fullWidth
+                            leftSection={<History size={16} />} 
+                            mb="xl"
+                            radius="md"
+                            fz="sm" 
+                            fw={500} 
+                         >
+                            Historial de Cotizaciones
+                        </Button>
+
                         <Text tt="uppercase" size="xs" c="dimmed" fw={700} mb="sm">Pasos de la cotización</Text>
-                        {steps.map((step, index) => {
-                            const isCompleted = index < activeIndex;
-                            const isActive = index === activeIndex;
-                            return (
-                                <NavLink
-                                    key={step.label} href={isCompleted ? step.path : undefined} label={step.label}
-                                    leftSection={<step.icon size={16} />} rightSection={isCompleted ? <Check size={16} color="green" /> : null}
-                                    active={isActive} disabled={!isCompleted && !isActive}
-                                    component={isCompleted ? Link : 'div'} to={isCompleted ? step.path : undefined}
-                                    variant="subtle" mb={5}
-                                />
-                            );
-                        })}
+                        
+                        <Stack gap="xs" mt="md"> 
+                            {steps.map((step, index) => {
+                                const isCompleted = index < activeIndex;
+                                const isActive = index === activeIndex;
+
+                                const statusClass = isActive ? 'active' : isCompleted ? 'completed' : 'future';
+                                const StepIcon = step.icon;
+                                
+                                const content = (
+                                    <Group className={`step ${statusClass}`} gap="sm" wrap="nowrap">
+                                        <div className="step-icon-container">
+                                            {isCompleted ? <Check size={18} /> : <StepIcon size={18} />}
+                                        </div>
+                                        <Text fz="sm" className="step-label">{step.label}</Text>
+                                    </Group>
+                                );
+                                
+                                return isCompleted ? (
+                                    <Link to={step.path} key={step.id} className="step-link">
+                                        {content}
+                                    </Link>
+                                ) : (
+                                    <div key={step.id}>
+                                        {content}
+                                    </div>
+                                );
+                            })}
+                        </Stack>
                     </div>
                     
                     <ScrollArea style={{ flex: 1 }} mt="md">
