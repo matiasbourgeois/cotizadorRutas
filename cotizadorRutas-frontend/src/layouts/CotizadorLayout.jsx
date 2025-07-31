@@ -1,4 +1,4 @@
-// Archivo: cotizadorRutas-frontend/src/layouts/CotizadorLayout.jsx (Versión con tipografía ajustada)
+// Archivo: cotizadorRutas-frontend/src/layouts/CotizadorLayout.jsx (Versión con navegación corregida)
 
 import { Outlet, useLocation, Link, useNavigate } from 'react-router-dom';
 import { AppShell, Burger, Group, Text, Container, Button, ScrollArea, Flex, Stack } from '@mantine/core';
@@ -20,6 +20,7 @@ const CotizadorLayout = () => {
     const { auth, cerrarSesionAuth } = useAuth();
     const navigate = useNavigate();
     
+    // ✅ 1. OBTENEMOS LA COTIZACIÓN COMPLETA DEL CONTEXTO
     const {
         puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga,
         setDetalleVehiculo, setDetalleRecurso, resetCotizacion, setResumenCostos
@@ -28,14 +29,11 @@ const CotizadorLayout = () => {
     const { consejos } = useAsistenteContextual();
     const [animationKey, setAnimationKey] = useState(0);
 
- // Lógica de cálculo progresivo (CORREGIDA PARA LA FASE FINAL)
+    // ... (El resto de tu lógica de useEffect y funciones permanece igual)
     useEffect(() => {
-        // ✨ Condición Clave: Si estamos en la página de configuración final,
-        // este cálculo automático se detiene para no interferir.
         if (location.pathname.includes('/configuracion-final')) {
             return;
         }
-
         if (!puntosEntrega || !frecuencia) {
             return;
         }
@@ -44,7 +42,6 @@ const CotizadorLayout = () => {
                 puntosEntrega, frecuencia, vehiculo, recursoHumano,
                 detallesCarga, configuracion: {},
             };
-            
             clienteAxios.post('/presupuestos/calcular', payload)
                 .then(response => {
                     setDetalleVehiculo(response.data.detalleVehiculo);
@@ -58,8 +55,6 @@ const CotizadorLayout = () => {
                 });
         }, 300);
         return () => clearTimeout(debounceCalc);
-    // ✨ Se añade 'location' a las dependencias para que el efecto
-    // se re-evalúe cada vez que cambias de página.
     }, [puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga, setDetalleVehiculo, setDetalleRecurso, setResumenCostos, location]);
 
 
@@ -71,16 +66,25 @@ const CotizadorLayout = () => {
         resetCotizacion();
         navigate('/');
     };
+    
+    // ✅ 2. EXTRAEMOS EL ID DE LA RUTA DEL CONTEXTO
+    // Este ID se guarda en el primer paso (PuntosEntregaPaso)
+    const idRuta = puntosEntrega?.rutaId;
 
+    // ✅ 3. CONSTRUIMOS LAS RUTAS DE LOS PASOS DINÁMICAMENTE
     const steps = [
         { path: '/', label: 'Definir Ruta', icon: FileText, id: 'ruta' },
-        { path: '/cotizador/frecuencia', label: 'Frecuencia', icon: Clock, id: 'frecuencia' },
-        { path: '/cotizador/vehiculo', label: 'Vehículo', icon: Truck, id: 'vehiculo' },
-        { path: '/cotizador/recurso-humano', label: 'Recurso Humano', icon: User, id: 'recurso' },
+        { path: `/cotizador/frecuencia/${idRuta}`, label: 'Frecuencia', icon: Clock, id: 'frecuencia' },
+        { path: `/cotizador/vehiculo/${idRuta}`, label: 'Vehículo', icon: Truck, id: 'vehiculo' },
+        { path: `/cotizador/recurso-humano/${idRuta}`, label: 'Recurso Humano', icon: User, id: 'recurso' },
         { path: '/cotizador/configuracion-final', label: 'Resumen y Costos', icon: Settings, id: 'final' },
     ];
     
-    const activeIndex = steps.findLastIndex(step => location.pathname.startsWith(step.path) && (step.path !== '/' || location.pathname === '/'));
+    // ✅ 4. MEJORAMOS LA LÓGICA PARA DETECTAR EL PASO ACTIVO
+    const activeIndex = steps.findLastIndex(step => {
+        const baseStepPath = step.path.split('/:')[0];
+        return location.pathname.startsWith(baseStepPath) && (baseStepPath !== '/' || location.pathname === '/');
+    });
 
     return (
         <AppShell
@@ -130,11 +134,14 @@ const CotizadorLayout = () => {
                                 const isCompleted = index < activeIndex;
                                 const isActive = index === activeIndex;
 
+                                // ✅ 5. LÓGICA DE SEGURIDAD: SI NO HAY ID, EL LINK NO FUNCIONA
+                                const isLinkDisabled = !idRuta && index > 0 && index < 4;
+                                const path = isLinkDisabled ? '#' : step.path;
                                 const statusClass = isActive ? 'active' : isCompleted ? 'completed' : 'future';
                                 const StepIcon = step.icon;
                                 
                                 const content = (
-                                    <Group className={`step ${statusClass}`} gap="sm" wrap="nowrap">
+                                    <Group className={`step ${statusClass}`} gap="sm" wrap="nowrap" style={{pointerEvents: isLinkDisabled ? 'none' : 'auto'}}>
                                         <div className="step-icon-container">
                                             {isCompleted ? <Check size={18} /> : <StepIcon size={18} />}
                                         </div>
@@ -143,7 +150,7 @@ const CotizadorLayout = () => {
                                 );
                                 
                                 return isCompleted ? (
-                                    <Link to={step.path} key={step.id} className="step-link">
+                                    <Link to={path} key={step.id} className="step-link">
                                         {content}
                                     </Link>
                                 ) : (
