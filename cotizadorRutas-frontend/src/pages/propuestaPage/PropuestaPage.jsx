@@ -99,7 +99,7 @@ const PropuestaPage = () => {
         <div className="propuesta-background">
             <div className="prop-print-button-container">
                 <Button leftSection={<Printer size={18} />} onClick={() => window.print()} size="lg" radius="xl">
-                    Imprimir o Guardar como PDF
+                    Imprimir o Guardar PDF
                 </Button>
             </div>
             

@@ -24,41 +24,54 @@ const TablaPuntos = ({ puntos, onReordenar, onEliminar }) => {
 
   const onDragEnd = (result) => {
     if (!result.destination) return;
+
+    // Reordenamos copia local
     const nuevos = Array.from(puntos);
     const [moved] = nuevos.splice(result.source.index, 1);
     nuevos.splice(result.destination.index, 0, moved);
-    onReordenar(nuevos);
+
+    // ⚠️ No persistimos el punto "regreso" (isReturn) en el estado real
+    onReordenar(nuevos.filter((p) => !p?.isReturn));
   };
 
   const renderRow = (p, index, provided, isDragging = false) => {
     const nombre = String(p?.nombre ?? "");
     const [titulo, subtitulo] = nombre.split("–");
+    const esRegreso = p?.isReturn === true;
 
     return (
       <Table.Tr
         ref={provided?.innerRef}
         {...(provided ? provided.draggableProps : {})}
-        bg={isDragging ? "cyan.0" : undefined}
+        bg={isDragging ? "cyan.0" : esRegreso ? "blue.0" : undefined}
         style={{
           ...(provided?.draggableProps?.style || {}),
           height: ROW_HEIGHT,
         }}
       >
-        <Table.Td w={50} {...(provided ? provided.dragHandleProps : {})} style={{ cursor: "grab" }}>
-          <Center><GripVertical size={18} color="gray" /></Center>
+        <Table.Td
+          w={50}
+          {...(!esRegreso ? provided?.dragHandleProps : {})}
+          style={{ cursor: esRegreso ? "default" : "grab" }}
+        >
+          <Center>{!esRegreso && <GripVertical size={18} color="gray" />}</Center>
         </Table.Td>
 
         <Table.Td>
           <Stack gap={0}>
-            <Text fw={500} size="sm">{(titulo || "").trim()}</Text>
+            <Text fw={esRegreso ? 600 : 500} size="sm">
+              {(titulo || "").trim()} {esRegreso && "(Regreso)"}
+            </Text>
             <Text c="dimmed" fz="xs">{(subtitulo || "").trim()}</Text>
           </Stack>
         </Table.Td>
 
         <Table.Td w={60} ta="right">
-          <ActionIcon color="red" variant="subtle" onClick={() => onEliminar(index)}>
-            <Trash2 size={16} />
-          </ActionIcon>
+          {!esRegreso && (
+            <ActionIcon color="red" variant="subtle" onClick={() => onEliminar(index)}>
+              <Trash2 size={16} />
+            </ActionIcon>
+          )}
         </Table.Td>
       </Table.Tr>
     );
@@ -128,13 +141,19 @@ const TablaPuntos = ({ puntos, onReordenar, onEliminar }) => {
                     </Table.Td>
                   </Table.Tr>
                 ) : (
-                  puntos.map((p, index) => (
-                    <Draggable key={`${p?.nombre ?? "p"}-${index}`} draggableId={`punto-${index}`} index={index}>
-                      {(dragProvided, snapshot) =>
-                        renderRow(p, index, dragProvided, snapshot.isDragging)
-                      }
-                    </Draggable>
-                  ))
+                  puntos.map((p, index) => {
+                    const esRegreso = p?.isReturn === true;
+                    return esRegreso ? (
+                      // Fila de regreso: SIN <Draggable>, no arrastrable ni eliminable
+                      renderRow(p, index, null, false)
+                    ) : (
+                      <Draggable key={`${p?.nombre ?? "p"}-${index}`} draggableId={`punto-${index}`} index={index}>
+                        {(dragProvided, snapshot) =>
+                          renderRow(p, index, dragProvided, snapshot.isDragging)
+                        }
+                      </Draggable>
+                    );
+                  })
                 )}
                 {dropProvided.placeholder}
               </Table.Tbody>

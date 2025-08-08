@@ -7,7 +7,7 @@ import ResumenRuta from "../../components/ResumenRuta";
 import { useNavigate } from "react-router-dom";
 import clienteAxios from "../../api/clienteAxios";
 import { useCotizacion } from "../../context/Cotizacion";
-import { Grid, Stack, Group, Button, Text, Center, Paper, Select, Title } from "@mantine/core";
+import { Grid, Stack, Group, Button, Text, Center, Paper, Select, Title, Checkbox } from "@mantine/core";
 import { Navigation, MapPinOff } from "lucide-react";
 import { notifications } from '@mantine/notifications';
 
@@ -32,13 +32,23 @@ export default function PuntosEntregaPaso() {
   );
 
   const [isSaving, setIsSaving] = useState(false);
+  const [idaVuelta, setIdaVuelta] = useState(false); // 👈 nuevo
 
-  // fuerza remount del mapa cuando cambia el orden/contenido de puntos
+  // Lista derivada con "regreso al origen" cuando idaVuelta está activo y hay ≥2 puntos
+  const puntosConRegreso = useMemo(() => {
+    if (idaVuelta && puntos.length >= 2) {
+      const regreso = { ...puntos[0], isReturn: true };
+      return [...puntos, regreso];
+    }
+    return puntos;
+  }, [idaVuelta, puntos]);
+
+  // fuerza remount del mapa cuando cambia el orden/contenido (incluye regreso)
   const mapaKey = useMemo(() => {
-    return (puntos || [])
-      .map((p, i) => String(p.id ?? p._id ?? p.nombre ?? i))
+    return (puntosConRegreso || [])
+      .map((p, i) => String(p.id ?? p._id ?? p.nombre ?? (p.isReturn ? "return" : i)))
       .join("|");
-  }, [puntos]);
+  }, [puntosConRegreso]);
 
   // --- lógica existente ---
   const limpiarRutaGuardada = () => {
@@ -52,11 +62,16 @@ export default function PuntosEntregaPaso() {
     limpiarRutaGuardada();
   };
   const handleEliminarPunto = (index) => {
-    const nuevosPuntos = puntos.filter((_, i) => i !== index);
+    // Si la lista viene con regreso, evitar que puedan borrar la fila de regreso desde acá
+    const base = puntos; // los que persistimos
+    const usandoRegreso = idaVuelta && base.length >= 2;
+    if (usandoRegreso && index === base.length) return; // última fila es regreso, no borrar
+    const nuevosPuntos = base.filter((_, i) => i !== index);
     setPuntosEntrega({ ...puntosEntrega, puntos: nuevosPuntos });
     limpiarRutaGuardada();
   };
   const handleReordenarPuntos = (nuevosPuntos) => {
+    // nuevosPuntos viene desde la tabla; esa tabla no permitirá arrastrar la fila regreso
     setPuntosEntrega({ ...puntosEntrega, puntos: nuevosPuntos });
     limpiarRutaGuardada();
   };
@@ -69,7 +84,8 @@ export default function PuntosEntregaPaso() {
     setDetallesCarga({ ...detallesCarga, tipo: value });
   };
   const handleSiguiente = async () => {
-    if (puntos.length < 2) {
+    const base = puntos; // persistimos solo los puntos reales (sin regreso)
+    if (base.length < 2) {
       notifications.show({ title: 'Ruta incompleta', message: 'Necesitas al menos 2 puntos para definir una ruta.', color: 'orange' });
       return;
     }
@@ -79,7 +95,7 @@ export default function PuntosEntregaPaso() {
     }
     setIsSaving(true);
     try {
-      const ordenados = puntos.map((p, index) => ({ ...p, orden: index }));
+      const ordenados = base.map((p, index) => ({ ...p, orden: index }));
       const payload = { puntos: ordenados, distanciaKm: datosRuta.distanciaKm, duracionMin: datosRuta.duracionMin };
       const res = await clienteAxios.post('/rutas', payload);
       setPuntosEntrega({ ...puntosEntrega, ...payload, rutaId: res.data._id });
@@ -100,8 +116,18 @@ export default function PuntosEntregaPaso() {
           {/* superior */}
           <div style={{ flexShrink: 0 }}>
             <Title order={2} c="deep-blue.7">Panel de Ruta</Title>
-            <Stack gap="xl" mt="xl">
+            <Stack gap="lg" mt="lg">
               <BuscadorDireccion onAgregar={agregarPunto} />
+              {/* Checkbox compacto; solo con 2+ puntos */}
+              {puntos.length >= 2 && (
+                <Checkbox
+                  size="sm"
+                  label="Ida y vuelta (agregar regreso al origen)"
+                  checked={idaVuelta}
+                  onChange={(e) => { setIdaVuelta(e.currentTarget.checked); limpiarRutaGuardada(); }}
+                  style={{ alignSelf: 'flex-start', marginTop: -6, marginBottom: -6 }} // compacta el alto
+                />
+              )}
             </Stack>
           </div>
 
@@ -110,7 +136,7 @@ export default function PuntosEntregaPaso() {
             <Text fz="sm" fw={500} c="dimmed">Hoja de Ruta</Text>
             <Paper withBorder radius="md" p="sm" style={{ height: '100%' }}>
               <TablaPuntos
-                puntos={puntos}
+                puntos={puntosConRegreso}                   // 👈 usamos la lista derivada
                 onReordenar={handleReordenarPuntos}
                 onEliminar={handleEliminarPunto}
               />
@@ -146,10 +172,10 @@ export default function PuntosEntregaPaso() {
             <Title order={2} c="deep-blue.7">Visualizador de Misión</Title>
             <Stack>
               <Paper withBorder radius="md" p={4}>
-                {puntos.length > 0 ? (
+                {puntosConRegreso.length > 0 ? (        // 👈 usa la lista derivada
                   <MapaRuta
                     key={mapaKey}
-                    puntos={puntos}
+                    puntos={puntosConRegreso}
                     initialDirections={directionsResult}
                     onRutaCalculada={handleRutaCalculada}
                   />

@@ -287,9 +287,7 @@ body {
     margin-bottom: 15px;
 }
 
-.print-button-container {
-    display: none !important;
-}
+
 
 @media print {
 
@@ -304,6 +302,10 @@ body {
 
     .print-grid {
         gap: 1rem !important;
+    }
+
+    .print-button-container {
+        display: none !important;
     }
 
     .print-grid .print-col-7 {
@@ -342,8 +344,9 @@ body {
         padding: 0 !important;
 
     }
+
     .page:last-child {
-    page-break-after: auto;
-}
+        page-break-after: auto;
+    }
 
 }

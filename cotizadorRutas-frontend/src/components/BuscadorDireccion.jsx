@@ -59,7 +59,6 @@ export default function BuscadorDireccion({ onAgregar }) {
       value={direccion}
       onChange={(e) => setDireccion(e.target.value)}
       leftSection={<MapPin style={{ width: rem(16), height: rem(16) }} />}
-      mb="lg"
     />
   );
 }
