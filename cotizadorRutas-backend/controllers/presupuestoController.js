@@ -24,7 +24,7 @@ export const calcularPresupuesto = async (req, res) => {
 
     let cantidadViajesMensuales = 0;
     if (frecuencia?.tipo === "mensual") {
-      cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33;
+      cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.12;
     } else if (frecuencia?.tipo === "esporadico") {
       cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
     }
@@ -93,7 +93,7 @@ export const crearPresupuesto = async (req, res) => {
     const kmsPorViaje = totalKilometros || 0;
     let cantidadViajesMensuales = 0;
     if (frecuencia?.tipo === "mensual") {
-      cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33;
+      cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.12;
     } else if (frecuencia?.tipo === "esporadico") {
       cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
     }

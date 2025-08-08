@@ -102,9 +102,10 @@ const DesglosePage = () => {
     if (loading) return <Center h="100vh"><Loader color="cyan" /></Center>;
     if (!presupuesto) return <Center h="100vh"><Text>Desglose de presupuesto no encontrado.</Text></Center>;
 
-    // --- Cálculos Centralizados para el Dashboard ---
-    const { resumenCostos, totalKilometros } = presupuesto;
+// --- Cálculos Centralizados para el Dashboard ---
+    const { resumenCostos } = presupuesto;
     const totalOperativo = resumenCostos.totalOperativo || 0;
+    const kmsMensualesTotales = presupuesto.vehiculo?.calculo?.kmsMensuales || 0;
     
     const totalCostosAdminOtros = (resumenCostos.totalAdministrativo || 0) + (resumenCostos.otrosCostos || 0) + (resumenCostos.totalPeajes || 0);
 
@@ -125,7 +126,7 @@ const DesglosePage = () => {
 
     const duracionTotalMisionMin = (presupuesto.duracionMin || 0) + 30;
     const viajesProyectados = presupuesto.frecuencia.tipo === 'mensual'
-      ? ((presupuesto.frecuencia.diasSeleccionados?.length || 0) * (presupuesto.frecuencia.viajesPorDia || 1) * 4.33)
+      ? ((presupuesto.frecuencia.diasSeleccionados?.length || 0) * (presupuesto.frecuencia.viajesPorDia || 1) * 4.12)
       : (presupuesto.frecuencia.vueltasTotales || 1);
     const horasTotalesMensuales = (duracionTotalMisionMin * viajesProyectados) / 60;
     const costoPorHora = horasTotalesMensuales > 0 ? (totalOperativo / horasTotalesMensuales) : 0;
@@ -185,7 +186,7 @@ const DesglosePage = () => {
                         {/* ✅ SECCIÓN DE KPIs DE EFICIENCIA MEJORADA */}
                         <Title order={4} className="section-title-light" mt="xl">KPIs de Eficiencia Operativa</Title>
                         <SimpleGrid cols={4}>
-                            <KpiEficienciaCard icon={<Gauge size={22} />} value={`$${(totalOperativo / totalKilometros).toFixed(2)}`} label="Costo / Km" color="red"/>
+                            <KpiEficienciaCard icon={<Gauge size={22} />} value={`$${(totalOperativo / kmsMensualesTotales).toFixed(2)}`} label="Costo / Km" color="red"/>
                             <KpiEficienciaCard icon={<Clock size={22} />} value={`$${costoPorHora.toFixed(2)}`} label="Costo / Hora" color="orange" />
                             <KpiEficienciaCard icon={<RouteIcon size={22} />} value={`~${viajesProyectados.toFixed(1)}`} label="Viajes / Mes" color="blue" />
                             <ActivosCard vehiculo={presupuesto.vehiculo.datos} recurso={presupuesto.recursoHumano.datos} />

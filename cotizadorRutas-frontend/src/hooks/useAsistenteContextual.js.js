@@ -22,7 +22,7 @@ const getConsejosContextuales = (pathname, cotizacion) => {
         case pathname.includes('/frecuencia'):
             return [
                 { tipo: 'guia', texto: 'Define si se trata de un viaje único (Esporádico) o de una operativa regular (Mensual).' },
-                { tipo: 'info', texto: 'La frecuencia "Mensual" multiplica los viajes por día por 4.33 semanas para estimar el total del mes.' },
+                { tipo: 'info', texto: 'La frecuencia "Mensual" multiplica los viajes por día por 4.12 semanas para estimar el total del mes.' },
                 { tipo: 'info', texto: 'Esta decisión es clave para calcular cómo se distribuyen los costos fijos.' }
             ];
 

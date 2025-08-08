@@ -77,8 +77,10 @@ const CapituloVehiculoFicha = ({ presupuesto }) => {
                                 <InfoLine label="Cantidad de Cubiertas" value={datos.cantidadCubiertas || 0} unit="u." />
                                 <InfoLine label="Precio por Cubierta" value={`$${(datos.precioCubierta || 0).toLocaleString('es-AR')}`} />
                                 <InfoLine label="Precio Cambio de Aceite" value={`$${(datos.precioCambioAceite || 0).toLocaleString('es-AR')}`} />
-                                <InfoLine label="Precio Combustible" value={`$${(datos.precioLitroCombustible || 0).toLocaleString('es-AR')}`} unit={datos.tipoCombustible} />
+                                <InfoLine label="Precio Combustible" value={`$${(datos.precioLitroCombustible || 0).toLocaleString('es-AR')}`} />
+                                <InfoLine label="Tipo de Combustible" value={datos.tipoCombustible || 'No especificado'} />
                                 {datos.tieneGNC && <InfoLine label="Precio GNC" value={`$${(datos.precioGNC || 0).toLocaleString('es-AR')}`} unit="por m³" />}
+
                             </Stack>
                         </Paper>
                     </Grid.Col>

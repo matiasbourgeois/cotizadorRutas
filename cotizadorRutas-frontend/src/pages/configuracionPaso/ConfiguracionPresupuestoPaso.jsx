@@ -1,16 +1,15 @@
-// Archivo: src/pages/configuracionPaso/ConfiguracionPresupuestoPaso.jsx (Refactorizado con useForm)
+// Archivo: src/pages/configuracionPaso/ConfiguracionPresupuestoPaso.jsx (Versión Final con Formulario Deshabilitado)
 
 import { useState, useEffect } from "react";
 import { useCotizacion } from "../../context/Cotizacion";
 import clienteAxios from "../../api/clienteAxios";
 import { useNavigate } from "react-router-dom";
 import { notifications } from '@mantine/notifications';
-// ✅ 1. Importamos el hook useForm
 import { useForm } from "@mantine/form";
 import {
     Stack, Title, Grid, Paper, NumberInput, Textarea, Button, Group, Text, Menu, TextInput, rem, Slider
 } from "@mantine/core";
-import { ArrowLeft, Send, ChevronDown, FileDown } from "lucide-react";
+import { ArrowLeft, Send, ChevronDown, FileDown, Eye } from "lucide-react";
 import ResumenPaso from "../../components/ResumenPaso";
 
 const ConfiguracionPresupuestoPaso = () => {
@@ -22,7 +21,6 @@ const ConfiguracionPresupuestoPaso = () => {
         setDetalleVehiculo, setDetalleRecurso
     } = useCotizacion();
 
-    // ✅ 2. Reemplazamos el useState por useForm para manejar la configuración
     const form = useForm({
         initialValues: {
             costoPeajes: 0,
@@ -35,6 +33,10 @@ const ConfiguracionPresupuestoPaso = () => {
     });
 
     const [loading, setLoading] = useState(false);
+    const [presupuestoGuardadoId, setPresupuestoGuardadoId] = useState(null);
+    
+    // ✅ 1. Creamos una variable booleana para saber si el formulario debe estar deshabilitado.
+    const isFormDisabled = !!presupuestoGuardadoId;
 
     useEffect(() => {
         if (!puntosEntrega || !frecuencia || !vehiculo || !recursoHumano) {
@@ -43,15 +45,11 @@ const ConfiguracionPresupuestoPaso = () => {
         const debounceCalc = setTimeout(() => {
             const payload = {
                 puntosEntrega, frecuencia, vehiculo, recursoHumano,
-                configuracion: form.values, // Usamos los valores del formulario
+                configuracion: form.values,
                 detallesCarga
             };
             clienteAxios.post('/presupuestos/calcular', payload)
                 .then(response => {
-                    // ANTES: solo se actualizaba el resumen
-                    // setResumenCostos(response.data.resumenCostos);
-
-                    // ✅ AHORA: Actualizamos toda la información relevante
                     setResumenCostos(response.data.resumenCostos);
                     setDetalleVehiculo(response.data.detalleVehiculo);
                     setDetalleRecurso(response.data.detalleRecurso);
@@ -61,8 +59,7 @@ const ConfiguracionPresupuestoPaso = () => {
                 });
         }, 300);
         return () => clearTimeout(debounceCalc);
-        // ✅ 3. El useEffect ahora depende de form.values
-    }, [form.values, puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga, setResumenCostos]);
+    }, [form.values, puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga, setResumenCostos, setDetalleVehiculo, setDetalleRecurso]);
 
 
     const handleFinalizar = async (tipoAccion = 'propuesta') => {
@@ -79,7 +76,7 @@ const ConfiguracionPresupuestoPaso = () => {
                 frecuencia,
                 vehiculo: { datos: vehiculo, calculo: detalleVehiculo },
                 recursoHumano: { datos: recursoHumano, calculo: detalleRecurso },
-                configuracion: form.values, // Usamos los valores del formulario
+                configuracion: form.values,
                 detallesCarga,
                 resumenCostos: resumenCostos,
                 cliente: form.values.cliente,
@@ -88,18 +85,13 @@ const ConfiguracionPresupuestoPaso = () => {
             const { data: presupuestoGuardado } = await clienteAxios.post('/presupuestos', payload);
 
             notifications.show({ title: '¡Éxito!', message: 'Cotización guardada.', color: 'green' });
+            
+            setPresupuestoGuardadoId(presupuestoGuardado._id);
 
             if (tipoAccion === 'propuesta') {
                 window.open(`/propuesta/${presupuestoGuardado._id}`, '_blank');
-            } else { // ✅ Lógica corregida para 'desglose'
+            } else {
                 window.open(`/desglose/${presupuestoGuardado._id}`, '_blank');
-                const url = window.URL.createObjectURL(new Blob([res.data]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', `desglose-${presupuestoGuardado._id}.pdf`);
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
             }
 
         } catch (error) {
@@ -107,6 +99,12 @@ const ConfiguracionPresupuestoPaso = () => {
             notifications.show({ title: 'Error', message: 'No se pudo guardar o generar el documento.', color: 'red' });
         } finally {
             setLoading(false);
+        }
+    };
+    
+    const handleVerDocumento = (tipo) => {
+        if (presupuestoGuardadoId) {
+            window.open(`/${tipo}/${presupuestoGuardadoId}`, '_blank');
         }
     };
 
@@ -118,12 +116,13 @@ const ConfiguracionPresupuestoPaso = () => {
                         <Title order={2} c="deep-blue.7">Ajustes Finales del Presupuesto</Title>
 
                         <Stack gap="lg" mt="md">
-                            {/* ✅ 4. Conectamos cada campo al formulario con getInputProps */}
                             <Text fw={500}>Porcentaje de Ganancia: {form.values.porcentajeGanancia}%</Text>
+                            {/* ✅ 2. Añadimos la propiedad 'disabled' a todos los campos */}
                             <Slider
                                 color="cyan"
                                 marks={[{ value: 10 }, { value: 15 }, { value: 20 }, { value: 25 }, { value: 30 }]}
                                 {...form.getInputProps('porcentajeGanancia')}
+                                disabled={isFormDisabled}
                             />
 
                             <Text fw={500} mt="md">Costos Administrativos: {form.values.costoAdministrativo}%</Text>
@@ -131,6 +130,7 @@ const ConfiguracionPresupuestoPaso = () => {
                                 color="gray"
                                 marks={[{ value: 5 }, { value: 10 }, { value: 15 }]}
                                 {...form.getInputProps('costoAdministrativo')}
+                                disabled={isFormDisabled}
                             />
                         </Stack>
 
@@ -141,6 +141,7 @@ const ConfiguracionPresupuestoPaso = () => {
                                     description="Peajes, tasas, etc. (valor total por viaje)"
                                     prefix="$ "
                                     {...form.getInputProps('costoPeajes')}
+                                    disabled={isFormDisabled}
                                 />
                             </Grid.Col>
                             <Grid.Col span={{ base: 12, sm: 6 }}>
@@ -149,6 +150,7 @@ const ConfiguracionPresupuestoPaso = () => {
                                     description="Cualquier otro gasto mensual no contemplado"
                                     prefix="$ "
                                     {...form.getInputProps('otrosCostos')}
+                                    disabled={isFormDisabled}
                                 />
                             </Grid.Col>
                             <Grid.Col span={12}>
@@ -156,6 +158,7 @@ const ConfiguracionPresupuestoPaso = () => {
                                     label="Cliente / Empresa"
                                     placeholder="Nombre del destinatario de la propuesta"
                                     {...form.getInputProps('cliente')}
+                                    disabled={isFormDisabled}
                                 />
                             </Grid.Col>
                         </Grid>
@@ -165,23 +168,36 @@ const ConfiguracionPresupuestoPaso = () => {
                             autosize
                             minRows={4}
                             {...form.getInputProps('terminos')}
+                            disabled={isFormDisabled}
                         />
-
+                        
                         <Group justify="space-between" mt="xl">
                             <Button variant="default" onClick={() => navigate(-1)} leftSection={<ArrowLeft size={16} />}>
                                 Volver
                             </Button>
-                            <Group gap={0}>
-                                <Button size="md" onClick={() => handleFinalizar('propuesta')} loading={loading} style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }} leftSection={<Send size={16} />}>Finalizar y Ver Propuesta</Button>
-                                <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
-                                    <Menu.Target>
-                                        <Button size="md" loading={loading} style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, paddingLeft: rem(8), paddingRight: rem(8) }}><ChevronDown size={18} /></Button>
-                                    </Menu.Target>
-                                    <Menu.Dropdown>
-                                        <Menu.Item leftSection={<FileDown size={16} />} onClick={() => handleFinalizar('desglose')}>Descargar Desglose Interno</Menu.Item>
-                                    </Menu.Dropdown>
-                                </Menu>
-                            </Group>
+
+                            {isFormDisabled ? (
+                                <Group>
+                                    <Button variant="light" color="blue" onClick={() => handleVerDocumento('desglose')} leftSection={<Eye size={16} />}>
+                                        Ver Desglose Interno
+                                    </Button>
+                                    <Button onClick={() => handleVerDocumento('propuesta')} leftSection={<Eye size={16} />}>
+                                        Ver Propuesta Cliente
+                                    </Button>
+                                </Group>
+                            ) : (
+                                <Group gap={0}>
+                                    <Button size="md" onClick={() => handleFinalizar('propuesta')} loading={loading} style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }} leftSection={<Send size={16} />}>Finalizar y Ver Propuesta</Button>
+                                    <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
+                                        <Menu.Target>
+                                            <Button size="md" loading={loading} style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, paddingLeft: rem(8), paddingRight: rem(8) }}><ChevronDown size={18} /></Button>
+                                        </Menu.Target>
+                                        <Menu.Dropdown>
+                                            <Menu.Item leftSection={<FileDown size={16} />} onClick={() => handleFinalizar('desglose')}>Guardar y Descargar Desglose</Menu.Item>
+                                        </Menu.Dropdown>
+                                    </Menu>
+                                </Group>
+                            )}
                         </Group>
                     </Stack>
                 </Paper>

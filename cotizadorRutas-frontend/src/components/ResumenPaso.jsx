@@ -123,7 +123,7 @@ const ResumenPaso = () => {
             frecuenciaTexto = `${frecuencia.vueltasTotales || 1} viaje(s)`;
             kmsTotales *= (frecuencia.vueltasTotales || 1);
         } else {
-            const viajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33;
+            const viajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.12;
             frecuenciaTexto = `~${viajesMensuales.toFixed(1)} viajes/mes`;
             kmsTotales *= viajesMensuales;
         }

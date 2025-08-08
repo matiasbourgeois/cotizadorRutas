@@ -53,9 +53,18 @@ const ComposicionBarras = ({ costo, ganancia, total }) => {
 const CapituloFinalConsolidado = ({ presupuesto }) => {
     if (!presupuesto?.resumenCostos) { return null; }
 
-    const { resumenCostos, totalKilometros, frecuencia } = presupuesto;
-    const costoTotalPorViaje = resumenCostos.totalFinal / (((frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33) || 1);
-    const costoOpPorKm = totalKilometros > 0 ? (resumenCostos.totalOperativo / totalKilometros) : 0;
+const { resumenCostos, frecuencia } = presupuesto;
+
+    // Se obtienen los kilómetros mensuales totales del cálculo del vehículo, que es la fuente correcta.
+    const kmsMensualesTotales = presupuesto.vehiculo?.calculo?.kmsMensuales || 0;
+
+    // Se calcula el costo por viaje.
+    const costoTotalPorViaje = resumenCostos.totalFinal / (((frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.12) || 1);
+
+    //  Ahora se usa la variable correcta 'kmsMensualesTotales' para el cálculo.
+    const costoOpPorKm = kmsMensualesTotales > 0 ? (resumenCostos.totalOperativo / kmsMensualesTotales) : 0;
+
+    // El cálculo de otros costos no cambia.
     const totalCostosAdminOtros = (resumenCostos.totalAdministrativo || 0) + (resumenCostos.otrosCostos || 0) + (resumenCostos.totalPeajes || 0);
 
     return (

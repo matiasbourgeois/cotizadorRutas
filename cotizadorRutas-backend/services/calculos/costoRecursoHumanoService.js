@@ -24,9 +24,11 @@ export default function calcularCostoTotalRecurso(
 
   // Se calcula el tiempo total de una misión y la frecuencia del servicio.
   const tiempoTotalMision = duracionMin + TIEMPO_CARGA_DESCARGA;
+  const viajesPorDia = frecuencia.viajesPorDia || 1;
+  const tiempoDiarioTotal = tiempoTotalMision * viajesPorDia;
   const esServicioMensual = frecuencia.tipo === 'mensual';
   const cantidadViajesAlMes = esServicioMensual
-    ? (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33
+    ? (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.12
     : (frecuencia.vueltasTotales || 1);
   const kmRealesTotales = kmsPorViaje * cantidadViajesAlMes;
 
@@ -40,7 +42,7 @@ export default function calcularCostoTotalRecurso(
   // =================================================================
   // El "cerebro" del sistema: decide si es un viaje corto o largo.
 
-  if (tiempoTotalMision < UMBRAL_JORNADA_COMPLETA) {
+  if (tiempoDiarioTotal < UMBRAL_JORNADA_COMPLETA) {
     // --- Lógica para VIAJE CORTO (< 3 horas) ---
     detalle.tipoDeCalculo = 'Servicio Corto (Por Hora)';
     kilometrosMinimos = 150;
@@ -55,19 +57,26 @@ export default function calcularCostoTotalRecurso(
     costoBaseRemunerativo = esServicioMensual ? costoViajeIndividual * cantidadViajesAlMes : costoViajeIndividual;
     adicionalFijoNoRemunerativo = esServicioMensual ? adicionalProrrateadoPorViaje * cantidadViajesAlMes : adicionalProrrateadoPorViaje;
 
-  } else {
-    // --- Lógica para VIAJE LARGO (>= 3 horas) ---
+} else {
+    // --- LÓGICA CORREGIDA PARA VIAJE LARGO (>= 3 horas) ---
     detalle.tipoDeCalculo = 'Servicio Dedicado (Por Jornada)';
     kilometrosMinimos = 350;
 
-    const minutosExtra = Math.max(0, tiempoTotalMision - JORNADA_COMPLETA_MINUTOS);
-    const costoExtraPorViaje = (minutosExtra / 60) * valorHora;
-    const costoViajeIndividual = valorJornada + costoExtraPorViaje;
-    
-    const adicionalDiario = (recurso.adicionalNoRemunerativoFijo || 0) / 22;
+    // Calculamos el número real de días de trabajo en el mes.
+    const diasDeTrabajoAlMes = esServicioMensual
+      ? (frecuencia.diasSeleccionados?.length || 0) * 4.33
+      : (frecuencia.vueltasTotales || 1); // Para esporádico, cada vuelta es un "día".
 
-    costoBaseRemunerativo = esServicioMensual ? costoViajeIndividual * cantidadViajesAlMes : costoViajeIndividual;
-    adicionalFijoNoRemunerativo = esServicioMensual ? adicionalDiario * cantidadViajesAlMes : adicionalDiario;
+    // Calculamos las horas extra totales del mes.
+    const minutosExtraPorDia = Math.max(0, tiempoDiarioTotal - JORNADA_COMPLETA_MINUTOS);
+    const costoExtraTotalMes = (minutosExtraPorDia / 60) * valorHora * diasDeTrabajoAlMes;
+
+    // El costo base es el valor de la jornada por los días trabajados, más las horas extra.
+    costoBaseRemunerativo = (valorJornada * diasDeTrabajoAlMes) + costoExtraTotalMes;
+
+    // El adicional fijo se calcula sobre los días trabajados.
+    const adicionalDiario = (recurso.adicionalNoRemunerativoFijo || 0) / 22;
+    adicionalFijoNoRemunerativo = adicionalDiario * diasDeTrabajoAlMes;
   }
 
   // =================================================================
@@ -78,7 +87,7 @@ export default function calcularCostoTotalRecurso(
 
   const adicionalKm = (recurso.adicionalKmRemunerativo || 0) * kmParaPagar;
   const viaticoKm = (recurso.viaticoPorKmNoRemunerativo || 0) * kmParaPagar;
-  
+
   const tramosDeCarga = recurso.kmPorUnidadDeCarga ? Math.round(kmRealesTotales / recurso.kmPorUnidadDeCarga) : 0;
   const adicionalPorCargaDescarga = tramosDeCarga * (recurso.adicionalCargaDescargaCadaXkm || 0);
 
@@ -112,7 +121,7 @@ export default function calcularCostoTotalRecurso(
     adicionalPorCargaDescarga: Math.round(adicionalPorCargaDescarga),
     costoIndirecto: Math.round(costoIndirecto),
   };
-  
+
   return {
     totalFinal: Math.round(totalFinal),
     detalle,

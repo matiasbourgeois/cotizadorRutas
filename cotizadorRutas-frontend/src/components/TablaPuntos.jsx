@@ -1,10 +1,27 @@
-// Archivo: cotizadorRutas-frontend/src/components/TablaPuntos.jsx (Versión Final de "Clase Mundial")
-
+// Archivo: cotizadorRutas-frontend/src/components/TablaPuntos.jsx
+import { useRef, useLayoutEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Trash2, GripVertical } from "lucide-react";
-import { Table, ActionIcon, Text, Center, Stack } from "@mantine/core";
+import { Table, ActionIcon, Text, Center, Stack, Paper } from "@mantine/core";
+
+const ROW_HEIGHT = 56;            // alto aprox por fila
+const MAX_VISIBLE_ROWS = 3;       // 3 filas visibles
+const MAX_HEIGHT = ROW_HEIGHT * MAX_VISIBLE_ROWS; // 168px aprox
 
 const TablaPuntos = ({ puntos, onReordenar, onEliminar }) => {
+  // medir ancho real del contenedor para el clon del drag
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const update = () => {
+      if (containerRef.current) setContainerWidth(containerRef.current.clientWidth);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   const onDragEnd = (result) => {
     if (!result.destination) return;
     const nuevos = Array.from(puntos);
@@ -13,65 +30,119 @@ const TablaPuntos = ({ puntos, onReordenar, onEliminar }) => {
     onReordenar(nuevos);
   };
 
-  const rows = puntos.map((p, index) => (
-    <Draggable key={`${p.nombre}-${index}`} draggableId={`punto-${index}`} index={index}>
-      {(provided, snapshot) => (
-        <Table.Tr
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          bg={snapshot.isDragging ? 'cyan.0' : undefined}
-        >
-          <Table.Td w={50} {...provided.dragHandleProps}>
-            <Center><GripVertical size={18} color="gray" /></Center>
-          </Table.Td>
-          <Table.Td>
-            <Stack gap={0}>
-                <Text fw={500} size="sm">{p.nombre.split('–')[0].trim()}</Text>
-                <Text c="dimmed" fz="xs">{p.nombre.split('–')[1]?.trim()}</Text>
-            </Stack>
-          </Table.Td>
-          <Table.Td w={60} ta="right">
-            {/* ✅ ICONO Y COLOR MEJORADOS: Sutil por defecto, rojo al pasar el mouse */}
-            <ActionIcon color="red" variant="subtle" onClick={() => onEliminar(index)}>
-              <Trash2 size={16} />
-            </ActionIcon>
-          </Table.Td>
-        </Table.Tr>
-      )}
-    </Draggable>
-  ));
+  const renderRow = (p, index, provided, isDragging = false) => {
+    const nombre = String(p?.nombre ?? "");
+    const [titulo, subtitulo] = nombre.split("–");
+
+    return (
+      <Table.Tr
+        ref={provided?.innerRef}
+        {...(provided ? provided.draggableProps : {})}
+        bg={isDragging ? "cyan.0" : undefined}
+        style={{
+          ...(provided?.draggableProps?.style || {}),
+          height: ROW_HEIGHT,
+        }}
+      >
+        <Table.Td w={50} {...(provided ? provided.dragHandleProps : {})} style={{ cursor: "grab" }}>
+          <Center><GripVertical size={18} color="gray" /></Center>
+        </Table.Td>
+
+        <Table.Td>
+          <Stack gap={0}>
+            <Text fw={500} size="sm">{(titulo || "").trim()}</Text>
+            <Text c="dimmed" fz="xs">{(subtitulo || "").trim()}</Text>
+          </Stack>
+        </Table.Td>
+
+        <Table.Td w={60} ta="right">
+          <ActionIcon color="red" variant="subtle" onClick={() => onEliminar(index)}>
+            <Trash2 size={16} />
+          </ActionIcon>
+        </Table.Td>
+      </Table.Tr>
+    );
+  };
 
   return (
-    // ✅ SCROLL INTELIGENTE: El contenedor tiene una altura máxima y activa el scroll cuando se necesita.
-    <Table.ScrollContainer minWidth={300} style={{ maxHeight: 350 }}>
+    <div
+      ref={containerRef}
+      style={{
+        maxHeight: puntos.length > 3 ? MAX_HEIGHT : "unset",
+        overflowY: puntos.length > 3 ? "auto" : "visible",
+        minWidth: 300,
+        position: "relative",
+      }}
+    >
       <DragDropContext onDragEnd={onDragEnd}>
-        <Table highlightOnHover verticalSpacing="sm">
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th w={50}></Table.Th>
-                <Table.Th>Puntos de Entrega</Table.Th>
-                <Table.Th w={60}></Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Droppable droppableId="tabla-puntos-droppable">
-                {(provided) => (
-                <Table.Tbody ref={provided.innerRef} {...provided.droppableProps}>
-                    {rows.length > 0 ? rows : (
-                    <Table.Tr>
-                        <Table.Td colSpan={3}>
-                        <Text c="dimmed" ta="center" py="lg">
-                            La hoja de ruta está vacía.
-                        </Text>
-                        </Table.Td>
-                    </Table.Tr>
-                    )}
-                    {provided.placeholder}
-                </Table.Tbody>
+        <Droppable
+          droppableId="tabla-puntos-droppable"
+          renderClone={(provided, snapshot, rubric) => {
+            const p = puntos?.[rubric?.source?.index];
+            const nombre = String(p?.nombre ?? "");
+            const [titulo, subtitulo] = nombre.split("–");
+
+            return (
+              <Paper
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                shadow="md"
+                withBorder
+                radius="md"
+                p="sm"
+                style={{
+                  ...provided.draggableProps.style,
+                  width: Math.max(0, (containerWidth || 0) - 16),
+                  marginLeft: 8,
+                  boxSizing: "border-box",
+                  background: "var(--mantine-color-cyan-0)",
+                  pointerEvents: "none",
+                }}
+              >
+                <Stack gap={4}>
+                  <Text fw={600} size="sm">{(titulo || "").trim()}</Text>
+                  <Text c="dimmed" fz="xs">{(subtitulo || "").trim()}</Text>
+                </Stack>
+              </Paper>
+            );
+          }}
+        >
+          {(dropProvided) => (
+            <Table highlightOnHover verticalSpacing="sm" style={{ position: "relative" }}>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th w={50}></Table.Th>
+                  <Table.Th>Puntos de Entrega</Table.Th>
+                  <Table.Th w={60}></Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+
+              <Table.Tbody ref={dropProvided.innerRef} {...dropProvided.droppableProps}>
+                {puntos.length === 0 ? (
+                  <Table.Tr>
+                    <Table.Td colSpan={3}>
+                      <Text c="dimmed" ta="center" py="lg">
+                        La hoja de ruta está vacía.
+                      </Text>
+                    </Table.Td>
+                  </Table.Tr>
+                ) : (
+                  puntos.map((p, index) => (
+                    <Draggable key={`${p?.nombre ?? "p"}-${index}`} draggableId={`punto-${index}`} index={index}>
+                      {(dragProvided, snapshot) =>
+                        renderRow(p, index, dragProvided, snapshot.isDragging)
+                      }
+                    </Draggable>
+                  ))
                 )}
-            </Droppable>
-        </Table>
+                {dropProvided.placeholder}
+              </Table.Tbody>
+            </Table>
+          )}
+        </Droppable>
       </DragDropContext>
-    </Table.ScrollContainer>
+    </div>
   );
 };
 

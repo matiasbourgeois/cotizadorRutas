@@ -88,7 +88,7 @@ const CapituloRutaFrecuencia = ({ presupuesto }) => {
                                         <Badge size="xl" variant="light" color="blue" leftSection={<Calendar size={18}/>}>Servicio Mensual</Badge>
                                         <WeekdayPickerVisual diasSeleccionados={presupuesto.frecuencia.diasSeleccionados} />
                                         <Text size="sm">Viajes por día: <strong>{presupuesto.frecuencia.viajesPorDia}</strong></Text>
-                                        <Text size="sm" c="dimmed">Total proyectado: <strong>~{((presupuesto.frecuencia.diasSeleccionados?.length || 0) * (presupuesto.frecuencia.viajesPorDia || 1) * 4.33).toFixed(1)} viajes/mes</strong></Text>
+                                        <Text size="sm" c="dimmed">Total proyectado: <strong>~{((presupuesto.frecuencia.diasSeleccionados?.length || 0) * (presupuesto.frecuencia.viajesPorDia || 1) * 4.12).toFixed(1)} viajes/mes</strong></Text>
                                     </Stack>
                                 ) : (
                                     <Stack gap="lg">

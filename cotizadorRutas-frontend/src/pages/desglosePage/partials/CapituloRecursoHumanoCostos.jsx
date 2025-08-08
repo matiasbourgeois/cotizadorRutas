@@ -40,7 +40,7 @@ const CapituloRecursoHumanoCostos = ({ presupuesto }) => {
     
     const duracionTotalMisionMin = (presupuesto.duracionMin || 0) + 30;
     const viajesProyectados = presupuesto.frecuencia.tipo === 'mensual'
-      ? ((presupuesto.frecuencia.diasSeleccionados?.length || 0) * (presupuesto.frecuencia.viajesPorDia || 1) * 4.33)
+      ? ((presupuesto.frecuencia.diasSeleccionados?.length || 0) * (presupuesto.frecuencia.viajesPorDia || 1) * 4.12)
       : (presupuesto.frecuencia.vueltasTotales || 1);
   
     const horasTotalesMensuales = (duracionTotalMisionMin * viajesProyectados) / 60;

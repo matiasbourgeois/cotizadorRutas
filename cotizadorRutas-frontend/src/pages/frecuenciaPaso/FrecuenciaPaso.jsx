@@ -160,7 +160,7 @@ const FrecuenciaPaso = () => {
                                         <Stack>
                                             <Text fw={500} size="sm">Selecciona los días de la semana</Text>
                                             <WeekdayPicker value={diasSeleccionados} onChange={setDiasSeleccionados} />
-                                            <NumberInput label="¿Cuántas vueltas se realizarán por día seleccionado?" value={viajesPorDia} onChange={(value) => setViajesPorDia(Number(value))} min={1} allowDecimal={false} />
+                                            <NumberInput label="¿Cuántas vueltas se realizarán por día seleccionado?" value={viajesPorDia} onChange={(value) => setViajesPorDia(value === '' ? '' : Number(value))} min={1} allowDecimal={false} />
                                         </Stack>
                                     </Paper>
                                 </motion.div>
