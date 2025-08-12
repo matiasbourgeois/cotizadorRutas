@@ -1,6 +1,6 @@
 // Archivo: cotizadorRutas-frontend/src/hooks/useAsistenteContextual.js (Con Consejos Extra)
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCotizacion } from '../context/Cotizacion';
 
@@ -53,14 +53,20 @@ const getConsejosContextuales = (pathname, cotizacion) => {
 }
 
 export const useAsistenteContextual = () => {
-    const [consejos, setConsejos] = useState([]);
-    const cotizacion = useCotizacion();
-    const location = useLocation();
+  const [consejos, setConsejos] = useState([]);
+  const cotizacion = useCotizacion();
+  const location = useLocation();
 
-    useEffect(() => {
-        const tips = getConsejosContextuales(location.pathname, cotizacion);
-        setConsejos(tips);
-    }, [location.pathname, cotizacion]);
+  const prevKeyRef = useRef("");
 
-    return { consejos };
+  useEffect(() => {
+    const tips = getConsejosContextuales(location.pathname, cotizacion);
+    const key = (tips || []).map(t => t?.texto ?? "").join("||");
+    if (key !== prevKeyRef.current) {
+      prevKeyRef.current = key; // ✅ solo si cambió el contenido textual
+      setConsejos(tips);
+    }
+  }, [location.pathname, cotizacion]);
+
+  return { consejos };
 };

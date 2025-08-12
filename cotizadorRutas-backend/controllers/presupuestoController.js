@@ -10,7 +10,7 @@ const COSTO_ADICIONAL_KM_PELIGROSA = 250;
 export const calcularPresupuesto = async (req, res) => {
   try {
     const { puntosEntrega, frecuencia, detallesCarga } = req.body;
-    
+
     const vehiculo = req.body.vehiculo || null;
     const recursoHumano = req.body.recursoHumano || null;
     const configuracion = req.body.configuracion || {};
@@ -29,7 +29,7 @@ export const calcularPresupuesto = async (req, res) => {
       cantidadViajesMensuales = frecuencia.vueltasTotales || 0;
     }
 
-    const costoVehiculo = vehiculo 
+    const costoVehiculo = vehiculo
       ? calcularCostoVehiculo(vehiculo, kmsPorViaje, cantidadViajesMensuales, duracionMin, detallesCarga)
       : { totalFinal: 0, detalle: {} };
 
@@ -39,11 +39,11 @@ export const calcularPresupuesto = async (req, res) => {
 
     const totalVehiculo = costoVehiculo.totalFinal;
     const totalRecurso = costoRecurso.totalFinal;
-    const totalPeajes = (configuracion.costoPeajes || 0) * cantidadViajesMensuales;
-    const otrosCostos = configuracion.otrosCostos || 0;
+    const totalPeajes = Number(configuracion.costoPeajes ?? 0) * cantidadViajesMensuales;
+    const otrosCostos = Number(configuracion.otrosCostos ?? 0);
 
     const subtotalOperativoParcial = totalVehiculo + totalRecurso;
-    const porcentajeAdmin = configuracion.costoAdministrativo || 10;
+    const porcentajeAdmin = Number(configuracion.costoAdministrativo ?? 10);
     const totalAdministrativo = Math.round((subtotalOperativoParcial * porcentajeAdmin) / 100);
 
     let costoAdicionalPeligrosa = 0;
@@ -54,7 +54,7 @@ export const calcularPresupuesto = async (req, res) => {
 
     const totalOperativo = totalVehiculo + totalRecurso + totalPeajes + totalAdministrativo + otrosCostos + costoAdicionalPeligrosa;
 
-    const porcentajeGanancia = configuracion.porcentajeGanancia || 15;
+    const porcentajeGanancia = Number(configuracion.porcentajeGanancia ?? 15);
     const ganancia = Math.round((totalOperativo * porcentajeGanancia) / 100);
     const totalFinal = totalOperativo + ganancia;
 
@@ -99,7 +99,7 @@ export const crearPresupuesto = async (req, res) => {
     }
 
     const calculoVehiculo = calcularCostoVehiculo(vehiculo.datos, kmsPorViaje, cantidadViajesMensuales, duracionMin, detallesCarga);
-    
+
     const calculoRecurso = calcularCostoTotalRecurso(recursoHumano.datos, kmsPorViaje, duracionMin, frecuencia);
 
     const totalVehiculo = calculoVehiculo.totalFinal;
@@ -108,7 +108,7 @@ export const crearPresupuesto = async (req, res) => {
     const otrosCostos = configuracion.otrosCostos || 0;
 
     const subtotalOperativoParcial = totalVehiculo + totalRecurso;
-    const porcentajeAdmin = configuracion.costoAdministrativo || 0;
+    const porcentajeAdmin = Number(configuracion.costoAdministrativo ?? 0);
     const totalAdministrativo = Math.round((subtotalOperativoParcial * porcentajeAdmin) / 100);
 
     let costoAdicionalPeligrosa = 0;
@@ -118,7 +118,7 @@ export const crearPresupuesto = async (req, res) => {
     }
 
     const totalOperativo = totalVehiculo + totalRecurso + totalPeajes + totalAdministrativo + otrosCostos + costoAdicionalPeligrosa;
-    const porcentajeGanancia = configuracion.porcentajeGanancia || 0;
+    const porcentajeGanancia = Number(configuracion.porcentajeGanancia ?? 0);
     const ganancia = Math.round((totalOperativo * porcentajeGanancia) / 100);
     const totalFinal = totalOperativo + ganancia;
 
@@ -165,21 +165,21 @@ export const obtenerPresupuestos = async (req, res) => {
 
     // Hacemos dos consultas en paralelo para máxima eficiencia
     const [presupuestos, total] = await Promise.all([
-        Presupuesto.find({ usuario: req.usuario._id })
-            .sort({ fechaCreacion: -1 })
-            .skip(skip)
-            .limit(limit),
-        Presupuesto.countDocuments({ usuario: req.usuario._id })
+      Presupuesto.find({ usuario: req.usuario._id })
+        .sort({ fechaCreacion: -1 })
+        .skip(skip)
+        .limit(limit),
+      Presupuesto.countDocuments({ usuario: req.usuario._id })
     ]);
 
     const totalPages = Math.ceil(total / limit);
 
     // Devolvemos un objeto con toda la info que el frontend necesita
     res.json({
-        presupuestos,
-        currentPage: page,
-        totalPages,
-        totalItems: total
+      presupuestos,
+      currentPage: page,
+      totalPages,
+      totalItems: total
     });
 
   } catch (error) {

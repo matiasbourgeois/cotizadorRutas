@@ -18,3 +18,16 @@
     border-radius: 50%;
     animation: pulseEffect 2s infinite;
 }
+
+.typing-cursor {
+  display: inline-block;
+  width: 1ch;
+  animation: typing-blink 1s steps(1, end) infinite;
+}
+@keyframes typing-blink {
+  50% { opacity: 0; }
+}
+@media print {
+  .typing-cursor { display: none !important; }
+}
+

@@ -5,7 +5,7 @@ import { AppShell, Burger, Group, Text, Container, Button, ScrollArea, Flex, Sta
 import { useDisclosure } from '@mantine/hooks';
 import { FileText, Clock, Truck, User, Settings, Check, LogOut, History, RotateCcw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useCotizacion } from '../context/Cotizacion';
 import clienteAxios from '../api/clienteAxios';
 import { useAsistenteContextual } from '../hooks/useAsistenteContextual.js';
@@ -19,7 +19,7 @@ const CotizadorLayout = () => {
     const location = useLocation();
     const { auth, cerrarSesionAuth } = useAuth();
     const navigate = useNavigate();
-    
+
     // ✅ 1. OBTENEMOS LA COTIZACIÓN COMPLETA DEL CONTEXTO
     const {
         puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga,
@@ -27,6 +27,10 @@ const CotizadorLayout = () => {
     } = useCotizacion();
 
     const { consejos } = useAsistenteContextual();
+    const consejosKey = useMemo(
+        () => (consejos || []).map(t => t?.texto ?? "").join("||"),
+        [consejos]
+    );
     const [animationKey, setAnimationKey] = useState(0);
 
     // ... (El resto de tu lógica de useEffect y funciones permanece igual)
@@ -60,13 +64,13 @@ const CotizadorLayout = () => {
 
     useEffect(() => {
         setAnimationKey(prevKey => prevKey + 1);
-    }, [consejos]);
+    }, [location.pathname, consejosKey]);
 
     const handleReset = () => {
         resetCotizacion();
         navigate('/');
     };
-    
+
     // ✅ 2. EXTRAEMOS EL ID DE LA RUTA DEL CONTEXTO
     // Este ID se guarda en el primer paso (PuntosEntregaPaso)
     const idRuta = puntosEntrega?.rutaId;
@@ -79,7 +83,7 @@ const CotizadorLayout = () => {
         { path: `/cotizador/recurso-humano/${idRuta}`, label: 'Recurso Humano', icon: User, id: 'recurso' },
         { path: '/cotizador/configuracion-final', label: 'Resumen y Costos', icon: Settings, id: 'final' },
     ];
-    
+
     // ✅ 4. MEJORAMOS LA LÓGICA PARA DETECTAR EL PASO ACTIVO
     const activeIndex = steps.findLastIndex(step => {
         const baseStepPath = step.path.split('/:')[0];
@@ -93,7 +97,7 @@ const CotizadorLayout = () => {
             padding="md"
         >
             <AppShell.Header>
-                 <Group h="100%" px="md" justify="space-between">
+                <Group h="100%" px="md" justify="space-between">
                     <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
                     <Text fw={700} c="deep-blue.7" size="xl">Cotizador Logístico</Text>
                     <Group>
@@ -112,24 +116,24 @@ const CotizadorLayout = () => {
                     <div>
                         <Text c="dimmed" size="sm" mb="sm">Bienvenido, {auth?.nombre || 'Usuario'}</Text>
 
-                         <Button
+                        <Button
                             component={Link}
                             to="/historial"
                             variant="light"
                             color="cyan"
                             fullWidth
-                            leftSection={<History size={16} />} 
+                            leftSection={<History size={16} />}
                             mb="xl"
                             radius="md"
-                            fz="sm" 
-                            fw={500} 
-                         >
+                            fz="sm"
+                            fw={500}
+                        >
                             Historial de Cotizaciones
                         </Button>
 
                         <Text tt="uppercase" size="xs" c="dimmed" fw={700} mb="sm">Pasos de la cotización</Text>
-                        
-                        <Stack gap="xs" mt="md"> 
+
+                        <Stack gap="xs" mt="md">
                             {steps.map((step, index) => {
                                 const isCompleted = index < activeIndex;
                                 const isActive = index === activeIndex;
@@ -139,16 +143,16 @@ const CotizadorLayout = () => {
                                 const path = isLinkDisabled ? '#' : step.path;
                                 const statusClass = isActive ? 'active' : isCompleted ? 'completed' : 'future';
                                 const StepIcon = step.icon;
-                                
+
                                 const content = (
-                                    <Group className={`step ${statusClass}`} gap="sm" wrap="nowrap" style={{pointerEvents: isLinkDisabled ? 'none' : 'auto'}}>
+                                    <Group className={`step ${statusClass}`} gap="sm" wrap="nowrap" style={{ pointerEvents: isLinkDisabled ? 'none' : 'auto' }}>
                                         <div className="step-icon-container">
                                             {isCompleted ? <Check size={18} /> : <StepIcon size={18} />}
                                         </div>
                                         <Text fz="sm" className="step-label">{step.label}</Text>
                                     </Group>
                                 );
-                                
+
                                 return isCompleted ? (
                                     <Link to={path} key={step.id} className="step-link">
                                         {content}
@@ -161,7 +165,7 @@ const CotizadorLayout = () => {
                             })}
                         </Stack>
                     </div>
-                    
+
                     <ScrollArea style={{ flex: 1 }} mt="md">
                         <AsistenteContextual key={animationKey} consejos={consejos} />
                     </ScrollArea>
