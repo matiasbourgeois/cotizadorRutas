@@ -1,145 +1,287 @@
 /* =================================================================== */
-/* ==   ESTILOS "NIVEL DIOS" PARA PROPUESTA COMERCIAL (PANTALLA Y PDF) == */
+/* ==   ESTILOS PARA PROPUESTA COMERCIAL (PANTALLA Y PDF)            == */
 /* =================================================================== */
 
 /* --- Contenedores y Fondo --- */
 .propuesta-background {
-    background-color: #f1f3f5;
-    padding: 20px;
-    font-family: 'Montserrat', sans-serif;
+  background-color: #f1f3f5;
+  padding: 20px;
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden; /* evita ver desbordes fuera de las páginas en pantalla */
 }
+
 .prop-page-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
 }
+
 .prop-page {
-    background-color: white !important;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.07);
-    position: relative;
-    width: 210mm;
-    min-height: 297mm;
-    box-sizing: border-box;
-    padding: 40px 50px;
-    display: flex;
-    flex-direction: column;
+  background-color: #fff !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.07);
+  position: relative;
+  width: 210mm;
+  min-height: 297mm;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* corta cualquier desborde en pantalla */
+
+  /* colchón para el footer (pantalla) */
+  --footer-safe: 88px;
+  padding: 40px 50px calc(40px + var(--footer-safe)) 50px;
 }
+
 .content { flex-grow: 1; }
-.prop-print-button-container { text-align: center; width: 100%; margin-bottom: 30px; }
+
+.prop-print-button-container {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+/* Si por alguna razón quedara una .prop-page vacía, no mostrarla (pantalla) */
+.prop-page:empty { display: none; }
+
+/* Evitar separación extra al final del stack de páginas (pantalla) */
+.prop-page-container > .prop-page:last-child { margin-bottom: 0; }
 
 /* --- Componentes Reutilizables (Header/Footer) --- */
-.header-table { width: 100%; border-bottom: 1px solid #dee2e6; margin-bottom: 25px; }
+.header-table {
+  width: 100%;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 25px;
+}
+
 .header-info-cell { text-align: right; vertical-align: middle; }
 .header-info-cell h3 { margin: 0; font-size: 20px; font-weight: 600; color: #343a40; }
 .header-info-cell p { font-size: 12px; color: #868e96; }
-.footer { position: absolute; bottom: 40px; left: 50px; right: 50px; border-top: 1px solid #f1f3f5; padding-top: 15px; text-align: center; }
-.section-title { font-weight: 700; font-size: 24px; color: #212529; margin-bottom: 20px !important; border-bottom: 2px solid var(--mantine-color-cyan-5); padding-bottom: 10px; }
-.section-subtitle { font-weight: 600; color: #495057; font-size: 18px; margin-bottom: 1rem; }
 
-/* --- Página 1: Portada Impactante --- */
+.footer {
+  position: absolute;
+  bottom: 40px;
+  left: 50px;
+  right: 50px;
+  border-top: 1px solid #f1f3f5;
+  padding-top: 15px;
+  text-align: center;
+  height: var(--footer-safe); /* altura explícita para reservar espacio */
+}
+
+.section-title {
+  font-weight: 700;
+  font-size: 24px;
+  color: #212529;
+  margin-bottom: 20px !important;
+  border-bottom: 2px solid var(--mantine-color-cyan-5);
+  padding-bottom: 10px;
+}
+
+.section-subtitle {
+  font-weight: 600;
+  color: #495057;
+  font-size: 18px;
+  margin-bottom: 1rem;
+}
+
+/* --- Página 1: Portada --- */
 .prop-page-portada {
-    padding: 0;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background-image: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80');
-    background-size: cover;
-    background-position: center;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-image: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1000&q=80');
+  background-size: cover;
+  background-position: center;
 }
+
 .portada-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Overlay oscuro para legibilidad */
+  position: absolute; inset: 0;
+  background-color: rgba(0,0,0,.5);
 }
+
 .portada-content {
-    position: relative;
-    z-index: 2;
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 40px 60px;
-    border-radius: 12px;
-    max-width: 80%;
+  position: relative; z-index: 2;
+  background-color: rgba(255,255,255,.9);
+  padding: 40px 60px; border-radius: 12px; max-width: 80%;
 }
+
 .portada-logo { max-width: 300px; height: auto; margin-bottom: 20px; }
 .portada-content h1 { font-size: 38px; color: #3A56A5; margin: 0; font-weight: 700; }
-.linea-decorativa { width: 80px; height: 5px; background-color: #11B7CD; margin: 25px auto; border-radius: 5px; }
+.linea-decorativa { width: 80px; height: 5px; background: #11B7CD; margin: 25px auto; border-radius: 5px; }
 .portada-content p { font-size: 18px; color: #868e96; margin: 0; }
 .portada-content h2 { font-size: 34px; color: #212529; margin-top: 10px; font-weight: 600; }
-.portada-footer { position: absolute; bottom: 40px; font-size: 12px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); z-index: 2;}
+
+.portada-footer {
+  position: absolute; bottom: 40px; font-size: 12px; color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,.5); z-index: 2;
+}
 
 /* --- Página 2: Resumen Ejecutivo --- */
 .prop-grid-resumen { align-items: flex-start; }
-.prop-kpi-card { transition: all 0.2s ease-in-out; }
+.prop-kpi-card { transition: all .2s ease-in-out; }
 .prop-kpi-card:hover { transform: translateY(-3px); box-shadow: var(--mantine-shadow-md); }
+
 .prop-price-card {
-    background: linear-gradient(135deg, var(--mantine-color-cyan-0) 0%, var(--mantine-color-blue-0) 100%);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-.price-value {
-    color: #11B7CD;
-    font-size: 56px !important;
-    font-weight: 700;
-    letter-spacing: -2px;
-    line-height: 1;
+  background: linear-gradient(135deg, var(--mantine-color-cyan-0) 0%, var(--mantine-color-blue-0) 100%);
+  height: 100%; display: flex; flex-direction: column; justify-content: center;
 }
 
+.price-value {
+  color: #11B7CD;
+  /* Ajuste responsive: nunca se sale del card */
+  font-size: clamp(34px, 4.5vw, 48px) !important;
+  font-weight: 700;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+
+
 /* --- Página 3: Confianza Operativa --- */
-.prop-map-container { height: 45vh; width: 100%; }
-.itinerary-wrapper { position: relative; padding-left: 20px; border-left: 2px solid #e9ecef; }
+/* Pantalla: evitar que el mapa agrande la hoja */
+.prop-map-container { height: 320px; width: 100%; }
+
+/* Pantallas bajitas */
+@media (max-height: 800px) { .prop-map-container { height: 260px; } }
+
+/* QR: que no agregue extra al final */
+.qr-paper-final { margin-bottom: 0; }
+
+.itinerary-wrapper {
+  position: relative;
+  /* un poco más de colchón a la izquierda */
+  padding-left: 28px;
+  border-left: 2px solid #e9ecef;
+}
+
+.itinerary-scroll {
+  max-height: 340px;
+  overflow-y: auto;
+  overflow-x: hidden;         /* evita barra horizontal */
+  padding: 0 6px 0 48px;      /* gutter IZQUIERDO para alojar el círculo/número */
+}
+
+
+@media (max-height: 800px) { .itinerary-scroll { max-height: 280px; } }
+
 .itinerary-node { display: flex; align-items: flex-start; position: relative; padding-bottom: 25px; }
-.itinerary-icon { position: absolute; left: -21px; top: -2px; width: 40px; height: 40px; border-radius: 50%; background-color: #11B7CD; color: white; display: flex; align-items: center; justify-content: center; border: 4px solid white; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); z-index: 1; }
-.itinerary-details { margin-left: 35px; }
-.qr-code-image-final { border-radius: var(--mantine-radius-md); padding: 5px; background: white; max-width: 100px; }
+
+.itinerary-icon {
+  position: absolute;
+  left: 8px;                  /* ahora SIEMPRE dentro del gutter */
+  top: -2px;     /* menos negativo => no lo “muerde” el contenedor */
+  width: 36px; height: 36px; border-radius: 50%;
+  background-color: #11B7CD; color: #fff !important; /* fuerza blanco */
+  display: flex; align-items: center; justify-content: center;
+  border: 4px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,.1); z-index: 1;
+
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 0 rgba(0,0,0,.15);
+}
+
+
+.itinerary-details { margin-left: 60px; }
+
+
+.qr-code-image-final {
+  border-radius: var(--mantine-radius-md);
+  padding: 5px; background: #fff; max-width: 100px;
+}
+
 .terms-textarea { font-size: 14px; line-height: 1.6; color: #495057; }
 .signature-area { margin-top: 40px; }
 .signature-box { text-align: center; }
-.signature-line { border-bottom: 1px solid #495057; margin: 40px auto 10px auto; width: 80%; }
+.signature-line { border-bottom: 1px solid #495057; margin: 40px auto 10px; width: 80%; }
 .signature-title { font-size: 12px; color: #868e96; }
 
-
-/* ====================================================================== */
-/* ==      ✅ REGLAS DE IMPRESIÓN PARA LA PROPUESTA ✅                  == */
-/* ====================================================================== */
+/* ========================== REGLAS DE IMPRESIÓN ========================== */
 @media print {
-    /* --- Reseteos Generales --- */
-    @page { size: A4; margin: 0; }
-    #root, body, .propuesta-background {
-        background-color: white !important;
-        padding: 0 !important; margin: 0 !important;
-        color: #000 !important;
-    }
-    .prop-print-button-container { display: none !important; }
+  @page { size: A4; margin: 0; }
 
-    /* --- Layout de Página --- */
-    .prop-page-container { display: block !important; }
-    .prop-page {
-        width: 100% !important;
-        height: 297mm !important;
-        min-height: unset !important;
-        box-shadow: none !important;
-        margin: 0 !important;
-        padding: 1.5cm !important;
-        page-break-after: always;
-        box-sizing: border-box;
-    }
-    .prop-page:last-child { page-break-after: auto; }
-    .footer { position: absolute; bottom: 1.5cm; left: 1.5cm; right: 1.5cm; }
-    
-    /* --- Layouts Internos --- */
-    .prop-grid-resumen, .prop-grid-cierre { display: flex !important; flex-wrap: nowrap !important; gap: 1.5rem !important; }
-    .prop-col-7 { flex: 0 0 58% !important; max-width: 58% !important; }
-    .prop-col-5 { flex: 0 0 40% !important; max-width: 40% !important; }
-    .prop-col-6 { flex: 0 0 48% !important; max-width: 48% !important; }
-    .prop-kpi-card { page-break-inside: avoid; }
-    
-    /* --- Estilos Visuales para Impresión --- */
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-shadow: none !important; }
-    .prop-page-portada { background-image: none !important; background-color: #f1f3f5 !important; }
-    .portada-overlay { display: none; }
-    .portada-content { background-color: transparent !important; }
-    .linea-decorativa, .itinerary-icon { background-color: #11B7CD !important; }
-    .price-value { color: #11B7CD !important; }
+  #root, body, .propuesta-background {
+    background-color: #fff !important;
+    padding: 0 !important; margin: 0 !important; color: #000 !important;
+  }
+
+  .prop-print-button-container { display: none !important; }
+  .prop-page-container { display: block !important; }
+
+.prop-page {
+  width: 100% !important;
+  height: 297mm !important;
+  min-height: unset !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  /* +0.6cm de colchón abajo para que nunca tape el footer */
+  padding: 1.5cm 1.5cm 2.8cm !important;
+  page-break-after: always;
+  box-sizing: border-box;
+  overflow: visible !important;
+}
+
+  .prop-page:last-child { page-break-after: auto; }
+
+  .footer {
+    bottom: 1.5cm;
+    left: 1.5cm; right: 1.5cm;
+    height: 2.2cm; /* mismo safe del padding-bottom */
+  }
+
+  /* Impresión: alto estable para el mapa */
+  .prop-map-container { height: 110mm !important; }
+
+  .prop-grid-resumen, .prop-grid-cierre {
+    display: flex !important; flex-wrap: nowrap !important; gap: 1.5rem !important;
+  }
+  .prop-col-7 { flex: 0 0 58% !important; max-width: 58% !important; }
+  .prop-col-5 { flex: 0 0 40% !important; max-width: 40% !important; }
+  .prop-col-6 { flex: 0 0 48% !important; max-width: 48% !important; }
+
+  .prop-kpi-card { page-break-inside: avoid; }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+  }
+
+  .prop-page-portada { background-image: none !important; background-color: #f1f3f5 !important; }
+  .portada-overlay { display: none; }
+  .portada-content { background-color: transparent !important; }
+
+  .linea-decorativa, .itinerary-icon { background-color: #11B7CD !important; }
+  .price-value { color: #11B7CD !important; font-size: 44px !important; }
+
+  /* En impresión, nunca recortamos la lista */
+  .itinerary-scroll { max-height: none !important; overflow: visible !important; }
+}
+
+@media print {
+  .signature-area { break-inside: avoid; }  /* evita que se parta entre páginas */
+}
+
+/* mostrar/ocultar según medio */
+.screen-only { display: block; }
+.print-only { display: none; }
+
+@media print {
+  .screen-only { display: none !important; }
+  .print-only { display: block !important; }
+}
+
+/* refuerzo del número dentro del círculo */
+.itinerary-icon {
+  position: relative;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--mantine-color-cyan-6, #0ea5b9);
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 28px;
+}
+.itinerary-index {
+  color: #fff; font-weight: 700; font-size: 14px; line-height: 1;
 }
