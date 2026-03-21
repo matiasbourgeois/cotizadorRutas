@@ -1,14 +1,11 @@
-
 import { useState, useEffect } from "react";
 import { useCotizacion } from "../../context/Cotizacion";
 import clienteAxios from "../../api/clienteAxios";
 import { useNavigate } from "react-router-dom";
 import { notifications } from '@mantine/notifications';
 import { useForm } from "@mantine/form";
-import {
-  NumberInput, Textarea, Button, Group, Text, Menu, TextInput, rem, Slider
-} from "@mantine/core";
-import { ArrowLeft, Send, ChevronDown, FileDown, Eye, Settings, Building, DollarSign } from "lucide-react";
+import { NumberInput, Textarea, TextInput, Slider, Menu, rem } from "@mantine/core";
+import { ArrowLeft, Send, ChevronDown, FileDown, Eye, Building, DollarSign, Percent, Receipt } from "lucide-react";
 import ResumenPaso from "../../components/ResumenPaso";
 import '../../styles/CotizadorSteps.css';
 
@@ -23,12 +20,9 @@ const ConfiguracionPresupuestoPaso = () => {
 
   const form = useForm({
     initialValues: {
-      costoPeajes: 0,
-      costoAdministrativo: 10,
-      otrosCostos: 0,
-      porcentajeGanancia: 15,
-      cliente: "",
-      terminos: "Para aprobar esta propuesta, por favor, responda a este correo electrónico. La cotización tiene una validez de 15 días."
+      costoPeajes: 0, costoAdministrativo: 10, otrosCostos: 0,
+      porcentajeGanancia: 15, cliente: "",
+      terminos: "Para aprobar esta propuesta, responda a este correo. Validez: 15 días."
     },
   });
 
@@ -38,7 +32,7 @@ const ConfiguracionPresupuestoPaso = () => {
 
   useEffect(() => {
     if (!puntosEntrega || !frecuencia || !vehiculo || !recursoHumano) return;
-    const debounceCalc = setTimeout(() => {
+    const debounce = setTimeout(() => {
       const payload = { puntosEntrega, frecuencia, vehiculo, recursoHumano, configuracion: form.values, detallesCarga };
       clienteAxios.post('/presupuestos/calcular', payload)
         .then(response => {
@@ -46,9 +40,9 @@ const ConfiguracionPresupuestoPaso = () => {
           setDetalleVehiculo(response.data.detalleVehiculo);
           setDetalleRecurso(response.data.detalleRecurso);
         })
-        .catch(error => console.error("Error en el cálculo:", error));
+        .catch(error => console.error("Error en cálculo:", error));
     }, 300);
-    return () => clearTimeout(debounceCalc);
+    return () => clearTimeout(debounce);
   }, [form.values, puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga, setResumenCostos, setDetalleVehiculo, setDetalleRecurso]);
 
   const handleFinalizar = async (tipoAccion = 'propuesta') => {
@@ -59,25 +53,20 @@ const ConfiguracionPresupuestoPaso = () => {
     setLoading(true);
     try {
       const payload = {
-        puntosEntrega: puntosEntrega.puntos,
-        totalKilometros: puntosEntrega.distanciaKm,
-        duracionMin: puntosEntrega.duracionMin,
-        frecuencia,
+        puntosEntrega: puntosEntrega.puntos, totalKilometros: puntosEntrega.distanciaKm,
+        duracionMin: puntosEntrega.duracionMin, frecuencia,
         vehiculo: { datos: vehiculo, calculo: detalleVehiculo },
         recursoHumano: { datos: recursoHumano, calculo: detalleRecurso },
-        configuracion: form.values, detallesCarga,
-        resumenCostos, cliente: form.values.cliente, terminos: form.values.terminos
+        configuracion: form.values, detallesCarga, resumenCostos,
+        cliente: form.values.cliente, terminos: form.values.terminos
       };
       const { data: presupuestoGuardado } = await clienteAxios.post('/presupuestos', payload);
       notifications.show({ title: '¡Éxito!', message: 'Cotización guardada.', color: 'green' });
       setPresupuestoGuardadoId(presupuestoGuardado._id);
       window.open(`/${tipoAccion === 'propuesta' ? 'propuesta' : 'desglose'}/${presupuestoGuardado._id}`, '_blank');
     } catch (error) {
-      console.error("Error al finalizar:", error);
       notifications.show({ title: 'Error', message: 'No se pudo guardar.', color: 'red' });
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   const handleVerDocumento = (tipo) => {
@@ -86,13 +75,10 @@ const ConfiguracionPresupuestoPaso = () => {
 
   return (
     <div className="step-grid step-grid--main-side">
-      {/* ─── Main ─── */}
       <div className="step-panel">
         <div className="step-header">
           <div className="step-header-left">
-            <div className="step-header-icon step-header-icon--amber">
-              <Settings size={20} />
-            </div>
+            <div className="step-header-icon step-header-icon--amber"><Receipt size={18} /></div>
             <div>
               <h2 className="step-header-title">Ajustes Finales</h2>
               <p className="step-header-subtitle">Define rentabilidad y datos del cliente</p>
@@ -100,126 +86,89 @@ const ConfiguracionPresupuestoPaso = () => {
           </div>
         </div>
 
-        <div className="step-content">
-          {/* Sliders */}
-          <div className="step-section-label">
-            <DollarSign size={12} />
-            <span>Márgenes</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div>
-              <Text size="sm" fw={600} mb={4}>Ganancia: {form.values.porcentajeGanancia}%</Text>
-              <Slider
-                color="cyan"
-                marks={[{ value: 10 }, { value: 15 }, { value: 20 }, { value: 25 }, { value: 30 }]}
-                {...form.getInputProps('porcentajeGanancia')}
-                disabled={isFormDisabled}
-              />
-            </div>
-
-            <div>
-              <Text size="sm" fw={600} mb={4}>Administrativos: {form.values.costoAdministrativo}%</Text>
-              <Slider
-                color="gray"
-                marks={[{ value: 5 }, { value: 10 }, { value: 15 }]}
-                {...form.getInputProps('costoAdministrativo')}
-                disabled={isFormDisabled}
-              />
-            </div>
-          </div>
-
-          <div className="step-section-label"><span>Costos Adicionales</span></div>
+        <div className="step-content" style={{ overflowY: 'auto' }}>
+          {/* Margins */}
+          <div className="step-section-label"><Percent size={10} /><span>Márgenes</span></div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <NumberInput
-              label="Peajes y tasas"
-              description="Por viaje"
-              prefix="$ "
-              size="sm"
-              {...form.getInputProps('costoPeajes')}
-              disabled={isFormDisabled}
-            />
-            <NumberInput
-              label="Otros costos"
-              description="Gastos no contemplados"
-              prefix="$ "
-              size="sm"
-              {...form.getInputProps('otrosCostos')}
-              disabled={isFormDisabled}
-            />
+            <div style={{ padding: '8px 12px', borderRadius: 10, border: '1px solid var(--app-border)', background: 'var(--app-surface)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--app-text)' }}>Ganancia</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#22d3ee' }}>{form.values.porcentajeGanancia}%</span>
+              </div>
+              <Slider color="cyan" size="sm" marks={[{ value: 10 }, { value: 20 }, { value: 30 }]} {...form.getInputProps('porcentajeGanancia')} disabled={isFormDisabled} />
+            </div>
+
+            <div style={{ padding: '8px 12px', borderRadius: 10, border: '1px solid var(--app-border)', background: 'var(--app-surface)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--app-text)' }}>Administrativos</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--app-text-muted)' }}>{form.values.costoAdministrativo}%</span>
+              </div>
+              <Slider color="gray" size="sm" marks={[{ value: 5 }, { value: 10 }, { value: 15 }]} {...form.getInputProps('costoAdministrativo')} disabled={isFormDisabled} />
+            </div>
           </div>
 
-          <div className="step-section-label">
-            <Building size={12} />
-            <span>Cliente</span>
+          {/* Costs */}
+          <div className="step-section-label"><DollarSign size={10} /><span>Costos Adicionales</span></div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <NumberInput label="Peajes" prefix="$ " size="xs" {...form.getInputProps('costoPeajes')} disabled={isFormDisabled} />
+            <NumberInput label="Otros costos" prefix="$ " size="xs" {...form.getInputProps('otrosCostos')} disabled={isFormDisabled} />
           </div>
 
-          <TextInput
-            placeholder="Nombre del destinatario de la propuesta"
-            size="sm"
-            {...form.getInputProps('cliente')}
-            disabled={isFormDisabled}
-          />
+          {/* Client */}
+          <div className="step-section-label"><Building size={10} /><span>Cliente</span></div>
 
-          <Textarea
-            label="Términos y Próximos Pasos"
-            autosize
-            minRows={2}
-            maxRows={3}
-            size="sm"
-            {...form.getInputProps('terminos')}
-            disabled={isFormDisabled}
-          />
+          <TextInput placeholder="Nombre del destinatario" size="xs" {...form.getInputProps('cliente')} disabled={isFormDisabled} />
+
+          <Textarea placeholder="Términos y próximos pasos..." autosize minRows={2} maxRows={2} size="xs" {...form.getInputProps('terminos')} disabled={isFormDisabled} />
         </div>
 
         <div className="step-nav">
-          <Button variant="default" onClick={() => navigate(-1)} leftSection={<ArrowLeft size={16} />}>
-            Volver
-          </Button>
+          <button className="step-btn-back" onClick={() => navigate(-1)}>
+            <ArrowLeft size={14} /> Volver
+          </button>
 
           {isFormDisabled ? (
-            <Group>
-              <Button variant="light" color="blue" onClick={() => handleVerDocumento('desglose')} leftSection={<Eye size={16} />} size="sm">
-                Desglose
-              </Button>
-              <Button onClick={() => handleVerDocumento('propuesta')} leftSection={<Eye size={16} />} size="sm">
-                Propuesta
-              </Button>
-            </Group>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button className="step-btn-back" onClick={() => handleVerDocumento('desglose')}>
+                <Eye size={14} /> Desglose
+              </button>
+              <button className="step-btn-next" onClick={() => handleVerDocumento('propuesta')}>
+                <Eye size={14} /> Propuesta
+              </button>
+            </div>
           ) : (
-            <Group gap={0}>
-              <Button
-                size="md"
+            <div style={{ display: 'flex', gap: 0 }}>
+              <button
+                className="step-btn-finalize"
                 onClick={() => handleFinalizar('propuesta')}
-                loading={loading}
-                leftSection={<Send size={16} />}
+                disabled={loading}
                 style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
               >
-                Finalizar y Ver Propuesta
-              </Button>
+                <Send size={14} /> {loading ? '...' : 'Finalizar y Ver Propuesta'}
+              </button>
               <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
                 <Menu.Target>
-                  <Button
-                    size="md"
-                    loading={loading}
-                    style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, paddingLeft: rem(8), paddingRight: rem(8) }}
+                  <button
+                    className="step-btn-finalize"
+                    disabled={loading}
+                    style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, paddingLeft: rem(8), paddingRight: rem(8), borderLeft: '1px solid rgba(255,255,255,0.2)' }}
                   >
-                    <ChevronDown size={18} />
-                  </Button>
+                    <ChevronDown size={16} />
+                  </button>
                 </Menu.Target>
                 <Menu.Dropdown>
-                  <Menu.Item leftSection={<FileDown size={16} />} onClick={() => handleFinalizar('desglose')}>
+                  <Menu.Item leftSection={<FileDown size={14} />} onClick={() => handleFinalizar('desglose')}>
                     Guardar y Descargar Desglose
                   </Menu.Item>
                 </Menu.Dropdown>
               </Menu>
-            </Group>
+            </div>
           )}
         </div>
       </div>
 
-      {/* ─── Sidebar ─── */}
       <div><ResumenPaso /></div>
     </div>
   );

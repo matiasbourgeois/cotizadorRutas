@@ -2,12 +2,11 @@ import { useMemo, useState } from "react";
 import BuscadorDireccion from "../../components/BuscadorDireccion";
 import TablaPuntos from "../../components/TablaPuntos";
 import MapaRuta from "../../components/MapaRuta";
-import ResumenRuta from "../../components/ResumenRuta";
 import { useNavigate } from "react-router-dom";
 import clienteAxios from "../../api/clienteAxios";
 import { useCotizacion } from "../../context/Cotizacion";
-import { Button, Select, Checkbox } from "@mantine/core";
-import { Navigation, MapPinOff, MapPin, Package, Eye } from "lucide-react";
+import { Select, Checkbox } from "@mantine/core";
+import { Navigation, MapPinOff, MapPin, Package, Eye, Clock, ArrowRight } from "lucide-react";
 import { notifications } from '@mantine/notifications';
 import '../../styles/CotizadorSteps.css';
 
@@ -15,12 +14,8 @@ export default function PuntosEntregaPaso() {
   const navigate = useNavigate();
 
   const {
-    puntosEntrega,
-    directionsResult,
-    detallesCarga,
-    setPuntosEntrega,
-    setDetallesCarga,
-    setDirectionsResult
+    puntosEntrega, directionsResult, detallesCarga,
+    setPuntosEntrega, setDetallesCarga, setDirectionsResult
   } = useCotizacion();
 
   const puntos = puntosEntrega?.puntos || [];
@@ -48,22 +43,17 @@ export default function PuntosEntregaPaso() {
       .join("|");
   }, [puntosConRegreso]);
 
-  const limpiarRutaGuardada = () => {
-    setDatosRuta(null);
-    setDirectionsResult(null);
-  };
+  const limpiarRutaGuardada = () => { setDatosRuta(null); setDirectionsResult(null); };
   const agregarPunto = (punto) => {
     if (!punto) return;
-    const nuevosPuntos = [...puntos, punto];
-    setPuntosEntrega({ ...puntosEntrega, puntos: nuevosPuntos });
+    setPuntosEntrega({ ...puntosEntrega, puntos: [...puntos, punto] });
     limpiarRutaGuardada();
   };
   const handleEliminarPunto = (index) => {
     const base = puntos;
     const usandoRegreso = idaVuelta && base.length >= 2;
     if (usandoRegreso && index === base.length) return;
-    const nuevosPuntos = base.filter((_, i) => i !== index);
-    setPuntosEntrega({ ...puntosEntrega, puntos: nuevosPuntos });
+    setPuntosEntrega({ ...puntosEntrega, puntos: base.filter((_, i) => i !== index) });
     limpiarRutaGuardada();
   };
   const handleReordenarPuntos = (nuevosPuntos) => {
@@ -75,22 +65,19 @@ export default function PuntosEntregaPaso() {
     setDirectionsResult(datos.directions);
     setPuntosEntrega({ puntos: puntos, ...datos.resumen });
   };
-  const handleCargaChange = (value) => {
-    setDetallesCarga({ ...detallesCarga, tipo: value });
-  };
+  const handleCargaChange = (value) => { setDetallesCarga({ ...detallesCarga, tipo: value }); };
   const handleSiguiente = async () => {
-    const base = puntos;
-    if (base.length < 2) {
-      notifications.show({ title: 'Ruta incompleta', message: 'Necesitas al menos 2 puntos para definir una ruta.', color: 'orange' });
+    if (puntos.length < 2) {
+      notifications.show({ title: 'Ruta incompleta', message: 'Necesitas al menos 2 puntos.', color: 'orange' });
       return;
     }
     if (!datosRuta) {
-      notifications.show({ title: 'Acción Requerida', message: 'La ruta aún no ha sido calculada en el mapa.', color: 'yellow' });
+      notifications.show({ title: 'Acción Requerida', message: 'La ruta aún no ha sido calculada.', color: 'yellow' });
       return;
     }
     setIsSaving(true);
     try {
-      const ordenados = base.map((p, index) => ({ ...p, orden: index }));
+      const ordenados = puntos.map((p, index) => ({ ...p, orden: index }));
       const payload = { puntos: ordenados, distanciaKm: datosRuta.distanciaKm, duracionMin: datosRuta.duracionMin };
       const res = await clienteAxios.post('/rutas', payload);
       setPuntosEntrega({ ...puntosEntrega, ...payload, rutaId: res.data._id });
@@ -98,22 +85,17 @@ export default function PuntosEntregaPaso() {
       navigate(`/cotizador/frecuencia/${res.data._id}`);
     } catch (err) {
       console.error("Error al guardar ruta:", err);
-      notifications.show({ title: 'Error al Guardar', message: 'No se pudo guardar la ruta.', color: 'red' });
-    } finally {
-      setIsSaving(false);
-    }
+      notifications.show({ title: 'Error', message: 'No se pudo guardar la ruta.', color: 'red' });
+    } finally { setIsSaving(false); }
   };
 
   return (
     <div className="step-grid step-grid--two-col">
-      {/* ─── Left Panel ─── */}
+      {/* LEFT PANEL */}
       <div className="step-panel">
-        {/* Header */}
         <div className="step-header">
           <div className="step-header-left">
-            <div className="step-header-icon step-header-icon--blue">
-              <MapPin size={20} />
-            </div>
+            <div className="step-header-icon step-header-icon--blue"><MapPin size={18} /></div>
             <div>
               <h2 className="step-header-title">Panel de Ruta</h2>
               <p className="step-header-subtitle">Define los puntos de tu operación</p>
@@ -121,42 +103,29 @@ export default function PuntosEntregaPaso() {
           </div>
         </div>
 
-        {/* Content */}
         <div className="step-content">
           <BuscadorDireccion onAgregar={agregarPunto} />
 
           {puntos.length >= 2 && (
             <Checkbox
-              size="sm"
-              label="Ida y vuelta (agregar regreso al origen)"
+              size="xs"
+              label="Ida y vuelta (regreso al origen)"
               checked={idaVuelta}
               onChange={(e) => { setIdaVuelta(e.currentTarget.checked); limpiarRutaGuardada(); }}
               color="cyan"
-              style={{ alignSelf: 'flex-start' }}
             />
           )}
 
-          <div className="step-section-label">
-            <span>Hoja de Ruta</span>
+          <div className="step-section-label"><span>Hoja de Ruta</span></div>
+
+          <div style={{ flex: 1, minHeight: 0, overflow: 'auto', borderRadius: 10, border: '1px solid var(--app-border)' }}>
+            <TablaPuntos puntos={puntosConRegreso} onReordenar={handleReordenarPuntos} onEliminar={handleEliminarPunto} />
           </div>
 
-          <div style={{ flex: 1, minHeight: 0, overflow: 'auto', borderRadius: 12, border: '1px solid var(--app-border)' }}>
-            <TablaPuntos
-              puntos={puntosConRegreso}
-              onReordenar={handleReordenarPuntos}
-              onEliminar={handleEliminarPunto}
-            />
-          </div>
-
-          <div className="step-section-label">
-            <Package size={12} />
-            <span>Inteligencia de Carga</span>
-          </div>
+          <div className="step-section-label"><Package size={10} /><span>Tipo de Carga</span></div>
 
           <Select
-            size="sm"
-            label="Tipo de Carga"
-            description="Afecta los cálculos de costos."
+            size="xs"
             value={detallesCarga.tipo}
             onChange={handleCargaChange}
             data={[
@@ -167,28 +136,24 @@ export default function PuntosEntregaPaso() {
           />
         </div>
 
-        {/* Nav */}
         <div className="step-nav">
           <div />
-          <Button
-            size="md"
+          <button
+            className="step-btn-next"
             onClick={handleSiguiente}
             disabled={!datosRuta || isSaving || puntos.length < 2}
-            loading={isSaving}
-            rightSection={<Navigation size={18} />}
           >
-            Siguiente: Frecuencia
-          </Button>
+            {isSaving ? '...' : 'Siguiente: Frecuencia'}
+            <ArrowRight size={16} />
+          </button>
         </div>
       </div>
 
-      {/* ─── Right Panel ─── */}
+      {/* RIGHT PANEL */}
       <div className="step-panel">
         <div className="step-header">
           <div className="step-header-left">
-            <div className="step-header-icon step-header-icon--cyan">
-              <Eye size={20} />
-            </div>
+            <div className="step-header-icon step-header-icon--cyan"><Eye size={18} /></div>
             <div>
               <h2 className="step-header-title">Visualizador de Misión</h2>
               <p className="step-header-subtitle">Vista previa del recorrido</p>
@@ -197,7 +162,7 @@ export default function PuntosEntregaPaso() {
         </div>
 
         <div className="step-content">
-          <div style={{ flex: 1, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--app-border)', minHeight: 0 }}>
+          <div style={{ flex: 1, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--app-border)', minHeight: 0 }}>
             {puntosConRegreso.length > 0 ? (
               <MapaRuta
                 key={mapaKey}
@@ -207,15 +172,32 @@ export default function PuntosEntregaPaso() {
               />
             ) : (
               <div className="step-empty" style={{ height: '100%', background: 'var(--app-surface-hover)' }}>
-                <div className="step-empty-icon">
-                  <MapPinOff size={28} />
-                </div>
+                <div className="step-empty-icon"><MapPinOff size={24} /></div>
                 <h4>Sin puntos definidos</h4>
-                <p>Agrega puntos en el Panel de Ruta para visualizar el mapa.</p>
+                <p>Agrega puntos para visualizar el mapa</p>
               </div>
             )}
           </div>
-          {datosRuta && <ResumenRuta distanciaKm={datosRuta.distanciaKm} duracionMin={datosRuta.duracionMin} />}
+
+          {/* Route KPI inline strip */}
+          {datosRuta && (
+            <div className="step-route-kpi">
+              <div className="step-route-kpi-item">
+                <div className="step-route-kpi-icon"><MapPin size={16} /></div>
+                <div>
+                  <div className="step-route-kpi-label">Distancia</div>
+                  <div className="step-route-kpi-value">{datosRuta.distanciaKm} km</div>
+                </div>
+              </div>
+              <div className="step-route-kpi-item">
+                <div className="step-route-kpi-icon"><Clock size={16} /></div>
+                <div>
+                  <div className="step-route-kpi-label">Duración</div>
+                  <div className="step-route-kpi-value">{datosRuta.duracionMin} min</div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
