@@ -6,282 +6,203 @@ import ModalCrearRecursoHumano from './ModalCrearRecursoHumano';
 import ModalConfiguracionEmpleado from './ModalConfiguracionEmpleado';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
+import { Button, ActionIcon, Pagination, Menu, Text, Group } from '@mantine/core';
 import {
-    Stack, Title, Group, Button, Paper, Text, ActionIcon, Grid,
-    Table, Badge, Center, TextInput, UnstyledButton, Alert,
-    Pagination, // 1. Componente para paginación
-    Menu      // 2. Componente para el menú de acciones
-} from '@mantine/core';
-import {
-    Settings, ArrowRight, ArrowLeft, Search, ArrowUpDown, Plus,
-    AlertCircle, Trash2, MoreVertical // 3. Íconos para las nuevas acciones
+  Settings, ArrowRight, ArrowLeft, Search, Plus, Users,
+  AlertCircle, Trash2, MoreVertical
 } from 'lucide-react';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import ResumenPaso from '../../components/ResumenPaso';
-import SortableTableHeader from '../../components/SortableTableHeader';
-
+import '../../styles/CotizadorSteps.css';
 
 const RecursoHumanoPaso = () => {
-    const [recursos, setRecursos] = useState([]);
-    const [modalCrearAbierto, { open: abrirModalCrear, close: cerrarModalCrear }] = useDisclosure(false);
-    const [modalConfigAbierto, { open: abrirModalConfig, close: cerrarModalConfig }] = useDisclosure(false);
-    const [recursoParaConfig, setRecursoParaConfig] = useState(null);
+  const [recursos, setRecursos] = useState([]);
+  const [modalCrearAbierto, { open: abrirModalCrear, close: cerrarModalCrear }] = useDisclosure(false);
+  const [modalConfigAbierto, { open: abrirModalConfig, close: cerrarModalConfig }] = useDisclosure(false);
+  const [recursoParaConfig, setRecursoParaConfig] = useState(null);
+  const [filtro, setFiltro] = useState('');
+  const [sortBy, setSortBy] = useState(null);
+  const [reverseSortDirection, setReverseSortDirection] = useState(false);
+  const [activePage, setPage] = useState(1);
+  const itemsPerPage = 5;
 
-    const [filtro, setFiltro] = useState('');
-    const [sortBy, setSortBy] = useState(null);
-    const [reverseSortDirection, setReverseSortDirection] = useState(false);
+  const { idRuta } = useParams();
+  const navigate = useNavigate();
+  const { recursoHumano, setRecursoHumano } = useCotizacion();
 
-    // 4. Estados para manejar la paginación
-    const [activePage, setPage] = useState(1);
-    const itemsPerPage = 5; // Mostramos 5 por página
+  const fetchRecursos = async () => {
+    try {
+      const { data } = await clienteAxios.get('/recursos-humanos');
+      setRecursos(data);
+    } catch (error) { console.error('Error al obtener recursos:', error); }
+  };
 
-    const { idRuta } = useParams();
-    const navigate = useNavigate();
-    const { recursoHumano, setRecursoHumano } = useCotizacion();
+  useEffect(() => { fetchRecursos(); }, []);
 
-    const fetchRecursos = async () => {
+  const handleEliminar = (r) => {
+    modals.openConfirmModal({
+      title: 'Confirmar Eliminación', centered: true,
+      children: <Text size="sm">¿Eliminar a <strong>{r.nombre}</strong>? Esta acción es permanente.</Text>,
+      labels: { confirm: 'Sí, eliminar', cancel: 'Cancelar' },
+      confirmProps: { color: 'red' },
+      onConfirm: async () => {
         try {
-            const { data } = await clienteAxios.get('/recursos-humanos');
-            setRecursos(data);
-        } catch (error) { console.error('Error al obtener recursos:', error); }
-    };
+          await clienteAxios.delete(`/recursos-humanos/${r._id}`);
+          setRecursos(cur => cur.filter(x => x._id !== r._id));
+          if (recursoHumano?._id === r._id) setRecursoHumano(null);
+          notifications.show({ title: 'Eliminado', message: 'Colaborador eliminado.', color: 'green' });
+        } catch { notifications.show({ title: 'Error', message: 'No se pudo eliminar.', color: 'red' }); }
+      },
+    });
+  };
 
-    useEffect(() => { fetchRecursos(); }, []);
-    
-    // 5. Función para manejar la eliminación de un recurso humano
-    const handleEliminar = (recursoAEliminar) => {
-        modals.openConfirmModal({
-            title: 'Confirmar Eliminación',
-            centered: true,
-            children: (
-                <Text size="sm">
-                    ¿Estás seguro de que quieres eliminar a <strong>{recursoAEliminar.nombre}</strong>? Esta acción es permanente.
-                </Text>
-            ),
-            labels: { confirm: 'Sí, eliminar', cancel: "No, cancelar" },
-            confirmProps: { color: 'red' },
-            onConfirm: async () => {
-                try {
-                    await clienteAxios.delete(`/recursos-humanos/${recursoAEliminar._id}`);
-                    setRecursos(currentRecursos => currentRecursos.filter(r => r._id !== recursoAEliminar._id));
-                    // Si el recurso eliminado era el seleccionado, lo quitamos de la cotización
-                    if (recursoHumano?._id === recursoAEliminar._id) {
-                        setRecursoHumano(null);
-                    }
-                    notifications.show({
-                        title: 'Eliminado',
-                        message: 'El colaborador ha sido eliminado del sistema.',
-                        color: 'green',
-                    });
-                } catch (error) {
-                    notifications.show({
-                        title: 'Error',
-                        message: 'No se pudo eliminar el recurso humano.',
-                        color: 'red',
-                    });
-                    console.error('Error al eliminar:', error);
-                }
-            },
-        });
-    };
+  const handleAbrirConfig = (r) => { setRecursoParaConfig(r); abrirModalConfig(); };
+  const handleRecursoCreado = (nr) => { setRecursos(p => [nr, ...p]); setRecursoHumano(nr); cerrarModalCrear(); };
+  const handleGuardarConfiguracion = (d) => {
+    setRecursos(p => p.map(r => r._id === d._id ? d : r));
+    if (recursoHumano?._id === d._id) setRecursoHumano(d);
+    cerrarModalConfig();
+  };
 
-    const handleSeleccion = (recursoSeleccionado) => { setRecursoHumano(recursoSeleccionado); };
+  const handleSiguiente = () => {
+    if (recursoHumano) navigate("/cotizador/configuracion-final");
+    else notifications.show({ title: 'Acción requerida', message: 'Selecciona un recurso humano.', color: 'yellow' });
+  };
 
-    const handleAbrirConfig = (recursoAConfigurar) => {
-        setRecursoParaConfig(recursoAConfigurar);
-        abrirModalConfig();
-    }
+  const setSorting = (field) => {
+    setReverseSortDirection(field === sortBy ? !reverseSortDirection : false);
+    setSortBy(field);
+  };
 
-    const handleRecursoCreado = (nuevoRecurso) => {
-        setRecursos(prev => [nuevoRecurso, ...prev]);
-        setRecursoHumano(nuevoRecurso);
-        cerrarModalCrear();
-    };
+  const filtered = [...recursos]
+    .filter(item => {
+      const q = filtro.toLowerCase();
+      return item.nombre.toLowerCase().includes(q) ||
+        (item.dni && item.dni.toLowerCase().includes(q)) ||
+        item.tipoContratacion.toLowerCase().includes(q);
+    })
+    .sort((a, b) => {
+      if (!sortBy) return 0;
+      const va = a[sortBy] ?? '', vb = b[sortBy] ?? '';
+      const result = va.toString().localeCompare(vb.toString());
+      return reverseSortDirection ? result * -1 : result;
+    });
 
-    const handleGuardarConfiguracion = (datosActualizados) => {
-        setRecursos(prev => prev.map(r => r._id === datosActualizados._id ? datosActualizados : r));
-        if (recursoHumano?._id === datosActualizados._id) {
-            setRecursoHumano(datosActualizados);
-        }
-        cerrarModalConfig();
-    };
+  const paginated = filtered.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-    const handleSiguiente = () => {
-        if (recursoHumano) {
-            navigate("/cotizador/configuracion-final");
-        } else {
-             notifications.show({
-                title: 'Acción requerida',
-                message: 'Por favor, selecciona un recurso humano antes de continuar.',
-                color: 'yellow',
-            });
-        }
-    };
+  return (
+    <div className="step-grid step-grid--main-side">
+      {/* ─── Main ─── */}
+      <div className="step-panel">
+        <div className="step-header">
+          <div className="step-header-left">
+            <div className="step-header-icon step-header-icon--emerald">
+              <Users size={20} />
+            </div>
+            <div>
+              <h2 className="step-header-title">Gestión de Equipo</h2>
+              <p className="step-header-subtitle">Asigna el personal para la operación</p>
+            </div>
+          </div>
+          <Button size="xs" onClick={abrirModalCrear} leftSection={<Plus size={14} />}>
+            Añadir
+          </Button>
+        </div>
 
-    const setSorting = (field) => {
-        const reversed = field === sortBy ? !reverseSortDirection : false;
-        setReverseSortDirection(reversed);
-        setSortBy(field);
-    };
-
-    // 6. Lógica para filtrar y ordenar los datos antes de paginar
-    const datosFiltradosYOrdenados = [...recursos]
-        .filter((item) => {
-            const query = filtro.toLowerCase();
-            return (
-                item.nombre.toLowerCase().includes(query) ||
-                (item.dni && item.dni.toLowerCase().includes(query)) ||
-                item.tipoContratacion.toLowerCase().includes(query)
-            );
-        })
-        .sort((a, b) => {
-            if (!sortBy) return 0;
-            const valA = a[sortBy] ?? '';
-            const valB = b[sortBy] ?? '';
-            const result = valA.toString().localeCompare(valB.toString());
-            return reverseSortDirection ? result * -1 : result;
-        });
-
-    // 7. Lógica para obtener los datos de la página actual
-    const paginatedData = datosFiltradosYOrdenados.slice(
-        (activePage - 1) * itemsPerPage,
-        activePage * itemsPerPage
-    );
-
-    const rows = paginatedData.map((item) => (
-        <Table.Tr key={item._id} bg={item._id === recursoHumano?._id ? 'var(--mantine-color-cyan-light)' : undefined}>
-            <Table.Td>
-                <Text fw={500}>{item.nombre}</Text>
-                <Text fz="xs" c="dimmed">DNI: {item.dni || 'N/A'}</Text>
-            </Table.Td>
-            <Table.Td>
-                <Badge color={item.tipoContratacion === 'empleado' ? 'teal' : 'orange'} variant="light">
-                    {item.tipoContratacion}
-                </Badge>
-            </Table.Td>
-            <Table.Td>
-                <Text fw={500}>${(item.sueldoBasico || 0).toLocaleString('es-AR')}</Text>
-            </Table.Td>
-            <Table.Td>
-                {/* 8. Menú de acciones por cada fila */}
-                <Group gap="xs" justify="flex-end">
-                    <Button size="xs" variant={item._id === recursoHumano?._id ? 'light' : 'outline'} onClick={() => handleSeleccion(item)}>
-                        {item._id === recursoHumano?._id ? 'Activo' : 'Asignar'}
-                    </Button>
-                    <Menu shadow="md" width={180}>
-                        <Menu.Target>
-                            <ActionIcon variant="subtle" color="gray"><MoreVertical size={16} /></ActionIcon>
-                        </Menu.Target>
-                        <Menu.Dropdown>
-                            <Menu.Label>Acciones</Menu.Label>
-                            <Menu.Item leftSection={<Settings size={14} />} onClick={() => handleAbrirConfig(item)}>
-                                Configurar
-                            </Menu.Item>
-                            <Menu.Divider />
-                            <Menu.Item color="red" leftSection={<Trash2 size={14} />} onClick={() => handleEliminar(item)}>
-                                Eliminar
-                            </Menu.Item>
-                        </Menu.Dropdown>
-                    </Menu>
-                </Group>
-            </Table.Td>
-        </Table.Tr>
-    ));
-
-    return (
-        <Grid gutter="md">
-            <Grid.Col span={{ base: 12, md: 8 }}>
-                <Paper withBorder p="xl" radius="md" shadow="sm" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                    <Stack gap="xl" style={{ flexGrow: 1 }}>
-                        <Group justify="space-between">
-                            <Title order={2} c="var(--app-brand-primary)">Gestión de Equipo</Title>
-                            <Button onClick={abrirModalCrear} leftSection={<Plus size={16} />}>
-                                Añadir Personal
-                            </Button>
-                        </Group>
-
-                        <TextInput
-                            placeholder="Buscar por nombre, DNI o modalidad..."
-                            leftSection={<Search size={16} />}
-                            value={filtro}
-                            onChange={(event) => setFiltro(event.currentTarget.value)}
-                        />
-
-                        <Table.ScrollContainer minWidth={600} style={{ flexGrow: 1 }}>
-                            <Table highlightOnHover verticalSpacing="sm">
-                                <Table.Thead>
-                                    <Table.Tr>
-                                        <SortableTableHeader sorted={sortBy === 'nombre'} reversed={reverseSortDirection} onSort={() => setSorting('nombre')}>Colaborador</SortableTableHeader>
-                                        <SortableTableHeader sorted={sortBy === 'tipoContratacion'} reversed={reverseSortDirection} onSort={() => setSorting('tipoContratacion')}>Modalidad</SortableTableHeader>
-                                        <SortableTableHeader sorted={sortBy === 'sueldoBasico'} reversed={reverseSortDirection} onSort={() => setSorting('sueldoBasico')}>Costo Base</SortableTableHeader>
-                                        <Table.Th ta="right">Acciones</Table.Th>
-                                    </Table.Tr>
-                                </Table.Thead>
-                                <Table.Tbody>
-                                    {rows.length > 0 ? rows : (
-                                        <Table.Tr>
-                                            <Table.Td colSpan={4}>
-                                                <Center p="lg">
-                                                    <Alert icon={<AlertCircle size={16} />} color="gray" title="Sin resultados">
-                                                        No se encontraron colaboradores que coincidan con la búsqueda.
-                                                    </Alert>
-                                                </Center>
-                                            </Table.Td>
-                                        </Table.Tr>
-                                    )}
-                                </Table.Tbody>
-                            </Table>
-                        </Table.ScrollContainer>
-                        
-                        {/* 9. Componente de Paginación */}
-                        {Math.ceil(datosFiltradosYOrdenados.length / itemsPerPage) > 1 && (
-                             <Group justify="space-between" align="center" mt="md">
-                                <Text c="dimmed" size="sm">
-                                    Mostrando <b>{paginatedData.length}</b> de <b>{datosFiltradosYOrdenados.length}</b> colaboradores
-                                </Text>
-                                <Pagination
-                                    total={Math.ceil(datosFiltradosYOrdenados.length / itemsPerPage)}
-                                    value={activePage}
-                                    onChange={setPage}
-                                    color="cyan"
-                                    radius="xl"
-                                />
-                            </Group>
-                        )}
-
-                        <Group justify="space-between" mt="auto">
-                            <Button variant="default" onClick={() => navigate(-1)} leftSection={<ArrowLeft size={16} />}>
-                                Volver
-                            </Button>
-                            <Button onClick={handleSiguiente} disabled={!recursoHumano} rightSection={<ArrowRight size={16} />}>
-                                Siguiente: Resumen y Costos
-                            </Button>
-                        </Group>
-                    </Stack>
-                </Paper>
-            </Grid.Col>
-
-            <Grid.Col span={{ base: 12, md: 4 }}>
-                <ResumenPaso />
-            </Grid.Col>
-
-            <ModalCrearRecursoHumano
-                show={modalCrearAbierto}
-                onHide={cerrarModalCrear}
-                onCrear={handleRecursoCreado}
+        <div className="step-content">
+          <div className="step-search">
+            <Search size={16} className="step-search-icon" />
+            <input
+              placeholder="Buscar por nombre, DNI o modalidad..."
+              value={filtro}
+              onChange={(e) => { setFiltro(e.target.value); setPage(1); }}
             />
+          </div>
 
-            {recursoParaConfig && (
-                <ModalConfiguracionEmpleado
-                    show={modalConfigAbierto}
-                    onClose={cerrarModalConfig}
-                    recursoHumano={recursoParaConfig}
-                    onGuardarCambios={handleGuardarConfiguracion}
-                />
-            )}
-        </Grid>
-    );
+          <div className="step-table-wrap" style={{ overflow: 'auto' }}>
+            <table className="step-table">
+              <thead>
+                <tr>
+                  <th onClick={() => setSorting('nombre')} style={{ cursor: 'pointer' }}>Colaborador</th>
+                  <th onClick={() => setSorting('tipoContratacion')} style={{ cursor: 'pointer' }}>Modalidad</th>
+                  <th onClick={() => setSorting('sueldoBasico')} style={{ cursor: 'pointer' }}>Costo Base</th>
+                  <th style={{ textAlign: 'right' }}>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginated.length > 0 ? paginated.map(item => (
+                  <tr key={item._id} className={item._id === recursoHumano?._id ? 'selected' : ''}>
+                    <td>
+                      <div style={{ fontWeight: 600 }}>{item.nombre}</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--app-text-muted)' }}>DNI: {item.dni || 'N/A'}</div>
+                    </td>
+                    <td>
+                      <span className={`step-badge step-badge--${item.tipoContratacion}`}>{item.tipoContratacion}</span>
+                    </td>
+                    <td style={{ fontWeight: 600 }}>${(item.sueldoBasico || 0).toLocaleString('es-AR')}</td>
+                    <td>
+                      <Group gap="xs" justify="flex-end">
+                        <button
+                          className={`step-btn-use ${item._id === recursoHumano?._id ? 'active' : ''}`}
+                          onClick={() => setRecursoHumano(item)}
+                        >
+                          {item._id === recursoHumano?._id ? '✓ Activo' : 'Asignar'}
+                        </button>
+                        <Menu shadow="md" width={180}>
+                          <Menu.Target>
+                            <ActionIcon variant="subtle" color="gray" size="sm"><MoreVertical size={14} /></ActionIcon>
+                          </Menu.Target>
+                          <Menu.Dropdown>
+                            <Menu.Item leftSection={<Settings size={14} />} onClick={() => handleAbrirConfig(item)}>Configurar</Menu.Item>
+                            <Menu.Divider />
+                            <Menu.Item color="red" leftSection={<Trash2 size={14} />} onClick={() => handleEliminar(item)}>Eliminar</Menu.Item>
+                          </Menu.Dropdown>
+                        </Menu>
+                      </Group>
+                    </td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan={4}>
+                      <div className="step-empty">
+                        <div className="step-empty-icon"><AlertCircle size={24} /></div>
+                        <h4>Sin resultados</h4>
+                        <p>No se encontraron colaboradores.</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {totalPages > 1 && (
+            <Group justify="space-between" style={{ flexShrink: 0 }}>
+              <Text c="dimmed" size="xs"><b>{paginated.length}</b> de <b>{filtered.length}</b></Text>
+              <Pagination total={totalPages} value={activePage} onChange={setPage} color="cyan" radius="xl" size="sm" />
+            </Group>
+          )}
+        </div>
+
+        <div className="step-nav">
+          <Button variant="default" onClick={() => navigate(-1)} leftSection={<ArrowLeft size={16} />}>Volver</Button>
+          <Button onClick={handleSiguiente} disabled={!recursoHumano} rightSection={<ArrowRight size={16} />} size="md">
+            Siguiente: Resumen y Costos
+          </Button>
+        </div>
+      </div>
+
+      {/* ─── Sidebar ─── */}
+      <div><ResumenPaso /></div>
+
+      <ModalCrearRecursoHumano show={modalCrearAbierto} onHide={cerrarModalCrear} onCrear={handleRecursoCreado} />
+      {recursoParaConfig && (
+        <ModalConfiguracionEmpleado show={modalConfigAbierto} onClose={cerrarModalConfig} recursoHumano={recursoParaConfig} onGuardarCambios={handleGuardarConfiguracion} />
+      )}
+    </div>
+  );
 };
 
 export default RecursoHumanoPaso;

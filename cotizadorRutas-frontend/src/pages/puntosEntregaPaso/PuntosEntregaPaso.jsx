@@ -6,9 +6,10 @@ import ResumenRuta from "../../components/ResumenRuta";
 import { useNavigate } from "react-router-dom";
 import clienteAxios from "../../api/clienteAxios";
 import { useCotizacion } from "../../context/Cotizacion";
-import { Grid, Stack, Group, Button, Text, Center, Paper, Select, Title, Checkbox } from "@mantine/core";
-import { Navigation, MapPinOff } from "lucide-react";
+import { Button, Select, Checkbox } from "@mantine/core";
+import { Navigation, MapPinOff, MapPin, Package, Eye } from "lucide-react";
 import { notifications } from '@mantine/notifications';
+import '../../styles/CotizadorSteps.css';
 
 export default function PuntosEntregaPaso() {
   const navigate = useNavigate();
@@ -31,9 +32,8 @@ export default function PuntosEntregaPaso() {
   );
 
   const [isSaving, setIsSaving] = useState(false);
-  const [idaVuelta, setIdaVuelta] = useState(false); // 👈 nuevo
+  const [idaVuelta, setIdaVuelta] = useState(false);
 
-  // Lista derivada con "regreso al origen" cuando idaVuelta está activo y hay ≥2 puntos
   const puntosConRegreso = useMemo(() => {
     if (idaVuelta && puntos.length >= 2) {
       const regreso = { ...puntos[0], isReturn: true };
@@ -42,14 +42,12 @@ export default function PuntosEntregaPaso() {
     return puntos;
   }, [idaVuelta, puntos]);
 
-  // fuerza remount del mapa cuando cambia el orden/contenido (incluye regreso)
   const mapaKey = useMemo(() => {
     return (puntosConRegreso || [])
       .map((p, i) => String(p.id ?? p._id ?? p.nombre ?? (p.isReturn ? "return" : i)))
       .join("|");
   }, [puntosConRegreso]);
 
-  // --- lógica existente ---
   const limpiarRutaGuardada = () => {
     setDatosRuta(null);
     setDirectionsResult(null);
@@ -61,16 +59,14 @@ export default function PuntosEntregaPaso() {
     limpiarRutaGuardada();
   };
   const handleEliminarPunto = (index) => {
-    // Si la lista viene con regreso, evitar que puedan borrar la fila de regreso desde acá
-    const base = puntos; // los que persistimos
+    const base = puntos;
     const usandoRegreso = idaVuelta && base.length >= 2;
-    if (usandoRegreso && index === base.length) return; // última fila es regreso, no borrar
+    if (usandoRegreso && index === base.length) return;
     const nuevosPuntos = base.filter((_, i) => i !== index);
     setPuntosEntrega({ ...puntosEntrega, puntos: nuevosPuntos });
     limpiarRutaGuardada();
   };
   const handleReordenarPuntos = (nuevosPuntos) => {
-    // nuevosPuntos viene desde la tabla; esa tabla no permitirá arrastrar la fila regreso
     setPuntosEntrega({ ...puntosEntrega, puntos: nuevosPuntos });
     limpiarRutaGuardada();
   };
@@ -83,7 +79,7 @@ export default function PuntosEntregaPaso() {
     setDetallesCarga({ ...detallesCarga, tipo: value });
   };
   const handleSiguiente = async () => {
-    const base = puntos; // persistimos solo los puntos reales (sin regreso)
+    const base = puntos;
     if (base.length < 2) {
       notifications.show({ title: 'Ruta incompleta', message: 'Necesitas al menos 2 puntos para definir una ruta.', color: 'orange' });
       return;
@@ -109,102 +105,119 @@ export default function PuntosEntregaPaso() {
   };
 
   return (
-    <Grid gutter="md">
-      <Grid.Col span={{ base: 12, lg: 5 }}>
-        <Paper withBorder p="xl" radius="md" shadow="sm" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          {/* superior */}
-          <div style={{ flexShrink: 0 }}>
-            <Title order={2} c="var(--app-brand-primary)">Panel de Ruta</Title>
-            <Stack gap="lg" mt="lg">
-              <BuscadorDireccion onAgregar={agregarPunto} />
-              {/* Checkbox compacto; solo con 2+ puntos */}
-              {puntos.length >= 2 && (
-                <Checkbox
-                  size="sm"
-                  label="Ida y vuelta (agregar regreso al origen)"
-                  checked={idaVuelta}
-                  onChange={(e) => { setIdaVuelta(e.currentTarget.checked); limpiarRutaGuardada(); }}
-                  style={{ alignSelf: 'flex-start', marginTop: -6, marginBottom: -6 }} // compacta el alto
-                />
-              )}
-            </Stack>
+    <div className="step-grid step-grid--two-col">
+      {/* ─── Left Panel ─── */}
+      <div className="step-panel">
+        {/* Header */}
+        <div className="step-header">
+          <div className="step-header-left">
+            <div className="step-header-icon step-header-icon--blue">
+              <MapPin size={20} />
+            </div>
+            <div>
+              <h2 className="step-header-title">Panel de Ruta</h2>
+              <p className="step-header-subtitle">Define los puntos de tu operación</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="step-content">
+          <BuscadorDireccion onAgregar={agregarPunto} />
+
+          {puntos.length >= 2 && (
+            <Checkbox
+              size="sm"
+              label="Ida y vuelta (agregar regreso al origen)"
+              checked={idaVuelta}
+              onChange={(e) => { setIdaVuelta(e.currentTarget.checked); limpiarRutaGuardada(); }}
+              color="cyan"
+              style={{ alignSelf: 'flex-start' }}
+            />
+          )}
+
+          <div className="step-section-label">
+            <span>Hoja de Ruta</span>
           </div>
 
-          {/* media */}
-          <Stack gap="xs" mt="xl" style={{ flex: 1, minHeight: 0 }}>
-            <Text fz="sm" fw={500} c="dimmed">Hoja de Ruta</Text>
-            <Paper withBorder radius="md" p="sm" style={{ height: '100%' }}>
-              <TablaPuntos
-                puntos={puntosConRegreso}                   // 👈 usamos la lista derivada
-                onReordenar={handleReordenarPuntos}
-                onEliminar={handleEliminarPunto}
+          <div style={{ flex: 1, minHeight: 0, overflow: 'auto', borderRadius: 12, border: '1px solid var(--app-border)' }}>
+            <TablaPuntos
+              puntos={puntosConRegreso}
+              onReordenar={handleReordenarPuntos}
+              onEliminar={handleEliminarPunto}
+            />
+          </div>
+
+          <div className="step-section-label">
+            <Package size={12} />
+            <span>Inteligencia de Carga</span>
+          </div>
+
+          <Select
+            size="sm"
+            label="Tipo de Carga"
+            description="Afecta los cálculos de costos."
+            value={detallesCarga.tipo}
+            onChange={handleCargaChange}
+            data={[
+              { value: 'general', label: 'Carga General' },
+              { value: 'refrigerada', label: 'Carga Refrigerada' },
+              { value: 'peligrosa', label: 'Carga Peligrosa' }
+            ]}
+          />
+        </div>
+
+        {/* Nav */}
+        <div className="step-nav">
+          <div />
+          <Button
+            size="md"
+            onClick={handleSiguiente}
+            disabled={!datosRuta || isSaving || puntos.length < 2}
+            loading={isSaving}
+            rightSection={<Navigation size={18} />}
+          >
+            Siguiente: Frecuencia
+          </Button>
+        </div>
+      </div>
+
+      {/* ─── Right Panel ─── */}
+      <div className="step-panel">
+        <div className="step-header">
+          <div className="step-header-left">
+            <div className="step-header-icon step-header-icon--cyan">
+              <Eye size={20} />
+            </div>
+            <div>
+              <h2 className="step-header-title">Visualizador de Misión</h2>
+              <p className="step-header-subtitle">Vista previa del recorrido</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="step-content">
+          <div style={{ flex: 1, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--app-border)', minHeight: 0 }}>
+            {puntosConRegreso.length > 0 ? (
+              <MapaRuta
+                key={mapaKey}
+                puntos={puntosConRegreso}
+                initialDirections={directionsResult}
+                onRutaCalculada={handleRutaCalculada}
               />
-            </Paper>
-          </Stack>
-
-          {/* inferior */}
-          <div style={{ flexShrink: 0 }}>
-            <Paper withBorder p="md" mt="lg" radius="md">
-              <Stack>
-                <Text fw={500} c="dimmed">Inteligencia de Carga</Text>
-                <Select
-                  label="Tipo de Carga"
-                  description="Afecta los cálculos de costos."
-                  value={detallesCarga.tipo}
-                  onChange={handleCargaChange}
-                  data={[
-                    { value: 'general', label: 'Carga General' },
-                    { value: 'refrigerada', label: 'Carga Refrigerada' },
-                    { value: 'peligrosa', label: 'Carga Peligrosa' }
-                  ]}
-                />
-              </Stack>
-            </Paper>
+            ) : (
+              <div className="step-empty" style={{ height: '100%', background: 'var(--app-surface-hover)' }}>
+                <div className="step-empty-icon">
+                  <MapPinOff size={28} />
+                </div>
+                <h4>Sin puntos definidos</h4>
+                <p>Agrega puntos en el Panel de Ruta para visualizar el mapa.</p>
+              </div>
+            )}
           </div>
-        </Paper>
-      </Grid.Col>
-
-      {/* derecha */}
-      <Grid.Col span={{ base: 12, lg: 7 }}>
-        <Paper withBorder p="xl" radius="md" shadow="sm" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <Stack gap="xl" style={{ flexGrow: 1 }}>
-            <Title order={2} c="var(--app-brand-primary)">Visualizador de Misión</Title>
-            <Stack>
-              <Paper withBorder radius="md" p={4}>
-                {puntosConRegreso.length > 0 ? (        // 👈 usa la lista derivada
-                  <MapaRuta
-                    key={mapaKey}
-                    puntos={puntosConRegreso}
-                    initialDirections={directionsResult}
-                    onRutaCalculada={handleRutaCalculada}
-                  />
-                ) : (
-                  <Center h={400} style={{ borderRadius: 'var(--mantine-radius-md)', background: 'var(--app-surface-hover)' }}>
-                    <Stack align="center" gap="xs">
-                      <MapPinOff size={48} color="lightgray" strokeWidth={1.5} />
-                      <Text c="dimmed">Agrega puntos en el Panel de Ruta</Text>
-                      <Text c="dimmed" size="xs">para visualizar el mapa.</Text>
-                    </Stack>
-                  </Center>
-                )}
-              </Paper>
-              {datosRuta && <ResumenRuta distanciaKm={datosRuta.distanciaKm} duracionMin={datosRuta.duracionMin} />}
-            </Stack>
-
-            <Group justify="flex-end" mt="auto">
-              <Button
-                size="md"
-                onClick={handleSiguiente}
-                disabled={!datosRuta || isSaving || puntos.length < 2}
-                loading={isSaving}
-                rightSection={<Navigation size={18} />}
-              >
-                Siguiente: Frecuencia
-              </Button>
-            </Group>
-          </Stack>
-        </Paper>
-      </Grid.Col>
-    </Grid>
+          {datosRuta && <ResumenRuta distanciaKm={datosRuta.distanciaKm} duracionMin={datosRuta.duracionMin} />}
+        </div>
+      </div>
+    </div>
   );
 }

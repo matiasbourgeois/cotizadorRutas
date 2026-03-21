@@ -8,6 +8,7 @@ import { MapPin, Calendar, Truck, User, AlertCircle, Clock, Route, ChevronDown }
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import '../styles/ResumenPaso.css';
+import '../styles/CotizadorSteps.css';
 
 // ─────────────────────────── Subcomponentes ───────────────────────────
 const Kpi = ({ icon: Icon, label, value }) => (
