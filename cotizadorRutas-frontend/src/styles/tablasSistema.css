@@ -2,17 +2,17 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 0.95rem;
   border-radius: 12px;
-  box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+  box-shadow: var(--app-shadow-sm);
 }
 
 .encabezado-moderno {
-  background-color: #f9fafb;
-  color: #4b5563;
+  background-color: var(--app-table-header-bg);
+  color: var(--app-table-header-text);
   text-transform: capitalize;
   font-weight: 600;
   font-size: 0.82rem;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--app-table-border);
 }
 
 .encabezado-moderno th {
@@ -20,10 +20,10 @@
 }
 
 .tabla-moderna-fila {
-  background-color: white;
+  background-color: var(--app-table-row-bg);
   transition: background 0.2s ease-in-out;
 }
 
 .tabla-moderna-fila:hover {
-  background-color: #f3f4f6;
+  background-color: var(--app-table-row-hover);
 }

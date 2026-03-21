@@ -10,18 +10,17 @@ import vehiculosRoutes from "./routes/vehiculos.js";
 import recursosHumanosRoutes from "./routes/recursosHumanos.js";  
 import frecuenciasRutaRoutes from "./routes/frecuenciasRuta.js";
 import authRoutes from "./routes/authRoutes.js";
+import configuracionDefaultsRoutes from "./routes/configuracionDefaults.js";
 
 dotenv.config();
 conectarDB();
 
 const app = express();
 
-// --- CONFIGURACIÓN DE CORS ---
-// Lista de dominios permitidos
 const whitelist = [
   'https://cotizadorlogistico.site',
   'https://www.cotizadorlogistico.site',
-  'http://localhost:5174' // <-- AÑADIMOS ESTA LÍNEA
+  'http://localhost:5174'
 ];
 
 
@@ -37,9 +36,7 @@ const corsOptions = {
   }
 };
 
-// Usamos cors con las opciones configuradas
 app.use(cors(corsOptions));
-// ----------------------------
 
 app.use(express.json());
 
@@ -53,9 +50,10 @@ app.use("/api/presupuestos", presupuestoRoutes);
 app.use("/api/vehiculos", vehiculosRoutes); 
 app.use("/api/recursos-humanos", recursosHumanosRoutes);
 app.use("/api/frecuencias-ruta", frecuenciasRutaRoutes);
+app.use("/api/configuracion-defaults", configuracionDefaultsRoutes);
 
 app.get("/", (req, res) => {
-  res.send("API Cotizador Rutas funcionando ✅");
+  res.send("API Cotizador Rutas funcionando");
 });
 
 const PORT = process.env.PORT || 5010;

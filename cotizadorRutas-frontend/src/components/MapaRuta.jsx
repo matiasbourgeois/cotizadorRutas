@@ -6,17 +6,18 @@ import {
     DirectionsRenderer,
     Marker,
 } from "@react-google-maps/api";
+import { useMantineColorScheme } from '@mantine/core';
 
 const libraries = ["places", "directions"];
 
 const containerStyle = {
     width: "100%",
-    height: "400px",
+    height: "min(400px, 50vh)",
     borderRadius: "12px",
     boxShadow: "0 2px 15px rgba(0,0,0,0.1)",
 };
 
-const estiloMapaGrisElegante = [
+const estiloMapaLight = [
     { elementType: "geometry", stylers: [{ color: "#eeeeee" }] },
     { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
     { elementType: "labels.text.fill", stylers: [{ color: "#444444" }] },
@@ -29,12 +30,31 @@ const estiloMapaGrisElegante = [
     { featureType: "water", stylers: [{ color: "#d0d0d0" }] },
 ];
 
+const estiloMapaDark = [
+    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+    { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+    { featureType: "poi", stylers: [{ visibility: "off" }] },
+    { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
+    { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }] },
+    { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
+    { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#746855" }] },
+    { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2835" }] },
+    { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#f3d19c" }] },
+    { featureType: "transit", stylers: [{ visibility: "off" }] },
+    { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
+    { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
+];
+
 export default function MapaRuta({ puntos, initialDirections, onRutaCalculada }) {
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_Maps_API_KEY,
         libraries,
     });
 
+    const { colorScheme } = useMantineColorScheme();
+    const mapStyles = colorScheme === 'dark' ? estiloMapaDark : estiloMapaLight;
     const [directions, setDirections] = useState(initialDirections || null);
     const mapRef = useRef(null);
 
@@ -102,7 +122,7 @@ export default function MapaRuta({ puntos, initialDirections, onRutaCalculada })
             center={center}
             zoom={12}
             onLoad={(map) => (mapRef.current = map)}
-            options={{ styles: estiloMapaGrisElegante }}
+            options={{ styles: mapStyles }}
         >
             {puntos.map((p, i) => (
                 <Marker

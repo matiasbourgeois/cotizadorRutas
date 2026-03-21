@@ -42,7 +42,7 @@ const TablaPuntos = ({ puntos, onReordenar, onEliminar }) => {
       <Table.Tr
         ref={provided?.innerRef}
         {...(provided ? provided.draggableProps : {})}
-        bg={isDragging ? "cyan.0" : esRegreso ? "blue.0" : undefined}
+        bg={isDragging ? "var(--mantine-color-cyan-light)" : esRegreso ? "var(--mantine-color-blue-light)" : undefined}
         style={{
           ...(provided?.draggableProps?.style || {}),
           height: ROW_HEIGHT,

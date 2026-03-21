@@ -1,9 +1,13 @@
 import RecursoHumano from "../models/RecursoHumano.js";
+import { obtenerDefaultsRRHH } from './configuracionDefaultsController.js';
 
-// Crear nuevo recurso humano
+// Crear nuevo recurso humano — usa defaults personalizados del usuario
 export const crearRecursoHumano = async (req, res) => {
   try {
-    const nuevoRecurso = new RecursoHumano({ ...req.body, usuario: req.usuario._id });
+    const defaults = await obtenerDefaultsRRHH(req.usuario._id);
+    // Lo que manda el user sobreescribe los defaults
+    const recursoData = { ...defaults, ...req.body, usuario: req.usuario._id };
+    const nuevoRecurso = new RecursoHumano(recursoData);
     await nuevoRecurso.save();
     res.status(201).json(nuevoRecurso);
   } catch (error) {
@@ -11,7 +15,6 @@ export const crearRecursoHumano = async (req, res) => {
     res.status(500).json({ error: "Error al crear el recurso humano" });
   }
 };
-
 
 // Obtener todos los recursos humanos
 export const obtenerRecursosHumanos = async (req, res) => {

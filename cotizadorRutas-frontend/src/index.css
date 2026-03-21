@@ -1,8 +1,232 @@
-/* ruta: src/index.css */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
+/* =============================================
+   DESIGN TOKENS — Cotizador Logístico
+   Sistema de variables CSS para light/dark mode
+   ============================================= */
+
+:root, [data-mantine-color-scheme="light"] {
+  /* Surfaces */
+  --app-bg: #f8f9fa;
+  --app-surface: #ffffff;
+  --app-surface-hover: #f3f4f6;
+  --app-surface-accent: #fff9db;
+  --app-surface-elevated: #ffffff;
+
+  /* Text */
+  --app-text: #212529;
+  --app-text-secondary: #495057;
+  --app-text-muted: #868e96;
+  --app-text-accent: #8b6f00;
+
+  /* Borders */
+  --app-border: #dee2e6;
+  --app-border-light: #e9ecef;
+  --app-border-focus: var(--mantine-color-cyan-5, #11B7CD);
+
+  /* Brand */
+  --app-brand-primary: #3A56A5;
+  --app-brand-deep: #081D83;
+  --app-brand-cyan: #11B7CD;
+  --app-brand-cyan-light: #e3fafc;
+  --app-brand-cyan-text: #15aabf;
+
+  /* Buttons */
+  --app-btn-edit-bg: #fff9db;
+  --app-btn-edit-text: #a67c00;
+  --app-btn-success-bg: #e6fffa;
+  --app-btn-success-text: #2e7d32;
+  --app-btn-danger-bg: #ffecec;
+  --app-btn-danger-text: #d32f2f;
+  --app-btn-confirm-bg: #e0f7fa;
+  --app-btn-confirm-text: #006064;
+  --app-btn-warning-bg: #fff8dc;
+  --app-btn-warning-text: #8b6f00;
+  --app-btn-neutral-bg: #f0f0f0;
+  --app-btn-neutral-text: #6b7280;
+  --app-btn-secondary-bg: #f8f9fa;
+  --app-btn-secondary-text: #6c757d;
+  --app-btn-secondary-hover: #e2e6ea;
+  --app-btn-pill-bg: #e0f7fa;
+  --app-btn-pill-text: #00796b;
+  --app-btn-pill-hover-bg: #b2ebf2;
+
+  /* Tables */
+  --app-table-header-bg: #f9fafb;
+  --app-table-header-text: #4b5563;
+  --app-table-border: #e5e7eb;
+  --app-table-row-bg: #ffffff;
+  --app-table-row-hover: #f3f4f6;
+
+  /* Stepper */
+  --app-step-future-bg: #f1f3f5;
+  --app-step-future-text: #868e96;
+  --app-step-completed-bg: #e3fafc;
+  --app-step-completed-text: #15aabf;
+  --app-step-hover-bg: #f8f9fa;
+
+  /* Forms */
+  --app-input-border: #dee2e6;
+  --app-input-focus-border: var(--mantine-color-cyan-5, #11B7CD);
+  --app-input-focus-ring: 0 0 0 0.2rem rgba(17, 183, 205, 0.25);
+
+  /* Shadows */
+  --app-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --app-shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.04);
+  --app-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --app-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.07);
+  --app-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Misc */
+  --app-pdf-icon: #d32f2f;
+  --app-pdf-icon-hover: #b71c1c;
+  --app-modal-header-bg: #fff9db;
+  --app-modal-header-text: #8b6f00;
+  --app-titulo-warning: #ffc107;
+  --app-pulse-color: rgba(22, 163, 224, 0.4);
+}
+
+/* =============================================
+   DARK MODE
+   ============================================= */
+[data-mantine-color-scheme="dark"] {
+  --app-bg: #1a1b1e;
+  --app-surface: #25262b;
+  --app-surface-hover: #2c2e33;
+  --app-surface-accent: #3d3200;
+  --app-surface-elevated: #2c2e33;
+
+  --app-text: #c1c2c5;
+  --app-text-secondary: #909296;
+  --app-text-muted: #5c5f66;
+  --app-text-accent: #ffd43b;
+
+  --app-border: #373a40;
+  --app-border-light: #2c2e33;
+  --app-border-focus: var(--mantine-color-cyan-6, #0ea5b9);
+
+  --app-brand-primary: #7F99CC;
+  --app-brand-deep: #A2B5DA;
+  --app-brand-cyan: #1AC2D9;
+  --app-brand-cyan-light: #1b2d3d;
+  --app-brand-cyan-text: #66d9e8;
+
+  --app-btn-edit-bg: #3d3200;
+  --app-btn-edit-text: #ffd43b;
+  --app-btn-success-bg: #1b3d1b;
+  --app-btn-success-text: #69db7c;
+  --app-btn-danger-bg: #3d1b1b;
+  --app-btn-danger-text: #ff8787;
+  --app-btn-confirm-bg: #1b2d3d;
+  --app-btn-confirm-text: #66d9e8;
+  --app-btn-warning-bg: #3d3200;
+  --app-btn-warning-text: #ffd43b;
+  --app-btn-neutral-bg: #2c2e33;
+  --app-btn-neutral-text: #909296;
+  --app-btn-secondary-bg: #2c2e33;
+  --app-btn-secondary-text: #909296;
+  --app-btn-secondary-hover: #373a40;
+  --app-btn-pill-bg: #1b2d3d;
+  --app-btn-pill-text: #66d9e8;
+  --app-btn-pill-hover-bg: #253d4d;
+
+  --app-table-header-bg: #2c2e33;
+  --app-table-header-text: #c1c2c5;
+  --app-table-border: #373a40;
+  --app-table-row-bg: #25262b;
+  --app-table-row-hover: #2c2e33;
+
+  --app-step-future-bg: #2c2e33;
+  --app-step-future-text: #5c5f66;
+  --app-step-completed-bg: #1b2d3d;
+  --app-step-completed-text: #66d9e8;
+  --app-step-hover-bg: #2c2e33;
+
+  --app-input-border: #373a40;
+  --app-input-focus-border: var(--mantine-color-cyan-6, #0ea5b9);
+  --app-input-focus-ring: 0 0 0 0.2rem rgba(17, 183, 205, 0.35);
+
+  --app-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.15);
+  --app-shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.2);
+  --app-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --app-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4);
+  --app-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  --app-pdf-icon: #ff8787;
+  --app-pdf-icon-hover: #ffa8a8;
+  --app-modal-header-bg: #3d3200;
+  --app-modal-header-text: #ffd43b;
+  --app-titulo-warning: #ffd43b;
+  --app-pulse-color: rgba(22, 163, 224, 0.5);
+}
+
+/* =============================================
+   GLOBAL STYLES
+   ============================================= */
 body {
   margin: 0;
   font-family: 'Montserrat', sans-serif;
-  background-color: #f1f3f5; /* Un gris más suave de la paleta de Mantine */
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE 720p — Monitores ≤18-19"
+   ═══════════════════════════════════════════════ */
+
+/* Pantallas angostas (1280px) */
+@media (max-width: 1400px) {
+  .mantine-AppShell-main {
+    --mantine-spacing-md: 12px;
+  }
+  .mantine-Container-root {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* Pantallas bajas (720px height) */
+@media (max-height: 800px) {
+  .mantine-Title-root {
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+  }
+  .mantine-Paper-root {
+    padding: clamp(8px, 1.5vh, 16px);
+  }
+  .mantine-Stack-root {
+    gap: 8px;
+  }
+  .mantine-NumberInput-label,
+  .mantine-TextInput-label,
+  .mantine-Select-label,
+  .mantine-Textarea-label {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+  .mantine-NumberInput-input,
+  .mantine-TextInput-input,
+  .mantine-Select-input,
+  .mantine-Textarea-input {
+    min-height: 32px;
+    font-size: 13px;
+  }
+  .mantine-Button-root {
+    min-height: 32px;
+    font-size: 13px;
+  }
+  .mantine-Alert-root {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .mantine-Tabs-tab {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  .mantine-Modal-body {
+    padding: 12px;
+  }
+  .mantine-Modal-header {
+    padding: 8px 12px;
+  }
 }

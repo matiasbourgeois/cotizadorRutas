@@ -1,16 +1,10 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; // Lo crearemos en el siguiente paso
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import clienteAxios from '../../api/clienteAxios';
 import {
-    Container,
-    Title,
-    Paper,
-    TextInput,
-    PasswordInput,
-    Button,
-    Stack,
+    Container, Title, Paper, TextInput, PasswordInput, Button, Stack, Text,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { AtSign, Lock } from 'lucide-react';
@@ -19,41 +13,39 @@ const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [noVerificado, setNoVerificado] = useState(false);
+    const [reenviando, setReenviando] = useState(false);
 
     const navigate = useNavigate();
-    const { setAuth } = useAuth(); // Función que guardará los datos del usuario
+    const { setAuth } = useAuth();
 
-    // Dentro de LoginPage.jsx
     const handleSubmit = async (e) => {
         e.preventDefault();
         if ([email, password].includes('')) {
             notifications.show({
                 title: 'Campos vacíos',
-                message: 'Por favor, completa todos los campos.',
+                message: 'Por favor, completá todos los campos.',
                 color: 'red',
             });
             return;
         }
 
         setLoading(true);
+        setNoVerificado(false);
         try {
-            // Usamos nuestro cliente de Axios para llamar al backend
             const { data } = await clienteAxios.post('/auth/login', { email, password });
-
-            // Guardamos el token y los datos del usuario en el Local Storage
             localStorage.setItem('token_cotizador', data.token);
             localStorage.setItem('authData', JSON.stringify(data));
-
-            // Actualizamos el estado global de autenticación
             setAuth(data);
-
-            // Redirigimos al cotizador
             navigate('/');
-
         } catch (error) {
+            const data = error.response?.data;
+            if (data?.noVerificado) {
+                setNoVerificado(true);
+            }
             notifications.show({
                 title: 'Error de autenticación',
-                message: error.response?.data?.msg || 'No se pudo iniciar sesión.',
+                message: data?.msg || 'No se pudo iniciar sesión.',
                 color: 'red',
             });
         } finally {
@@ -61,10 +53,27 @@ const LoginPage = () => {
         }
     };
 
+    const handleReenviarVerificacion = async () => {
+        setReenviando(true);
+        try {
+            const { data } = await clienteAxios.post('/auth/reenviar-verificacion', { email });
+            notifications.show({ title: 'Email enviado', message: data.msg, color: 'green' });
+            setNoVerificado(false);
+        } catch (error) {
+            notifications.show({
+                title: 'Error',
+                message: error.response?.data?.msg || 'No se pudo reenviar el email.',
+                color: 'red',
+            });
+        } finally {
+            setReenviando(false);
+        }
+    };
+
     return (
         <Container size={420} my={40}>
-            <Title ta="center" c="deep-blue.7">Cotizador Logístico</Title> 
-            <Title ta="center" c="deep-blue.7">
+            <Title ta="center" c="var(--app-brand-primary)">Cotizador Logístico</Title>
+            <Title ta="center" c="var(--app-brand-primary)">
                 Iniciar Sesión
             </Title>
 
@@ -89,9 +98,28 @@ const LoginPage = () => {
                             leftSection={<Lock size={16} />}
                         />
 
+                        {noVerificado && (
+                            <Button
+                                variant="light"
+                                color="yellow"
+                                fullWidth
+                                loading={reenviando}
+                                onClick={handleReenviarVerificacion}
+                            >
+                                Reenviar email de verificación
+                            </Button>
+                        )}
+
                         <Button fullWidth mt="xl" type="submit" loading={loading}>
                             Ingresar
                         </Button>
+
+                        <Text ta="center" mt="md" size="sm">
+                            ¿No tenés cuenta?{' '}
+                            <Text component={Link} to="/registro" c="blue" inherit>
+                                Registrate
+                            </Text>
+                        </Text>
                     </Stack>
                 </form>
             </Paper>

@@ -16,12 +16,15 @@ export default function calcularResumenCostos({
   duracionMin,
   frecuencia,
   configuracion,
-  detallesCarga
+  detallesCarga,
+  feriadosPorMes = 0
 }) {
   // 1. Calcular viajes mensuales
   let cantidadViajesMensuales = 0;
   if (frecuencia?.tipo === 'mensual') {
-    cantidadViajesMensuales = (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * SEMANAS_POR_MES;
+    const diasBase = (frecuencia.diasSeleccionados?.length || 0) * SEMANAS_POR_MES;
+    const diasEfectivos = Math.max(diasBase - feriadosPorMes, 0);
+    cantidadViajesMensuales = diasEfectivos * (frecuencia.viajesPorDia || 1);
   } else if (frecuencia?.tipo === 'esporadico') {
     cantidadViajesMensuales = frecuencia.vueltasTotales || 1;
   }

@@ -1,13 +1,12 @@
 .titulo-seccion {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: #495057; /* gris moderno */
-    letter-spacing: 0.5px;
-    margin-bottom: 1.5rem; /* 👈 espaciado debajo del título */
-  }
-  
-  .titulo-seccion .text-warning {
-    color: #ffc107; /* amarillo pastel */
-  }
-  
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--app-text-secondary);
+  letter-spacing: 0.5px;
+  margin-bottom: 1.5rem;
+}
+
+.titulo-seccion .text-warning {
+  color: var(--app-titulo-warning);
+}

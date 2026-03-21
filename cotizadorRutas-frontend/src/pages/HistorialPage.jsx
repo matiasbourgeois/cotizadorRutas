@@ -110,7 +110,7 @@ const HistorialPage = () => {
   return (
     <Paper withBorder p="xl" radius="md" shadow="sm">
       <Group justify="space-between" mb="xl">
-        <Title order={2} c="deep-blue.7">Historial de Cotizaciones</Title>
+        <Title order={2} c="var(--app-brand-primary)">Historial de Cotizaciones</Title>
         <Button onClick={() => navigate('/')} leftSection={<Plus size={16} />}>Crear Nueva Cotización</Button>
       </Group>
       <ScrollArea>
@@ -129,7 +129,7 @@ const HistorialPage = () => {
             {rows.length > 0 ? rows : (
               <Table.Tr>
                 <Table.Td colSpan={5}>
-                  <Center my="xl" p="lg" bg="gray.0" style={{ borderRadius: 'var(--mantine-radius-md)' }}>
+                  <Center my="xl" p="lg" style={{ borderRadius: 'var(--mantine-radius-md)', background: 'var(--app-surface-hover)' }}>
                     <Stack align="center" gap="sm">
                       <FileX size={48} color="lightgray" />
                       <Title order={4} c="dimmed" fw={500}>Sin Cotizaciones</Title>

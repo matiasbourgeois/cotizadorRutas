@@ -109,11 +109,11 @@ const ConfiguracionPresupuestoPaso = () => {
     return (
         <Grid gutter="md">
             <Grid.Col span={{ base: 12, md: 8 }}>
-                <Paper withBorder p="xl" radius="md" shadow="sm">
-                    <Stack gap="xl">
-                        <Title order={2} c="deep-blue.7">Ajustes Finales del Presupuesto</Title>
+                <Paper withBorder p="lg" radius="md" shadow="sm">
+                    <Stack gap="md">
+                        <Title order={3} c="var(--app-brand-primary)">Ajustes Finales del Presupuesto</Title>
 
-                        <Stack gap="lg" mt="md">
+                        <Stack gap="sm">
                             <Text fw={500}>Porcentaje de Ganancia: {form.values.porcentajeGanancia}%</Text>
                                <Slider
                                 color="cyan"
@@ -122,7 +122,7 @@ const ConfiguracionPresupuestoPaso = () => {
                                 disabled={isFormDisabled}
                             />
 
-                            <Text fw={500} mt="md">Costos Administrativos: {form.values.costoAdministrativo}%</Text>
+                            <Text fw={500} mt="xs">Costos Administrativos: {form.values.costoAdministrativo}%</Text>
                             <Slider
                                 color="gray"
                                 marks={[{ value: 5 }, { value: 10 }, { value: 15 }]}
@@ -131,7 +131,7 @@ const ConfiguracionPresupuestoPaso = () => {
                             />
                         </Stack>
 
-                        <Grid mt="lg">
+                        <Grid mt="xs">
                             <Grid.Col span={{ base: 12, sm: 6 }}>
                                 <NumberInput
                                     label="Costos Adicionales de Ruta"
@@ -163,12 +163,12 @@ const ConfiguracionPresupuestoPaso = () => {
                         <Textarea
                             label="Términos y Próximos Pasos"
                             autosize
-                            minRows={4}
+                            minRows={3}
                             {...form.getInputProps('terminos')}
                             disabled={isFormDisabled}
                         />
                         
-                        <Group justify="space-between" mt="xl">
+                        <Group justify="space-between" mt="md">
                             <Button variant="default" onClick={() => navigate(-1)} leftSection={<ArrowLeft size={16} />}>
                                 Volver
                             </Button>

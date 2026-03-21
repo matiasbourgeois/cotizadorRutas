@@ -19,18 +19,18 @@ const SelectionCard = ({ icon: Icon, label, description, selected, ...props }) =
             {...props}
             style={{
                 flex: 1,
-                padding: '20px',
-                border: `2px solid ${selected ? theme.colors.cyan[6] : theme.colors.gray[3]}`,
+                padding: '14px',
+                border: `2px solid ${selected ? theme.colors.cyan[6] : 'var(--app-border)'}`,
                 borderRadius: theme.radius.md,
-                backgroundColor: selected ? theme.colors.cyan[0] : 'transparent',
+                backgroundColor: selected ? 'var(--mantine-color-cyan-light)' : 'transparent',
                 textAlign: 'center',
                 transition: 'all 0.2s ease',
                 transform: selected ? 'translateY(-2px)' : 'none',
                 boxShadow: selected ? theme.shadows.sm : 'none'
             }}
         >
-            <Icon size={32} color={selected ? theme.colors.cyan[7] : theme.colors.gray[6]} style={{ marginBottom: 10 }} />
-            <Text fw={700} size="lg">{label}</Text>
+            <Icon size={26} color={selected ? theme.colors.cyan[7] : 'var(--app-text-muted)'} style={{ marginBottom: 8 }} />
+            <Text fw={700} size="md">{label}</Text>
             <Text size="xs" c="dimmed">{description}</Text>
         </UnstyledButton>
     );
@@ -59,13 +59,17 @@ const WeekdayPicker = ({ value, onChange }) => {
                         key={fullDay}
                         onClick={() => handleDayClick(fullDay)}
                         style={{
-                            width: 36, height: 36,
-                            borderRadius: '50%',
-                            backgroundColor: isSelected ? theme.colors.cyan[6] : theme.colors.gray[1],
-                            color: isSelected ? 'white' : theme.colors.gray[7],
+                            width: 40, height: 40,
+                            borderRadius: theme.radius.md,
+                            border: `2px solid ${isSelected ? theme.colors.cyan[6] : 'var(--app-border)'}`,
+                            backgroundColor: isSelected ? 'var(--mantine-color-cyan-light)' : 'transparent',
+                            color: isSelected ? theme.colors.cyan[7] : 'var(--app-text)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             fontWeight: 700,
+                            fontSize: '0.85rem',
                             transition: 'all 0.2s ease',
+                            transform: isSelected ? 'translateY(-1px)' : 'none',
+                            boxShadow: isSelected ? theme.shadows.xs : 'none',
                         }}
                     >
                         {day}
@@ -130,7 +134,7 @@ const FrecuenciaPaso = () => {
             <Grid.Col span={{ base: 12, md: 8 }}>
                 <Paper withBorder p="xl" radius="md" shadow="sm" style={{ height: '100%' }}>
                     <Stack gap="xl">
-                        <Title order={3} c="deep-blue.8">¿Cuál es la frecuencia del servicio?</Title>
+                        <Title order={3} c="var(--app-brand-primary)">¿Cuál es la frecuencia del servicio?</Title>
 
                         <Group grow align="stretch">
                             <SelectionCard icon={Repeat} label="Esporádico" description="Para uno o varios viajes puntuales." selected={tipo === 'esporadico'} onClick={() => setTipo('esporadico')} />

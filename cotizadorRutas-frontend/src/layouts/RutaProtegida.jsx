@@ -17,7 +17,7 @@ const RutaProtegida = () => {
 
   // Si hay un usuario autenticado, muestra el contenido de la ruta (el cotizador).
   // Si no, lo redirige a la página de login.
-  return auth?._id ? <Outlet /> : <Navigate to="/login" />;
+  return auth?._id ? <Outlet /> : <Navigate to="/landing" />;
 };
 
 export default RutaProtegida;

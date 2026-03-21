@@ -35,7 +35,7 @@ const theme = createTheme({
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <MantineProvider theme={theme}>
+      <MantineProvider theme={theme} defaultColorScheme="light">
         {/* ✅ 2. Envuelve la app con ModalsProvider */}
         <ModalsProvider>
           <AuthProvider>

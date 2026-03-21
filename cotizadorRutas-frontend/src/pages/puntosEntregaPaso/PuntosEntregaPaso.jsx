@@ -114,7 +114,7 @@ export default function PuntosEntregaPaso() {
         <Paper withBorder p="xl" radius="md" shadow="sm" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           {/* superior */}
           <div style={{ flexShrink: 0 }}>
-            <Title order={2} c="deep-blue.7">Panel de Ruta</Title>
+            <Title order={2} c="var(--app-brand-primary)">Panel de Ruta</Title>
             <Stack gap="lg" mt="lg">
               <BuscadorDireccion onAgregar={agregarPunto} />
               {/* Checkbox compacto; solo con 2+ puntos */}
@@ -144,7 +144,7 @@ export default function PuntosEntregaPaso() {
 
           {/* inferior */}
           <div style={{ flexShrink: 0 }}>
-            <Paper withBorder p="md" mt="lg" radius="md" bg="gray.0">
+            <Paper withBorder p="md" mt="lg" radius="md">
               <Stack>
                 <Text fw={500} c="dimmed">Inteligencia de Carga</Text>
                 <Select
@@ -168,7 +168,7 @@ export default function PuntosEntregaPaso() {
       <Grid.Col span={{ base: 12, lg: 7 }}>
         <Paper withBorder p="xl" radius="md" shadow="sm" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <Stack gap="xl" style={{ flexGrow: 1 }}>
-            <Title order={2} c="deep-blue.7">Visualizador de Misión</Title>
+            <Title order={2} c="var(--app-brand-primary)">Visualizador de Misión</Title>
             <Stack>
               <Paper withBorder radius="md" p={4}>
                 {puntosConRegreso.length > 0 ? (        // 👈 usa la lista derivada
@@ -179,7 +179,7 @@ export default function PuntosEntregaPaso() {
                     onRutaCalculada={handleRutaCalculada}
                   />
                 ) : (
-                  <Center h={400} bg="gray.0" style={{ borderRadius: 'var(--mantine-radius-md)' }}>
+                  <Center h={400} style={{ borderRadius: 'var(--mantine-radius-md)', background: 'var(--app-surface-hover)' }}>
                     <Stack align="center" gap="xs">
                       <MapPinOff size={48} color="lightgray" strokeWidth={1.5} />
                       <Text c="dimmed">Agrega puntos en el Panel de Ruta</Text>

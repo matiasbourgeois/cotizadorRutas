@@ -5,7 +5,7 @@ import { Group, Text, ThemeIcon, Paper } from '@mantine/core';
 export default function ResumenRuta({ distanciaKm, duracionMin }) {
   return (
     // Envolvemos todo en un Paper para darle un fondo y borde consistentes
-    <Paper withBorder p="md" radius="md" bg="gray.0">
+    <Paper withBorder p="md" radius="md">
       <Group grow>
         <Group>
           <ThemeIcon color="cyan" size="lg" radius="md">

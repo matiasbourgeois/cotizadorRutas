@@ -150,7 +150,7 @@ const RecursoHumanoPaso = () => {
     );
 
     const rows = paginatedData.map((item) => (
-        <Table.Tr key={item._id} bg={item._id === recursoHumano?._id ? 'cyan.0' : undefined}>
+        <Table.Tr key={item._id} bg={item._id === recursoHumano?._id ? 'var(--mantine-color-cyan-light)' : undefined}>
             <Table.Td>
                 <Text fw={500}>{item.nombre}</Text>
                 <Text fz="xs" c="dimmed">DNI: {item.dni || 'N/A'}</Text>
@@ -195,7 +195,7 @@ const RecursoHumanoPaso = () => {
                 <Paper withBorder p="xl" radius="md" shadow="sm" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <Stack gap="xl" style={{ flexGrow: 1 }}>
                         <Group justify="space-between">
-                            <Title order={2} c="deep-blue.7">Gestión de Equipo</Title>
+                            <Title order={2} c="var(--app-brand-primary)">Gestión de Equipo</Title>
                             <Button onClick={abrirModalCrear} leftSection={<Plus size={16} />}>
                                 Añadir Personal
                             </Button>

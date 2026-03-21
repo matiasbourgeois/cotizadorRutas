@@ -42,7 +42,7 @@ function ParrafosSecuenciales({ texto, onDone, initialDelayMs = 0 }) {
         if (i < current) {
           // ya terminado: texto completo, sin cursor
           return (
-            <Text key={i} size="sm" c="dimmed">
+            <Text key={i} size="sm" c="var(--app-text-secondary)">
               {p}
             </Text>
           );
@@ -50,7 +50,7 @@ function ParrafosSecuenciales({ texto, onDone, initialDelayMs = 0 }) {
         if (i === current) {
           // activo: se tipea; cuando termina, avanza al siguiente
           return (
-            <Text key={i} size="sm" c="dimmed">
+            <Text key={i} size="sm" c="var(--app-text-secondary)">
               <TypingText
                 text={p}
                 speed={TYPING_SPEED}
@@ -77,7 +77,7 @@ function TipEstatico({ texto }) {
   return (
     <Stack gap={4}>
       {parrafos.map((p, i) => (
-        <Text key={i} size="sm" c="dimmed">
+        <Text key={i} size="sm" c="var(--app-text-secondary)">
           {p}
         </Text>
       ))}
@@ -112,7 +112,7 @@ const AsistenteContextual = ({ consejos }) => {
         <ThemeIcon variant="filled" color="cyan" size="lg" radius="xl" className="icon-pulse">
           <HelpCircle size={18} />
         </ThemeIcon>
-  <Title order={5} c="deep-blue.7">Asistente IA</Title>
+  <Title order={5} c="var(--app-brand-primary)">Asistente IA</Title>
   <Text size="xs" c="dimmed" aria-label="descargo">Sugerencias generadas automáticamente</Text>
 
 

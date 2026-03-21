@@ -1,0 +1,261 @@
+/* ═══════════════════════════════════════════════════════════════
+   CotizadorStepper — Barra horizontal premium de pasos
+   ═══════════════════════════════════════════════════════════════ */
+
+.stepper-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 14px 24px;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+  border-radius: var(--mantine-radius-lg);
+  margin-bottom: var(--mantine-spacing-md);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer de fondo sutil */
+.stepper-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 200, 200, 0.03) 50%,
+    transparent 100%
+  );
+  animation: stepper-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes stepper-shimmer {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* ─── Step item ─── */
+.stepper-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: default;
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
+  padding: 6px 10px;
+  border-radius: var(--mantine-radius-md);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stepper-step.clickable {
+  cursor: pointer;
+}
+
+.stepper-step.clickable:hover {
+  background: var(--app-surface-hover);
+  transform: translateY(-1px);
+}
+
+/* ─── Icon circle ─── */
+.stepper-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+/* Future state */
+.stepper-step.future .stepper-icon {
+  background: var(--app-surface-hover);
+  color: var(--app-text-muted);
+  border: 2px solid var(--app-border);
+}
+
+/* Completed state */
+.stepper-step.completed .stepper-icon {
+  background: linear-gradient(135deg, #20c997, #12b886);
+  color: white;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(32, 201, 151, 0.3);
+}
+
+/* Active state */
+.stepper-step.active .stepper-icon {
+  background: linear-gradient(135deg, #22d3ee, #06b6d4);
+  color: white;
+  border: 2px solid transparent;
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.4), 0 0 32px rgba(34, 211, 238, 0.15);
+  animation: icon-pulse-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes icon-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(34, 211, 238, 0.4), 0 0 32px rgba(34, 211, 238, 0.15);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(34, 211, 238, 0.55), 0 0 44px rgba(34, 211, 238, 0.25);
+    transform: scale(1.05);
+  }
+}
+
+/* ─── Label ─── */
+.stepper-label {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.stepper-step.future .stepper-label {
+  color: var(--app-text-muted);
+}
+
+.stepper-step.completed .stepper-label {
+  color: var(--app-text-secondary);
+}
+
+.stepper-step.active .stepper-label {
+  color: var(--app-brand-primary);
+  font-weight: 700;
+}
+
+/* ─── Connector line ─── */
+.stepper-connector {
+  flex: 1;
+  height: 2px;
+  min-width: 20px;
+  max-width: 60px;
+  position: relative;
+  z-index: 1;
+  border-radius: 1px;
+  overflow: hidden;
+  background: var(--app-border);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stepper-connector.completed {
+  background: linear-gradient(90deg, #20c997, #12b886);
+  box-shadow: 0 0 6px rgba(32, 201, 151, 0.3);
+}
+
+.stepper-connector.active {
+  background: linear-gradient(90deg, #20c997, #22d3ee);
+  box-shadow: 0 0 6px rgba(34, 211, 238, 0.3);
+  position: relative;
+}
+
+/* Animated flow on active connector */
+.stepper-connector.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  animation: connector-flow 2s ease-in-out infinite;
+}
+
+@keyframes connector-flow {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* ─── Step number badge (inside icon for future steps) ─── */
+.stepper-number {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ─── Reiniciar button ─── */
+.stepper-reset-btn {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+/* ─── Dark mode enhancements ─── */
+[data-mantine-color-scheme="dark"] .stepper-bar {
+  background: var(--app-surface);
+  border-color: var(--app-border);
+}
+
+[data-mantine-color-scheme="dark"] .stepper-bar::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(34, 211, 238, 0.04) 50%,
+    transparent 100%
+  );
+}
+
+[data-mantine-color-scheme="dark"] .stepper-step.completed .stepper-icon {
+  box-shadow: 0 2px 12px rgba(32, 201, 151, 0.4);
+}
+
+[data-mantine-color-scheme="dark"] .stepper-step.active .stepper-icon {
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.5), 0 0 40px rgba(34, 211, 238, 0.2);
+}
+
+/* ─── Responsive: compact on medium screens ─── */
+@media (max-width: 1400px) {
+  .stepper-label {
+    font-size: 11px;
+  }
+  .stepper-bar {
+    padding: 10px 16px;
+  }
+  .stepper-icon {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+  }
+  .stepper-number {
+    font-size: 11px;
+  }
+  .stepper-connector {
+    min-width: 14px;
+    max-width: 40px;
+  }
+  .stepper-step {
+    gap: 6px;
+    padding: 4px 6px;
+  }
+}
+
+/* ─── Responsive: hide labels on small screens ─── */
+@media (max-width: 1200px) {
+  .stepper-label {
+    display: none;
+  }
+  .stepper-bar {
+    padding: 8px 12px;
+  }
+  .stepper-connector {
+    min-width: 16px;
+  }
+}
+
+/* ─── Responsive: short screens (720p height) ─── */
+@media (max-height: 800px) {
+  .stepper-bar {
+    padding: 8px 16px;
+    margin-bottom: var(--mantine-spacing-xs);
+  }
+  .stepper-icon {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+  }
+}

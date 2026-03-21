@@ -2,12 +2,11 @@
 
 /* Contenedor principal — sin scroll interno, look limpio y “pro” */
 .resumen-shell {
-  /* safety por si cambian estilos inline */
   max-height: 100vh;
   overflow: hidden;
 
-  background: linear-gradient(180deg, var(--mantine-color-gray-0), #fff 30%);
-  border: 1px solid var(--mantine-color-gray-3);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   box-shadow: var(--mantine-shadow-sm);
   border-radius: var(--mantine-radius-md);
 }
@@ -19,7 +18,7 @@
 
 /* Badges del header */
 .resumen-shell .mantine-Badge-root {
-  border-color: var(--mantine-color-gray-3);
+  border-color: var(--app-border);
 }
 
 /* KPIs compactos */
@@ -37,7 +36,7 @@
 .resumen-shell .mantine-Paper-root[style*="cursor: pointer"]:hover {
   transform: translateY(-1px);
   box-shadow: var(--mantine-shadow-sm);
-  background-color: var(--mantine-color-gray-0);
+  background-color: var(--app-surface-hover);
 }
 
 /* Filas de “detalle” dentro de las cards */
@@ -54,7 +53,7 @@
 
 /* Bloques de totales al final (Paso 5) */
 .resumen-shell .mantine-Paper-root[style*="bg: gray"] {
-  border: 1px dashed var(--mantine-color-gray-3);
+  border: 1px dashed var(--app-border);
 }
 .resumen-shell .mantine-Paper-root[style*="bg: teal"] {
   border: 1px solid var(--mantine-color-teal-3);
@@ -77,6 +76,22 @@
 @media (max-width: 768px) {
   .resumen-shell {
     box-shadow: none; /* más plano en mobile */
+  }
+}
+
+/* Responsivo 720p */
+@media (max-height: 800px) {
+  .resumen-shell {
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+  }
+  .resumen-shell .mantine-Grid-root {
+    row-gap: 2px;
+  }
+  .resumen-shell .mantine-ThemeIcon-root {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
   }
 }
 

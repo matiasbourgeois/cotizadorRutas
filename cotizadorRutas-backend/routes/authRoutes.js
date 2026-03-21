@@ -1,12 +1,11 @@
-// Archivo: cotizadorRutas-backend/routes/authRoutes.js
-
 import express from 'express';
-import { autenticar } from '../controllers/authController.js';
+import { autenticar, registrar, verificarEmail, reenviarVerificacion } from '../controllers/authController.js';
 
 const router = express.Router();
 
-// Ruta para el login de usuarios
 router.post('/login', autenticar);
-
+router.post('/registro', registrar);
+router.get('/verificar/:token', verificarEmail);
+router.post('/reenviar-verificacion', reenviarVerificacion);
 
 export default router;

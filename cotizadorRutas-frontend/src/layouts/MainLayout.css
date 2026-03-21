@@ -1,0 +1,87 @@
+/* ═══════════════════════════════════════════════════════════════
+   MainLayout — God-tier sidebar navigation styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Header */
+.main-header {
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.logo-box {
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  transition: opacity 0.15s ease;
+}
+.logo-box:hover {
+  opacity: 0.85;
+}
+
+/* Navbar */
+.main-navbar {
+  background: var(--app-surface);
+  border-right: 1px solid var(--app-border);
+}
+
+/* NavLink section headings */
+.nav-section {
+  border-radius: var(--mantine-radius-md);
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+}
+
+.nav-section .mantine-NavLink-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Nested NavLinks */
+.nav-section .mantine-NavLink-children .mantine-NavLink-root {
+  border-radius: var(--mantine-radius-sm);
+  margin-bottom: 2px;
+}
+
+.nav-section .mantine-NavLink-children .mantine-NavLink-label {
+  font-weight: 500;
+  font-size: 0.8125rem;
+}
+
+/* Active state enhancement */
+.nav-section[data-active] {
+  background-color: var(--app-surface-hover);
+}
+
+/* Hover polish */
+.nav-section:hover:not([data-active]) {
+  background-color: var(--app-surface-hover);
+}
+
+/* Print — hide sidebar */
+@media print {
+  .main-header,
+  .main-navbar {
+    display: none !important;
+  }
+}
+
+/* ─── Responsive 720p ─── */
+@media (max-width: 1400px) {
+  .nav-section .mantine-NavLink-label {
+    font-size: 0.8125rem;
+  }
+  .nav-section .mantine-NavLink-children .mantine-NavLink-label {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-height: 800px) {
+  .nav-section {
+    min-height: unset;
+  }
+  .nav-section .mantine-NavLink-body {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+}

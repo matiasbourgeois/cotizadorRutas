@@ -1,6 +1,7 @@
 
 import Presupuesto from '../models/Presupuesto.js';
 import calcularResumenCostos from '../services/calculos/calcularResumenCostos.js';
+import { calcularFeriadosPorMes } from '../services/feriadosService.js';
 
 
 export const calcularPresupuesto = async (req, res) => {
@@ -14,6 +15,12 @@ export const calcularPresupuesto = async (req, res) => {
       return res.status(400).json({ error: 'Faltan datos de ruta o frecuencia para el cálculo.' });
     }
 
+    // Calcular feriados si es frecuencia mensual
+    let feriadosPorMes = 0;
+    if (frecuencia?.tipo === 'mensual' && frecuencia.diasSeleccionados?.length >= 5) {
+      feriadosPorMes = await calcularFeriadosPorMes(frecuencia.diasSeleccionados);
+    }
+
     const { resumenCostos, calculoVehiculo, calculoRecurso } = calcularResumenCostos({
       vehiculoDatos: vehiculo,
       recursoDatos: recursoHumano,
@@ -21,7 +28,8 @@ export const calcularPresupuesto = async (req, res) => {
       duracionMin: puntosEntrega?.duracionMin || 0,
       frecuencia,
       configuracion,
-      detallesCarga
+      detallesCarga,
+      feriadosPorMes
     });
 
     res.status(200).json({
@@ -44,6 +52,12 @@ export const crearPresupuesto = async (req, res) => {
       return res.status(400).json({ error: 'Faltan datos clave para crear el presupuesto.' });
     }
 
+    // Calcular feriados si es frecuencia mensual
+    let feriadosPorMes = 0;
+    if (frecuencia?.tipo === 'mensual' && frecuencia.diasSeleccionados?.length >= 5) {
+      feriadosPorMes = await calcularFeriadosPorMes(frecuencia.diasSeleccionados);
+    }
+
     const { resumenCostos, calculoVehiculo, calculoRecurso } = calcularResumenCostos({
       vehiculoDatos: vehiculo.datos,
       recursoDatos: recursoHumano.datos,
@@ -51,7 +65,8 @@ export const crearPresupuesto = async (req, res) => {
       duracionMin: duracionMin || 0,
       frecuencia,
       configuracion,
-      detallesCarga
+      detallesCarga,
+      feriadosPorMes
     });
 
     const presupuestoParaGuardar = new Presupuesto({

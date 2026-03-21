@@ -1,17 +1,14 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
   font-family: 'Montserrat', sans-serif;
-  background-color: #f9f9f9;
-  color: #333;
+  background-color: var(--app-bg);
+  color: var(--app-text);
 }
 
 .card {
-  background-color: white;
+  background-color: var(--app-surface);
   padding: 1.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--app-shadow-md);
 }
 
 button {

@@ -5,7 +5,7 @@ import { useCotizacion } from '../context/Cotizacion';
 
 const getConsejosContextuales = (pathname, cotizacion) => {
     switch (true) {
-        case pathname === '/':
+        case pathname === '/cotizador':
             if (!cotizacion.puntosEntrega?.puntos || cotizacion.puntosEntrega.puntos.length < 2) {
                 return [
                     { tipo: 'guia', texto: 'Para comenzar, utiliza el buscador para añadir tu punto de origen y al menos un destino.' },

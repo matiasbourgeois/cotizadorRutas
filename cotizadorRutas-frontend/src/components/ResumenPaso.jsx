@@ -18,7 +18,7 @@ const Kpi = ({ icon: Icon, label, value }) => (
       </ThemeIcon>
       <div>
         <Text fz="xs" c="dimmed" lh={1.2}>{label}</Text>
-        <Text fz="sm" fw={700} c="deep-blue.8">{value}</Text>
+        <Text fz="sm" fw={700} c="var(--app-brand-primary)">{value}</Text>
       </div>
     </Group>
   </Grid.Col>
@@ -71,7 +71,7 @@ const CostCard = ({ icon: Icon, title, selection, cost, children, isLoading, col
           ) : (
             <Group justify="space-between" pl={4} pr={2}>
               <Text fz="xs" c="dimmed">Costo estimado</Text>
-              <Text fz="lg" fw={800} c="deep-blue.7">
+              <Text fz="lg" fw={800} c="var(--app-brand-primary)">
                 ${(Number(cost) || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
               </Text>
             </Group>
@@ -174,7 +174,7 @@ const ResumenPaso = () => {
     >
       {/* Encabezado */}
       <Group justify="space-between" align="center">
-        <Title order={4} c="deep-blue.7">Panel de Misión</Title>
+        <Title order={4} c="var(--app-brand-primary)">Panel de Misión</Title>
         <Badge variant="light" color={frecuencia ? 'cyan' : 'gray'} size="sm">
           {frecuencia ? 'FRECUENCIA DEFINIDA' : 'FRECUENCIA PENDIENTE'}
         </Badge>
@@ -267,14 +267,14 @@ const ResumenPaso = () => {
             <Text fz="xs">Otros ({pctOtros.toFixed(1)}%)</Text>
           </Group>
 
-          <Paper withBorder p="sm" radius="md" bg="gray.0">
+          <Paper withBorder p="sm" radius="md">
             <Group justify="space-between">
               <Text fz="sm" c="dimmed" fw={600}>Costo Operativo</Text>
               <Text fz="lg" fw={700}>${(totalOperativo || 0).toLocaleString('es-AR')}</Text>
             </Group>
           </Paper>
 
-          <Paper p="md" radius="md" bg="teal.0">
+          <Paper p="md" radius="md" style={{ background: 'var(--mantine-color-teal-light)' }}>
             <Group justify="space-between" align="flex-start">
               <Stack gap={0}>
                 <Text fz="lg" fw={800} c="teal.9">Precio Venta</Text>
