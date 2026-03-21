@@ -1,0 +1,33 @@
+/* Archivo: cotizadorRutas-frontend/src/components/Asistente.css (Versión Final y Limpia) */
+
+/* Única animación: el pulso para el ícono */
+@keyframes pulseEffect {
+    0% {
+        box-shadow: 0 0 0 0 rgba(22, 163, 224, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(22, 163, 224, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(22, 163, 224, 0);
+    }
+}
+
+/* Clase que aplica la animación de pulso de forma infinita */
+.icon-pulse {
+    border-radius: 50%;
+    animation: pulseEffect 2s infinite;
+}
+
+.typing-cursor {
+  display: inline-block;
+  width: 1ch;
+  animation: typing-blink 1s steps(1, end) infinite;
+}
+@keyframes typing-blink {
+  50% { opacity: 0; }
+}
+@media print {
+  .typing-cursor { display: none !important; }
+}
+

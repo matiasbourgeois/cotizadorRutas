@@ -1,0 +1,100 @@
+/* Archivo: src/components/ResumenPaso.css */
+
+/* Contenedor principal — sin scroll interno, look limpio y “pro” */
+.resumen-shell {
+  /* safety por si cambian estilos inline */
+  max-height: 100vh;
+  overflow: hidden;
+
+  background: linear-gradient(180deg, var(--mantine-color-gray-0), #fff 30%);
+  border: 1px solid var(--mantine-color-gray-3);
+  box-shadow: var(--mantine-shadow-sm);
+  border-radius: var(--mantine-radius-md);
+}
+
+/* Título y header */
+.resumen-shell .mantine-Title-root {
+  letter-spacing: 0.1px;
+}
+
+/* Badges del header */
+.resumen-shell .mantine-Badge-root {
+  border-color: var(--mantine-color-gray-3);
+}
+
+/* KPIs compactos */
+.resumen-shell .mantine-Grid-root {
+  row-gap: 6px;
+}
+.resumen-shell .mantine-ThemeIcon-root {
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.03);
+}
+
+/* Hover sutil para cards clickeables (usa el inline style cursor:pointer del Paper interno) */
+.resumen-shell .mantine-Paper-root[style*="cursor: pointer"] {
+  transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+.resumen-shell .mantine-Paper-root[style*="cursor: pointer"]:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--mantine-shadow-sm);
+  background-color: var(--mantine-color-gray-0);
+}
+
+/* Filas de “detalle” dentro de las cards */
+.resumen-shell .mantine-Group-root + .mantine-Group-root .mantine-Text-root {
+  /* evita que salte el layout por cambio de fuente/peso */
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barra de distribución (Progress) más “limpia” */
+.resumen-shell .mantine-Progress-root {
+  overflow: hidden; /* bordes suaves */
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);
+}
+
+/* Bloques de totales al final (Paso 5) */
+.resumen-shell .mantine-Paper-root[style*="bg: gray"] {
+  border: 1px dashed var(--mantine-color-gray-3);
+}
+.resumen-shell .mantine-Paper-root[style*="bg: teal"] {
+  border: 1px solid var(--mantine-color-teal-3);
+}
+
+/* Texto pequeño, legible */
+.resumen-shell .mantine-Text-root {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animaciones discretas: si el usuario prefiere “reduced motion”, evitarlas */
+@media (prefers-reduced-motion: reduce) {
+  .resumen-shell .mantine-Paper-root[style*="cursor: pointer"] {
+    transition: none !important;
+  }
+}
+
+/* Responsivo: en pantallas chicas ajustamos pequeños detalles de espacio */
+@media (max-width: 768px) {
+  .resumen-shell {
+    box-shadow: none; /* más plano en mobile */
+  }
+}
+
+/* Impresión: no interferir con el PDF */
+@media print {
+  .resumen-shell {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    max-height: none !important; /* permite fluir en página impresa */
+    overflow: visible !important;
+  }
+  .resumen-shell .mantine-ThemeIcon-root {
+    display: none !important; /* limpia iconografía para PDF */
+  }
+  .resumen-shell .mantine-Paper-root[style*="cursor: pointer"] {
+    transform: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+}
