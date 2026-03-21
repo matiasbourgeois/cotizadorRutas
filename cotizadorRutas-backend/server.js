@@ -11,6 +11,7 @@ import recursosHumanosRoutes from "./routes/recursosHumanos.js";
 import frecuenciasRutaRoutes from "./routes/frecuenciasRuta.js";
 import authRoutes from "./routes/authRoutes.js";
 import configuracionDefaultsRoutes from "./routes/configuracionDefaults.js";
+import biRoutes from "./routes/biRoutes.js";
 
 dotenv.config();
 conectarDB();
@@ -51,6 +52,7 @@ app.use("/api/vehiculos", vehiculosRoutes);
 app.use("/api/recursos-humanos", recursosHumanosRoutes);
 app.use("/api/frecuencias-ruta", frecuenciasRutaRoutes);
 app.use("/api/configuracion-defaults", configuracionDefaultsRoutes);
+app.use("/api/bi", biRoutes);
 
 app.get("/", (req, res) => {
   res.send("API Cotizador Rutas funcionando");
