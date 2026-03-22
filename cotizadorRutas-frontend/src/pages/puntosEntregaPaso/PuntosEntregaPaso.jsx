@@ -155,7 +155,7 @@ export default function PuntosEntregaPaso() {
           <div className="step-header-left">
             <div className="step-header-icon step-header-icon--cyan"><Eye size={18} /></div>
             <div>
-              <h2 className="step-header-title">Visualizador de Misión</h2>
+              <h2 className="step-header-title">Visualizador de Ruta</h2>
               <p className="step-header-subtitle">Vista previa del recorrido</p>
             </div>
           </div>

@@ -20,10 +20,10 @@ const styles = {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0,
   },
   title: {
-    fontSize: '1rem', fontWeight: 800, color: 'var(--app-text)', margin: 0,
+    fontSize: '1.05rem', fontWeight: 800, color: 'var(--app-text)', margin: 0,
   },
   badge: {
-    fontSize: '0.55rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+    fontSize: '0.62rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
     padding: '2px 8px', borderRadius: 20, display: 'inline-flex', alignItems: 'center', gap: 4,
   },
   kpiGrid: {
@@ -37,8 +37,8 @@ const styles = {
     width: 28, height: 28, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: 'var(--app-surface-hover)', color: 'var(--app-text-muted)', flexShrink: 0,
   },
-  kpiLabel: { fontSize: '0.6rem', color: 'var(--app-text-muted)', lineHeight: 1 },
-  kpiValue: { fontSize: '0.78rem', fontWeight: 700, color: '#22d3ee', lineHeight: 1.2 },
+  kpiLabel: { fontSize: '0.68rem', color: 'var(--app-text-muted)', lineHeight: 1 },
+  kpiValue: { fontSize: '0.85rem', fontWeight: 700, color: '#22d3ee', lineHeight: 1.2 },
   costCard: {
     borderRadius: 10, border: '1px solid var(--app-border)', padding: '10px 12px', cursor: 'pointer',
     transition: 'border-color 0.2s', flexShrink: 0,
@@ -50,8 +50,8 @@ const styles = {
     background: 'linear-gradient(135deg, rgba(34,211,238,0.12), rgba(6,182,212,0.06))',
     border: '1px solid rgba(34,211,238,0.25)', flexShrink: 0,
   },
-  priceLabel: { fontSize: '0.72rem', fontWeight: 600, color: 'var(--app-text-muted)' },
-  priceValue: { fontSize: '1.5rem', fontWeight: 900, color: '#22d3ee', lineHeight: 1 },
+  priceLabel: { fontSize: '0.78rem', fontWeight: 600, color: 'var(--app-text-muted)' },
+  priceValue: { fontSize: '1.6rem', fontWeight: 900, color: '#22d3ee', lineHeight: 1 },
 };
 
 const Kpi = ({ icon: Icon, label, value }) => (
@@ -70,11 +70,11 @@ const CostCard = ({ icon: Icon, title, selection, cost, children, color, open, o
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ ...styles.kpiIcon, background: `${color}20`, color }}><Icon size={14} /></div>
-          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--app-text)' }}>{title}</span>
-          {selection && <span style={{ fontSize: '0.6rem', color: 'var(--app-text-muted)', background: 'var(--app-surface-hover)', padding: '1px 6px', borderRadius: 8, maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selection}</span>}
+          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--app-text)' }}>{title}</span>
+          {selection && <span style={{ fontSize: '0.68rem', color: 'var(--app-text-muted)', background: 'var(--app-surface-hover)', padding: '1px 6px', borderRadius: 8, maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selection}</span>}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#22d3ee' }}>
+          <span style={{ fontSize: '1rem', fontWeight: 800, color: '#22d3ee' }}>
             ${(Number(cost) || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
           </span>
           {selection && <ChevronDown size={14} color="var(--app-text-muted)" style={{ transform: `rotate(${open ? 180 : 0}deg)`, transition: 'transform .15s' }} />}
@@ -94,8 +94,8 @@ const CostCard = ({ icon: Icon, title, selection, cost, children, color, open, o
 
 const RowItem = ({ label, valor }) => (
   <div style={styles.costRow}>
-    <span style={{ fontSize: '0.68rem', color: 'var(--app-text-muted)' }}>{label}</span>
-    <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--app-text)' }}>
+    <span style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)' }}>{label}</span>
+    <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--app-text)' }}>
       ${(Number(valor) || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
     </span>
   </div>
@@ -112,8 +112,8 @@ const ResumenPaso = () => {
       <div style={{ ...styles.shell, alignItems: 'center', justifyContent: 'center' }}>
         <div style={styles.shimmer} />
         <div className="step-empty-icon"><AlertCircle size={20} /></div>
-        <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: '4px 0 2px' }}>Sin datos</h4>
-        <p style={{ fontSize: '0.7rem', color: 'var(--app-text-muted)', margin: 0, textAlign: 'center' }}>Define una ruta para activar el panel</p>
+        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: '4px 0 2px' }}>Sin datos</h4>
+        <p style={{ fontSize: '0.75rem', color: 'var(--app-text-muted)', margin: 0, textAlign: 'center' }}>Define una ruta para activar el panel</p>
       </div>
     );
   }
@@ -146,7 +146,7 @@ const ResumenPaso = () => {
 
       {/* Header */}
       <div style={styles.header}>
-        <h3 style={styles.title}>Panel de Misión</h3>
+        <h3 style={styles.title}>Resumen Operativo</h3>
         <span style={{ ...styles.badge, background: frecuencia ? 'rgba(34,211,238,0.12)' : 'rgba(128,128,128,0.12)', color: frecuencia ? '#22d3ee' : 'var(--app-text-muted)' }}>
           <Zap size={10} />{frecuencia ? 'ACTIVO' : 'PENDIENTE'}
         </span>
@@ -198,23 +198,23 @@ const ResumenPaso = () => {
           </div>
 
           <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexShrink: 0 }}>
-            <span style={{ fontSize: '0.6rem', color: '#22d3ee' }}>Vehículo {pctV.toFixed(0)}%</span>
-            <span style={{ fontSize: '0.6rem', color: '#3b82f6' }}>RRHH {pctR.toFixed(0)}%</span>
-            <span style={{ fontSize: '0.6rem', color: '#8b5cf6' }}>Otros {(100 - pctV - pctR).toFixed(0)}%</span>
+            <span style={{ fontSize: '0.68rem', color: '#22d3ee' }}>Vehículo {pctV.toFixed(0)}%</span>
+            <span style={{ fontSize: '0.68rem', color: '#3b82f6' }}>RRHH {pctR.toFixed(0)}%</span>
+            <span style={{ fontSize: '0.68rem', color: '#8b5cf6' }}>Otros {(100 - pctV - pctR).toFixed(0)}%</span>
           </div>
 
           {/* Operative Cost */}
           <div style={{ ...styles.costRow, padding: '6px 10px', borderRadius: 8, border: '1px solid var(--app-border)', flexShrink: 0 }}>
-            <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--app-text-muted)' }}>Costo Operativo</span>
-            <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--app-text)' }}>${(totalOperativo || 0).toLocaleString('es-AR')}</span>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--app-text-muted)' }}>Costo Operativo</span>
+            <span style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--app-text)' }}>${(totalOperativo || 0).toLocaleString('es-AR')}</span>
           </div>
 
           {/* Sale Price */}
           <div style={styles.priceCard}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#22d3ee' }}>Precio Venta</div>
-                <div style={{ fontSize: '0.55rem', color: 'var(--app-text-muted)' }}>sin IVA</div>
+                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#22d3ee' }}>Precio Venta</div>
+                <div style={{ fontSize: '0.62rem', color: 'var(--app-text-muted)' }}>sin IVA</div>
               </div>
               <div style={styles.priceValue}>${(totalFinal || 0).toLocaleString('es-AR')}</div>
             </div>
