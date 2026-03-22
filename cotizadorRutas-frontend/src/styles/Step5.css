@@ -1,0 +1,317 @@
+/* ═══════════════════════════════════════════════════════════════
+   Step5.css — God-Tier Configuración Final Design
+   Radial gauges · Glass cards · Animated totals · Premium inputs
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Main container ─── */
+.s5 {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 12px;
+  height: calc(100vh - 56px - 58px - 68px);
+  overflow: hidden;
+}
+
+/* ─── Left column ─── */
+.s5-main {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ─── Top metrics row ─── */
+.s5-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* ─── Metric card with radial gauge ─── */
+.s5-metric {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  overflow: hidden;
+}
+
+.s5-metric::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.s5-metric--profit::before {
+  background: linear-gradient(135deg, rgba(34,211,238,0.06), transparent 60%);
+}
+
+.s5-metric--admin::before {
+  background: linear-gradient(135deg, rgba(139,92,246,0.06), transparent 60%);
+}
+
+.s5-metric--total::before {
+  background: linear-gradient(135deg, rgba(16,185,129,0.06), transparent 60%);
+}
+
+/* ─── Radial/Ring gauge ─── */
+.s5-gauge {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.s5-gauge svg {
+  width: 52px;
+  height: 52px;
+  transform: rotate(-90deg);
+}
+
+.s5-gauge-bg {
+  fill: none;
+  stroke: var(--app-border);
+  stroke-width: 4;
+}
+
+.s5-gauge-fill {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.s5-gauge-fill--cyan { stroke: #22d3ee; filter: drop-shadow(0 0 4px rgba(34,211,238,0.4)); }
+.s5-gauge-fill--violet { stroke: #8b5cf6; filter: drop-shadow(0 0 4px rgba(139,92,246,0.4)); }
+.s5-gauge-fill--emerald { stroke: #10b981; filter: drop-shadow(0 0 4px rgba(16,185,129,0.4)); }
+
+.s5-gauge-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--app-text);
+}
+
+/* ─── Metric text ─── */
+.s5-metric-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--app-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.s5-metric-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--app-text);
+  line-height: 1;
+}
+
+.s5-metric-value--cyan { color: #22d3ee; }
+.s5-metric-value--violet { color: #8b5cf6; }
+.s5-metric-value--emerald { color: #10b981; }
+
+/* ─── Form area ─── */
+.s5-form {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto 1fr;
+  gap: 8px 12px;
+  min-height: 0;
+}
+
+.s5-form-full { grid-column: 1 / -1; }
+
+/* ─── Glass card for form sections ─── */
+.s5-card {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.s5-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 10px 10px 0 0;
+}
+
+.s5-card--cyan::before { background: linear-gradient(90deg, #22d3ee, transparent); }
+.s5-card--violet::before { background: linear-gradient(90deg, #8b5cf6, transparent); }
+.s5-card--amber::before { background: linear-gradient(90deg, #f59e0b, transparent); }
+.s5-card--slate::before { background: linear-gradient(90deg, rgba(128,128,128,0.3), transparent); }
+
+.s5-card-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--app-text-muted);
+}
+
+.s5-card-label-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.s5-card-label-icon--cyan { background: rgba(34,211,238,0.12); color: #22d3ee; }
+.s5-card-label-icon--violet { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+.s5-card-label-icon--amber { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.s5-card-label-icon--slate { background: rgba(128,128,128,0.12); color: var(--app-text-muted); }
+
+/* ─── Slider replacement: custom range ─── */
+.s5-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.s5-slider-row .mantine-Slider-root {
+  flex: 1;
+}
+
+.s5-slider-pct {
+  min-width: 36px;
+  text-align: right;
+  font-size: 0.9rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.s5-slider-pct--cyan { color: #22d3ee; }
+.s5-slider-pct--violet { color: #8b5cf6; }
+
+/* ─── Cost input row ─── */
+.s5-cost-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* ─── Bottom nav ─── */
+.s5-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  padding-top: 6px;
+}
+
+/* ─── Finalize button group ─── */
+.s5-finalize-group {
+  display: flex;
+  gap: 0;
+}
+
+.s5-btn-final {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.s5-btn-final--main {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 10px 0 0 10px;
+  box-shadow: 0 4px 14px rgba(16,185,129,0.3);
+}
+
+.s5-btn-final--main::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  transition: left 0.5s ease;
+}
+
+.s5-btn-final--main:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16,185,129,0.4);
+}
+
+.s5-btn-final--main:hover::after {
+  left: 100%;
+}
+
+.s5-btn-final--drop {
+  background: linear-gradient(135deg, #059669, #047857);
+  border-radius: 0 10px 10px 0;
+  padding: 10px 8px;
+  border-left: 1px solid rgba(255,255,255,0.2);
+}
+
+.s5-btn-final--drop:hover {
+  background: linear-gradient(135deg, #047857, #065f46);
+}
+
+.s5-btn-final:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.s5-btn-final:disabled::after { display: none; }
+
+/* ─── Responsive 720p ─── */
+@media (max-height: 800px) {
+  .s5 {
+    height: calc(100vh - 48px - 50px - 36px);
+    gap: 6px;
+    grid-template-columns: 1fr 260px;
+  }
+  .s5-metrics { gap: 6px; }
+  .s5-metric { padding: 8px 10px; gap: 8px; border-radius: 8px; }
+  .s5-gauge { width: 40px; height: 40px; }
+  .s5-gauge svg { width: 40px; height: 40px; }
+  .s5-gauge-value { font-size: 0.65rem; }
+  .s5-metric-label { font-size: 0.58rem; }
+  .s5-metric-value { font-size: 0.9rem; }
+  .s5-card { padding: 6px 10px; gap: 4px; border-radius: 8px; }
+  .s5-card-label { font-size: 0.55rem; }
+  .s5-card-label-icon { width: 14px; height: 14px; }
+  .s5-slider-pct { font-size: 0.75rem; }
+  .s5-btn-final { padding: 8px 16px; font-size: 0.78rem; }
+  .s5-nav { padding-top: 2px; }
+}

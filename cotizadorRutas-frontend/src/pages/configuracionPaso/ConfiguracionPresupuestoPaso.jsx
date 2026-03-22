@@ -1,13 +1,39 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useCotizacion } from "../../context/Cotizacion";
 import clienteAxios from "../../api/clienteAxios";
 import { useNavigate } from "react-router-dom";
 import { notifications } from '@mantine/notifications';
 import { useForm } from "@mantine/form";
-import { NumberInput, Textarea, TextInput, Slider, Menu, rem } from "@mantine/core";
-import { ArrowLeft, Send, ChevronDown, FileDown, Eye, Building, DollarSign, Percent, Receipt } from "lucide-react";
+import { NumberInput, Textarea, TextInput, Slider, Menu } from "@mantine/core";
+import {
+  ArrowLeft, Send, ChevronDown, FileDown, Eye, Building,
+  DollarSign, Percent, TrendingUp, Landmark, Receipt, User
+} from "lucide-react";
 import ResumenPaso from "../../components/ResumenPaso";
-import '../../styles/CotizadorSteps.css';
+import '../../styles/Step5.css';
+
+/* ─── SVG Radial Gauge ─── */
+const RadialGauge = ({ value, max = 50, colorClass = 'cyan' }) => {
+  const radius = 20;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.min(value / max, 1);
+  const dashoffset = circumference * (1 - progress);
+
+  return (
+    <div className="s5-gauge">
+      <svg viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r={radius} className="s5-gauge-bg" />
+        <circle
+          cx="24" cy="24" r={radius}
+          className={`s5-gauge-fill s5-gauge-fill--${colorClass}`}
+          strokeDasharray={circumference}
+          strokeDashoffset={dashoffset}
+        />
+      </svg>
+      <div className="s5-gauge-value">{value}%</div>
+    </div>
+  );
+};
 
 const ConfiguracionPresupuestoPaso = () => {
   const navigate = useNavigate();
@@ -43,7 +69,7 @@ const ConfiguracionPresupuestoPaso = () => {
         .catch(error => console.error("Error en cálculo:", error));
     }, 300);
     return () => clearTimeout(debounce);
-  }, [form.values, puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga, setResumenCostos, setDetalleVehiculo, setDetalleRecurso]);
+  }, [form.values, puntosEntrega, frecuencia, vehiculo, recursoHumano, detallesCarga]);
 
   const handleFinalizar = async (tipoAccion = 'propuesta') => {
     if (!resumenCostos) {
@@ -73,58 +99,140 @@ const ConfiguracionPresupuestoPaso = () => {
     if (presupuestoGuardadoId) window.open(`/${tipo}/${presupuestoGuardadoId}`, '_blank');
   };
 
+  // Computed display values
+  const costoOp = resumenCostos?.totalOperativo || 0;
+  const precioVenta = resumenCostos?.totalFinal || 0;
+  const margenNeto = costoOp > 0 ? ((precioVenta - costoOp) / precioVenta * 100) : 0;
+
   return (
-    <div className="step-grid step-grid--main-side">
-      <div className="step-panel">
-        <div className="step-header">
-          <div className="step-header-left">
-            <div className="step-header-icon step-header-icon--amber"><Receipt size={18} /></div>
+    <div className="s5">
+      {/* ═══ LEFT COLUMN ═══ */}
+      <div className="s5-main">
+
+        {/* ─── Top: 3 Metric Dashboard Cards ─── */}
+        <div className="s5-metrics">
+          {/* Ganancia gauge card */}
+          <div className="s5-metric s5-metric--profit">
+            <RadialGauge value={form.values.porcentajeGanancia} max={50} colorClass="cyan" />
             <div>
-              <h2 className="step-header-title">Ajustes Finales</h2>
-              <p className="step-header-subtitle">Define rentabilidad y datos del cliente</p>
+              <div className="s5-metric-label">Margen Ganancia</div>
+              <div className="s5-metric-value s5-metric-value--cyan">
+                {form.values.porcentajeGanancia}%
+              </div>
+            </div>
+          </div>
+
+          {/* Admin gauge card */}
+          <div className="s5-metric s5-metric--admin">
+            <RadialGauge value={form.values.costoAdministrativo} max={30} colorClass="violet" />
+            <div>
+              <div className="s5-metric-label">Administrativos</div>
+              <div className="s5-metric-value s5-metric-value--violet">
+                {form.values.costoAdministrativo}%
+              </div>
+            </div>
+          </div>
+
+          {/* Profit margin card */}
+          <div className="s5-metric s5-metric--total">
+            <RadialGauge value={Math.round(margenNeto)} max={50} colorClass="emerald" />
+            <div>
+              <div className="s5-metric-label">Margen Neto</div>
+              <div className="s5-metric-value s5-metric-value--emerald">
+                {margenNeto.toFixed(1)}%
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="step-content" style={{ overflowY: 'auto' }}>
-          {/* Margins */}
-          <div className="step-section-label"><Percent size={10} /><span>Márgenes</span></div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div style={{ padding: '8px 12px', borderRadius: 10, border: '1px solid var(--app-border)', background: 'var(--app-surface)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--app-text)' }}>Ganancia</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#22d3ee' }}>{form.values.porcentajeGanancia}%</span>
-              </div>
-              <Slider color="cyan" size="sm" marks={[{ value: 10 }, { value: 20 }, { value: 30 }]} {...form.getInputProps('porcentajeGanancia')} disabled={isFormDisabled} />
+        {/* ─── Form grid ─── */}
+        <div className="s5-form">
+          {/* Ganancia slider card */}
+          <div className="s5-card s5-card--cyan">
+            <div className="s5-card-label">
+              <div className="s5-card-label-icon s5-card-label-icon--cyan"><TrendingUp size={10} /></div>
+              Margen de Ganancia
             </div>
-
-            <div style={{ padding: '8px 12px', borderRadius: 10, border: '1px solid var(--app-border)', background: 'var(--app-surface)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--app-text)' }}>Administrativos</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--app-text-muted)' }}>{form.values.costoAdministrativo}%</span>
-              </div>
-              <Slider color="gray" size="sm" marks={[{ value: 5 }, { value: 10 }, { value: 15 }]} {...form.getInputProps('costoAdministrativo')} disabled={isFormDisabled} />
+            <div className="s5-slider-row">
+              <Slider
+                color="cyan" size="sm" min={0} max={50} step={1}
+                marks={[{ value: 10, label: '10' }, { value: 25, label: '25' }, { value: 40, label: '40' }]}
+                {...form.getInputProps('porcentajeGanancia')}
+                disabled={isFormDisabled}
+                styles={{ markLabel: { fontSize: '0.6rem' } }}
+              />
+              <span className="s5-slider-pct s5-slider-pct--cyan">{form.values.porcentajeGanancia}%</span>
             </div>
           </div>
 
-          {/* Costs */}
-          <div className="step-section-label"><DollarSign size={10} /><span>Costos Adicionales</span></div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <NumberInput label="Peajes" prefix="$ " size="xs" {...form.getInputProps('costoPeajes')} disabled={isFormDisabled} />
-            <NumberInput label="Otros costos" prefix="$ " size="xs" {...form.getInputProps('otrosCostos')} disabled={isFormDisabled} />
+          {/* Admin slider card */}
+          <div className="s5-card s5-card--violet">
+            <div className="s5-card-label">
+              <div className="s5-card-label-icon s5-card-label-icon--violet"><Landmark size={10} /></div>
+              Gastos Administrativos
+            </div>
+            <div className="s5-slider-row">
+              <Slider
+                color="violet" size="sm" min={0} max={25} step={1}
+                marks={[{ value: 5, label: '5' }, { value: 10, label: '10' }, { value: 20, label: '20' }]}
+                {...form.getInputProps('costoAdministrativo')}
+                disabled={isFormDisabled}
+                styles={{ markLabel: { fontSize: '0.6rem' } }}
+              />
+              <span className="s5-slider-pct s5-slider-pct--violet">{form.values.costoAdministrativo}%</span>
+            </div>
           </div>
 
-          {/* Client */}
-          <div className="step-section-label"><Building size={10} /><span>Cliente</span></div>
+          {/* Cost inputs card */}
+          <div className="s5-card s5-card--amber">
+            <div className="s5-card-label">
+              <div className="s5-card-label-icon s5-card-label-icon--amber"><DollarSign size={10} /></div>
+              Costos Adicionales
+            </div>
+            <div className="s5-cost-row">
+              <NumberInput
+                label="Peajes y tasas" placeholder="0" prefix="$ " size="xs"
+                {...form.getInputProps('costoPeajes')} disabled={isFormDisabled}
+              />
+              <NumberInput
+                label="Otros costos" placeholder="0" prefix="$ " size="xs"
+                {...form.getInputProps('otrosCostos')} disabled={isFormDisabled}
+              />
+            </div>
+          </div>
 
-          <TextInput placeholder="Nombre del destinatario" size="xs" {...form.getInputProps('cliente')} disabled={isFormDisabled} />
+          {/* Client card */}
+          <div className="s5-card s5-card--slate">
+            <div className="s5-card-label">
+              <div className="s5-card-label-icon s5-card-label-icon--slate"><Building size={10} /></div>
+              Datos del Cliente
+            </div>
+            <TextInput
+              placeholder="Nombre o empresa del destinatario"
+              size="xs"
+              {...form.getInputProps('cliente')}
+              disabled={isFormDisabled}
+            />
+          </div>
 
-          <Textarea placeholder="Términos y próximos pasos..." autosize minRows={2} maxRows={2} size="xs" {...form.getInputProps('terminos')} disabled={isFormDisabled} />
+          {/* Terms card (full width) */}
+          <div className="s5-card s5-card--slate s5-form-full" style={{ flex: 1, minHeight: 0 }}>
+            <div className="s5-card-label">
+              <div className="s5-card-label-icon s5-card-label-icon--slate"><Receipt size={10} /></div>
+              Términos de la Propuesta
+            </div>
+            <Textarea
+              placeholder="Condiciones, vigencia, forma de pago..."
+              autosize minRows={1} maxRows={3} size="xs"
+              {...form.getInputProps('terminos')}
+              disabled={isFormDisabled}
+              styles={{ input: { flex: 1 } }}
+            />
+          </div>
         </div>
 
-        <div className="step-nav">
+        {/* ─── Nav ─── */}
+        <div className="s5-nav">
           <button className="step-btn-back" onClick={() => navigate(-1)}>
             <ArrowLeft size={14} /> Volver
           </button>
@@ -139,22 +247,17 @@ const ConfiguracionPresupuestoPaso = () => {
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', gap: 0 }}>
+            <div className="s5-finalize-group">
               <button
-                className="step-btn-finalize"
+                className="s5-btn-final s5-btn-final--main"
                 onClick={() => handleFinalizar('propuesta')}
                 disabled={loading}
-                style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
               >
-                <Send size={14} /> {loading ? '...' : 'Finalizar y Ver Propuesta'}
+                <Send size={14} /> {loading ? 'Guardando...' : 'Finalizar y Ver Propuesta'}
               </button>
               <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
                 <Menu.Target>
-                  <button
-                    className="step-btn-finalize"
-                    disabled={loading}
-                    style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, paddingLeft: rem(8), paddingRight: rem(8), borderLeft: '1px solid rgba(255,255,255,0.2)' }}
-                  >
+                  <button className="s5-btn-final s5-btn-final--drop" disabled={loading}>
                     <ChevronDown size={16} />
                   </button>
                 </Menu.Target>
@@ -169,6 +272,7 @@ const ConfiguracionPresupuestoPaso = () => {
         </div>
       </div>
 
+      {/* ═══ RIGHT SIDEBAR ═══ */}
       <div><ResumenPaso /></div>
     </div>
   );
