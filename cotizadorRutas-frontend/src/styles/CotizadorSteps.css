@@ -11,7 +11,7 @@
 .step-grid {
   display: grid;
   gap: 12px;
-  height: calc(100vh - 56px - 58px - 48px);
+  height: calc(100vh - 56px - 58px - 66px);
   min-height: 0;
 }
 

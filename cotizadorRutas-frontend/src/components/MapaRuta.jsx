@@ -12,10 +12,10 @@ const libraries = ["places", "directions"];
 
 const containerStyle = {
     width: "100%",
-    height: "min(400px, 50vh)",
-    borderRadius: "12px",
-    boxShadow: "0 2px 15px rgba(0,0,0,0.1)",
+    height: "100%",
+    borderRadius: "0",
 };
+
 
 const estiloMapaLight = [
     { elementType: "geometry", stylers: [{ color: "#eeeeee" }] },
