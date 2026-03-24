@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useCotizacion } from "../../context/Cotizacion";
 import clienteAxios from "../../api/clienteAxios";
 import { useNavigate } from "react-router-dom";
@@ -7,33 +7,10 @@ import { useForm } from "@mantine/form";
 import { NumberInput, Textarea, TextInput, Slider, Menu } from "@mantine/core";
 import {
   ArrowLeft, Send, ChevronDown, FileDown, Eye, Building,
-  DollarSign, Percent, TrendingUp, Landmark, Receipt, User
+  DollarSign, TrendingUp, Landmark, Receipt, Target
 } from "lucide-react";
 import ResumenPaso from "../../components/ResumenPaso";
 import '../../styles/Step5.css';
-
-/* ─── SVG Radial Gauge ─── */
-const RadialGauge = ({ value, max = 50, colorClass = 'cyan' }) => {
-  const radius = 20;
-  const circumference = 2 * Math.PI * radius;
-  const progress = Math.min(value / max, 1);
-  const dashoffset = circumference * (1 - progress);
-
-  return (
-    <div className="s5-gauge">
-      <svg viewBox="0 0 48 48">
-        <circle cx="24" cy="24" r={radius} className="s5-gauge-bg" />
-        <circle
-          cx="24" cy="24" r={radius}
-          className={`s5-gauge-fill s5-gauge-fill--${colorClass}`}
-          strokeDasharray={circumference}
-          strokeDashoffset={dashoffset}
-        />
-      </svg>
-      <div className="s5-gauge-value">{value}%</div>
-    </div>
-  );
-};
 
 const ConfiguracionPresupuestoPaso = () => {
   const navigate = useNavigate();
@@ -99,134 +76,135 @@ const ConfiguracionPresupuestoPaso = () => {
     if (presupuestoGuardadoId) window.open(`/${tipo}/${presupuestoGuardadoId}`, '_blank');
   };
 
-  // Computed display values
+  // Computed values
   const costoOp = resumenCostos?.totalOperativo || 0;
   const precioVenta = resumenCostos?.totalFinal || 0;
-  const margenNeto = costoOp > 0 ? ((precioVenta - costoOp) / precioVenta * 100) : 0;
+  const gananciaAbs = precioVenta - costoOp;
+  const margenNeto = costoOp > 0 ? ((gananciaAbs) / precioVenta * 100) : 0;
+  const gananciaSliderAbs = costoOp > 0 ? (costoOp * form.values.porcentajeGanancia / 100) : 0;
+  const adminSliderAbs = costoOp > 0 ? (costoOp * form.values.costoAdministrativo / 100) : 0;
 
   return (
     <div className="s5">
       {/* ═══ LEFT COLUMN ═══ */}
       <div className="s5-main">
 
-        {/* ─── Top: 3 Metric Dashboard Cards ─── */}
-        <div className="s5-metrics">
-          {/* Ganancia gauge card */}
-          <div className="s5-metric s5-metric--profit">
-            <RadialGauge value={form.values.porcentajeGanancia} max={50} colorClass="cyan" />
+        {/* ─── HERO: Margen Neto ─── */}
+        <div className="s5-hero">
+          <div className="s5-hero-left">
+            <div className="s5-hero-icon"><Target size={22} /></div>
             <div>
-              <div className="s5-metric-label">Margen Ganancia</div>
-              <div className="s5-metric-value s5-metric-value--cyan">
-                {form.values.porcentajeGanancia}%
+              <div className="s5-hero-label">Margen Neto</div>
+              <div className="s5-hero-pct">{margenNeto.toFixed(1)}%</div>
+            </div>
+          </div>
+          <div className="s5-hero-right">
+            <div className="s5-hero-money-label">Ganancia por viaje</div>
+            <div className="s5-hero-money">${gananciaAbs.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</div>
+            <div className="s5-hero-money-sub">sobre ${precioVenta.toLocaleString('es-AR', { maximumFractionDigits: 0 })} de venta</div>
+          </div>
+        </div>
+
+        {/* ─── SLIDER CARDS (grow to fill) ─── */}
+        <div className="s5-sliders">
+          {/* Ganancia */}
+          <div className="s5-slider-card s5-slider-card--cyan">
+            <div className="s5-slider-header">
+              <div className="s5-slider-label-row">
+                <div className="s5-slider-icon s5-slider-icon--cyan"><TrendingUp size={14} /></div>
+                <div>
+                  <div className="s5-slider-title">Margen de Ganancia</div>
+                  <div className="s5-slider-subtitle">Rentabilidad sobre costo operativo</div>
+                </div>
+              </div>
+              <div className="s5-slider-big-pct s5-slider-big-pct--cyan">{form.values.porcentajeGanancia}%</div>
+            </div>
+            <div className="s5-slider-track">
+              <Slider
+                color="cyan" size="md" min={0} max={50} step={1}
+                marks={[{ value: 0, label: '0' }, { value: 10, label: '10' }, { value: 25, label: '25' }, { value: 40, label: '40' }, { value: 50, label: '50' }]}
+                {...form.getInputProps('porcentajeGanancia')}
+                disabled={isFormDisabled}
+                styles={{ markLabel: { fontSize: '0.68rem' } }}
+              />
+              <div className="s5-slider-amount">
+                = <span>${gananciaSliderAbs.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span> por viaje
               </div>
             </div>
           </div>
 
-          {/* Admin gauge card */}
-          <div className="s5-metric s5-metric--admin">
-            <RadialGauge value={form.values.costoAdministrativo} max={30} colorClass="violet" />
-            <div>
-              <div className="s5-metric-label">Administrativos</div>
-              <div className="s5-metric-value s5-metric-value--violet">
-                {form.values.costoAdministrativo}%
+          {/* Administrativos */}
+          <div className="s5-slider-card s5-slider-card--violet">
+            <div className="s5-slider-header">
+              <div className="s5-slider-label-row">
+                <div className="s5-slider-icon s5-slider-icon--violet"><Landmark size={14} /></div>
+                <div>
+                  <div className="s5-slider-title">Gastos Administrativos</div>
+                  <div className="s5-slider-subtitle">Overhead operativo y de gestión</div>
+                </div>
               </div>
+              <div className="s5-slider-big-pct s5-slider-big-pct--violet">{form.values.costoAdministrativo}%</div>
             </div>
-          </div>
-
-          {/* Profit margin card */}
-          <div className="s5-metric s5-metric--total">
-            <RadialGauge value={Math.round(margenNeto)} max={50} colorClass="emerald" />
-            <div>
-              <div className="s5-metric-label">Margen Neto</div>
-              <div className="s5-metric-value s5-metric-value--emerald">
-                {margenNeto.toFixed(1)}%
+            <div className="s5-slider-track">
+              <Slider
+                color="violet" size="md" min={0} max={25} step={1}
+                marks={[{ value: 0, label: '0' }, { value: 5, label: '5' }, { value: 10, label: '10' }, { value: 20, label: '20' }, { value: 25, label: '25' }]}
+                {...form.getInputProps('costoAdministrativo')}
+                disabled={isFormDisabled}
+                styles={{ markLabel: { fontSize: '0.68rem' } }}
+              />
+              <div className="s5-slider-amount">
+                = <span>${adminSliderAbs.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span> por viaje
               </div>
             </div>
           </div>
         </div>
 
-        {/* ─── Form grid ─── */}
-        <div className="s5-form">
-          {/* Ganancia slider card */}
-          <div className="s5-card s5-card--cyan">
-            <div className="s5-card-label">
-              <div className="s5-card-label-icon s5-card-label-icon--cyan"><TrendingUp size={10} /></div>
-              Margen de Ganancia
-            </div>
-            <div className="s5-slider-row">
-              <Slider
-                color="cyan" size="sm" min={0} max={50} step={1}
-                marks={[{ value: 10, label: '10' }, { value: 25, label: '25' }, { value: 40, label: '40' }]}
-                {...form.getInputProps('porcentajeGanancia')}
-                disabled={isFormDisabled}
-                styles={{ markLabel: { fontSize: '0.6rem' } }}
-              />
-              <span className="s5-slider-pct s5-slider-pct--cyan">{form.values.porcentajeGanancia}%</span>
-            </div>
-          </div>
-
-          {/* Admin slider card */}
-          <div className="s5-card s5-card--violet">
-            <div className="s5-card-label">
-              <div className="s5-card-label-icon s5-card-label-icon--violet"><Landmark size={10} /></div>
-              Gastos Administrativos
-            </div>
-            <div className="s5-slider-row">
-              <Slider
-                color="violet" size="sm" min={0} max={25} step={1}
-                marks={[{ value: 5, label: '5' }, { value: 10, label: '10' }, { value: 20, label: '20' }]}
-                {...form.getInputProps('costoAdministrativo')}
-                disabled={isFormDisabled}
-                styles={{ markLabel: { fontSize: '0.6rem' } }}
-              />
-              <span className="s5-slider-pct s5-slider-pct--violet">{form.values.costoAdministrativo}%</span>
-            </div>
-          </div>
-
-          {/* Cost inputs card */}
-          <div className="s5-card s5-card--amber">
-            <div className="s5-card-label">
-              <div className="s5-card-label-icon s5-card-label-icon--amber"><DollarSign size={10} /></div>
+        {/* ─── SECONDARY ROW — compact ─── */}
+        <div className="s5-secondary">
+          {/* Costos adicionales */}
+          <div className="s5-sec-card s5-sec-card--amber">
+            <div className="s5-sec-label">
+              <div className="s5-sec-icon s5-sec-icon--amber"><DollarSign size={10} /></div>
               Costos Adicionales
             </div>
-            <div className="s5-cost-row">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
               <NumberInput
-                label="Peajes y tasas" placeholder="0" prefix="$ " size="xs"
+                label="Peajes" placeholder="0" prefix="$ " size="xs"
                 {...form.getInputProps('costoPeajes')} disabled={isFormDisabled}
               />
               <NumberInput
-                label="Otros costos" placeholder="0" prefix="$ " size="xs"
+                label="Otros" placeholder="0" prefix="$ " size="xs"
                 {...form.getInputProps('otrosCostos')} disabled={isFormDisabled}
               />
             </div>
           </div>
 
-          {/* Client card */}
-          <div className="s5-card s5-card--slate">
-            <div className="s5-card-label">
-              <div className="s5-card-label-icon s5-card-label-icon--slate"><Building size={10} /></div>
+          {/* Cliente */}
+          <div className="s5-sec-card s5-sec-card--slate">
+            <div className="s5-sec-label">
+              <div className="s5-sec-icon s5-sec-icon--slate"><Building size={10} /></div>
               Datos del Cliente
             </div>
             <TextInput
-              placeholder="Nombre o empresa del destinatario"
+              placeholder="Nombre o empresa"
               size="xs"
               {...form.getInputProps('cliente')}
               disabled={isFormDisabled}
             />
           </div>
 
-          {/* Terms card (full width) */}
-          <div className="s5-card s5-card--slate s5-form-full" style={{ flex: 1, minHeight: 0 }}>
-            <div className="s5-card-label">
-              <div className="s5-card-label-icon s5-card-label-icon--slate"><Receipt size={10} /></div>
-              Términos de la Propuesta
+          {/* Términos */}
+          <div className="s5-sec-card s5-sec-card--slate">
+            <div className="s5-sec-label">
+              <div className="s5-sec-icon s5-sec-icon--slate"><Receipt size={10} /></div>
+              Términos
             </div>
             <Textarea
               placeholder="Condiciones, vigencia, forma de pago..."
-              autosize minRows={1} maxRows={3} size="xs"
+              autosize minRows={1} maxRows={2} size="xs"
               {...form.getInputProps('terminos')}
               disabled={isFormDisabled}
-              styles={{ input: { flex: 1 } }}
             />
           </div>
         </div>

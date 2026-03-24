@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   Step5.css — God-Tier Configuración Final Design
-   Radial gauges · Glass cards · Animated totals · Premium inputs
+   Step5.css — V3 Command Center Design
+   Hero profit card · Growing sliders · Compact secondary row
    ═══════════════════════════════════════════════════════════════ */
 
 /* ─── Main container ─── */
@@ -21,123 +21,215 @@
   overflow: hidden;
 }
 
-/* ─── Top metrics row ─── */
-.s5-metrics {
+/* ═══ HERO CARD — Margen Neto ═══ */
+.s5-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.s5-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(34,211,238,0.08), transparent 50%, rgba(16,185,129,0.06));
+  pointer-events: none;
+}
+
+.s5-hero::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(34,211,238,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.s5-hero-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.s5-hero-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(34,211,238,0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.s5-hero-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.s5-hero-pct {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #10b981;
+  line-height: 1;
+}
+
+.s5-hero-right {
+  text-align: right;
+  position: relative;
+  z-index: 1;
+}
+
+.s5-hero-money-label {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.4);
+  font-weight: 500;
+}
+
+.s5-hero-money {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #22d3ee;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.s5-hero-money-sub {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.3);
+  margin-top: 2px;
+}
+
+/* ═══ SLIDER CARDS — grow to fill ═══ */
+.s5-sliders {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
+.s5-slider-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  position: relative;
+  overflow: hidden;
+  gap: 10px;
+}
+
+.s5-slider-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.s5-slider-card--cyan::before { background: linear-gradient(90deg, #22d3ee, rgba(34,211,238,0.2)); }
+.s5-slider-card--violet::before { background: linear-gradient(90deg, #8b5cf6, rgba(139,92,246,0.2)); }
+
+.s5-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.s5-slider-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.s5-slider-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.s5-slider-icon--cyan { background: rgba(34,211,238,0.12); color: #22d3ee; }
+.s5-slider-icon--violet { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+
+.s5-slider-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.s5-slider-subtitle {
+  font-size: 0.65rem;
+  color: var(--app-text-muted);
+}
+
+.s5-slider-big-pct {
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.s5-slider-big-pct--cyan { color: #22d3ee; }
+.s5-slider-big-pct--violet { color: #8b5cf6; }
+
+.s5-slider-track {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+
+.s5-slider-track .mantine-Slider-root {
+  flex-shrink: 0;
+}
+
+.s5-slider-amount {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--app-text-muted);
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.s5-slider-amount span {
+  color: var(--app-text);
+  font-weight: 800;
+}
+
+/* ═══ SECONDARY ROW — compact ═══ */
+.s5-secondary {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
   flex-shrink: 0;
 }
 
-/* ─── Metric card with radial gauge ─── */
-.s5-metric {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--app-border);
-  background: var(--app-surface);
-  overflow: hidden;
-}
-
-.s5-metric::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.s5-metric--profit::before {
-  background: linear-gradient(135deg, rgba(34,211,238,0.06), transparent 60%);
-}
-
-.s5-metric--admin::before {
-  background: linear-gradient(135deg, rgba(139,92,246,0.06), transparent 60%);
-}
-
-.s5-metric--total::before {
-  background: linear-gradient(135deg, rgba(16,185,129,0.06), transparent 60%);
-}
-
-/* ─── Radial/Ring gauge ─── */
-.s5-gauge {
-  position: relative;
-  width: 52px;
-  height: 52px;
-  flex-shrink: 0;
-}
-
-.s5-gauge svg {
-  width: 52px;
-  height: 52px;
-  transform: rotate(-90deg);
-}
-
-.s5-gauge-bg {
-  fill: none;
-  stroke: var(--app-border);
-  stroke-width: 4;
-}
-
-.s5-gauge-fill {
-  fill: none;
-  stroke-width: 4;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.s5-gauge-fill--cyan { stroke: #22d3ee; filter: drop-shadow(0 0 4px rgba(34,211,238,0.4)); }
-.s5-gauge-fill--violet { stroke: #8b5cf6; filter: drop-shadow(0 0 4px rgba(139,92,246,0.4)); }
-.s5-gauge-fill--emerald { stroke: #10b981; filter: drop-shadow(0 0 4px rgba(16,185,129,0.4)); }
-
-.s5-gauge-value {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.82rem;
-  font-weight: 800;
-  color: var(--app-text);
-}
-
-/* ─── Metric text ─── */
-.s5-metric-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--app-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.s5-metric-value {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--app-text);
-  line-height: 1;
-}
-
-.s5-metric-value--cyan { color: #22d3ee; }
-.s5-metric-value--violet { color: #8b5cf6; }
-.s5-metric-value--emerald { color: #10b981; }
-
-/* ─── Form area ─── */
-.s5-form {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto 1fr;
-  gap: 8px 12px;
-  min-height: 0;
-}
-
-.s5-form-full { grid-column: 1 / -1; }
-
-/* ─── Glass card for form sections ─── */
-.s5-card {
+.s5-sec-card {
   padding: 10px 14px;
   border-radius: 10px;
   border: 1px solid var(--app-border);
@@ -149,33 +241,28 @@
   overflow: hidden;
 }
 
-.s5-card::before {
+.s5-sec-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   height: 2px;
-  border-radius: 10px 10px 0 0;
 }
 
-.s5-card--cyan::before { background: linear-gradient(90deg, #22d3ee, transparent); }
-.s5-card--violet::before { background: linear-gradient(90deg, #8b5cf6, transparent); }
-.s5-card--amber::before { background: linear-gradient(90deg, #f59e0b, transparent); }
-.s5-card--slate::before { background: linear-gradient(90deg, rgba(128,128,128,0.3), transparent); }
+.s5-sec-card--amber::before { background: linear-gradient(90deg, #f59e0b, transparent); }
+.s5-sec-card--slate::before { background: linear-gradient(90deg, rgba(128,128,128,0.3), transparent); }
 
-.s5-card-label {
+.s5-sec-label {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--app-text-muted);
 }
 
-.s5-card-label-icon {
+.s5-sec-icon {
   width: 18px;
   height: 18px;
   border-radius: 4px;
@@ -184,39 +271,8 @@
   justify-content: center;
 }
 
-.s5-card-label-icon--cyan { background: rgba(34,211,238,0.12); color: #22d3ee; }
-.s5-card-label-icon--violet { background: rgba(139,92,246,0.12); color: #8b5cf6; }
-.s5-card-label-icon--amber { background: rgba(245,158,11,0.12); color: #f59e0b; }
-.s5-card-label-icon--slate { background: rgba(128,128,128,0.12); color: var(--app-text-muted); }
-
-/* ─── Slider replacement: custom range ─── */
-.s5-slider-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.s5-slider-row .mantine-Slider-root {
-  flex: 1;
-}
-
-.s5-slider-pct {
-  min-width: 36px;
-  text-align: right;
-  font-size: 0.95rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
-.s5-slider-pct--cyan { color: #22d3ee; }
-.s5-slider-pct--violet { color: #8b5cf6; }
-
-/* ─── Cost input row ─── */
-.s5-cost-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
+.s5-sec-icon--amber { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.s5-sec-icon--slate { background: rgba(128,128,128,0.12); color: var(--app-text-muted); }
 
 /* ─── Bottom nav ─── */
 .s5-nav {
@@ -257,10 +313,7 @@
 .s5-btn-final--main::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
+  top: 0; left: -100%; width: 100%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
   transition: left 0.5s ease;
 }
@@ -270,9 +323,7 @@
   box-shadow: 0 6px 20px rgba(16,185,129,0.4);
 }
 
-.s5-btn-final--main:hover::after {
-  left: 100%;
-}
+.s5-btn-final--main:hover::after { left: 100%; }
 
 .s5-btn-final--drop {
   background: linear-gradient(135deg, #059669, #047857);
@@ -281,17 +332,11 @@
   border-left: 1px solid rgba(255,255,255,0.2);
 }
 
-.s5-btn-final--drop:hover {
-  background: linear-gradient(135deg, #047857, #065f46);
-}
+.s5-btn-final--drop:hover { background: linear-gradient(135deg, #047857, #065f46); }
 
 .s5-btn-final:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none;
 }
-
 .s5-btn-final:disabled::after { display: none; }
 
 /* ─── Responsive 720p ─── */
@@ -301,17 +346,18 @@
     gap: 6px;
     grid-template-columns: 1fr 260px;
   }
-  .s5-metrics { gap: 6px; }
-  .s5-metric { padding: 8px 10px; gap: 8px; border-radius: 8px; }
-  .s5-gauge { width: 40px; height: 40px; }
-  .s5-gauge svg { width: 40px; height: 40px; }
-  .s5-gauge-value { font-size: 0.7rem; }
-  .s5-metric-label { font-size: 0.62rem; }
-  .s5-metric-value { font-size: 0.9rem; }
-  .s5-card { padding: 6px 10px; gap: 4px; border-radius: 8px; }
-  .s5-card-label { font-size: 0.6rem; }
-  .s5-card-label-icon { width: 14px; height: 14px; }
-  .s5-slider-pct { font-size: 0.82rem; }
+  .s5-main { gap: 6px; }
+  .s5-hero { padding: 10px 16px; border-radius: 10px; }
+  .s5-hero-icon { width: 32px; height: 32px; }
+  .s5-hero-pct { font-size: 1.2rem; }
+  .s5-hero-money { font-size: 1.3rem; }
+  .s5-sliders { gap: 6px; }
+  .s5-slider-card { padding: 10px 14px; gap: 6px; border-radius: 10px; }
+  .s5-slider-big-pct { font-size: 1.5rem; }
+  .s5-slider-amount { font-size: 0.75rem; margin-top: 4px; }
+  .s5-secondary { gap: 6px; }
+  .s5-sec-card { padding: 6px 10px; gap: 4px; border-radius: 8px; }
+  .s5-sec-label { font-size: 0.58rem; }
   .s5-btn-final { padding: 8px 16px; font-size: 0.82rem; }
   .s5-nav { padding-top: 2px; }
 }

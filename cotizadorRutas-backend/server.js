@@ -21,7 +21,10 @@ const app = express();
 const whitelist = [
   'https://cotizadorlogistico.site',
   'https://www.cotizadorlogistico.site',
-  'http://localhost:5174'
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:6174',
+  'http://localhost:6175'
 ];
 
 

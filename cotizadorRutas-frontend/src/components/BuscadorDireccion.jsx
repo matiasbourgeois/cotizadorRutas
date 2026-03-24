@@ -13,6 +13,7 @@ export default function BuscadorDireccion({ onAgregar }) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_Maps_API_KEY,
     libraries,
+    version: "quarterly",
   });
 
   useEffect(() => {

@@ -8,7 +8,7 @@ import {
 } from "@react-google-maps/api";
 import { useMantineColorScheme } from '@mantine/core';
 
-const libraries = ["places", "directions"];
+const libraries = ["places"];
 
 const containerStyle = {
     width: "100%",
@@ -51,6 +51,7 @@ export default function MapaRuta({ puntos, initialDirections, onRutaCalculada })
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_Maps_API_KEY,
         libraries,
+        version: "quarterly",
     });
 
     const { colorScheme } = useMantineColorScheme();
