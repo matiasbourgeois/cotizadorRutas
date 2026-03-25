@@ -92,24 +92,37 @@ const MainLayout = () => {
           <Group gap="sm">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
             <Box className="logo-box" onClick={() => handleNav('/cotizador')} style={{ cursor: 'pointer' }}>
-              <Text fw={800} c="var(--app-brand-primary)" size="lg" lh={1}>
-                Cotizador Logístico
-              </Text>
+              <Group gap={6} align="center">
+                <div className="logo-icon">
+                  <img src="/favicon.png" alt="" className="logo-favicon" />
+                </div>
+                <div>
+                  <Text className="logo-text" lh={1}>
+                    <span className="logo-text-primary">Cotizador</span>
+                    <span className="logo-text-accent"> Logístico</span>
+                  </Text>
+                </div>
+              </Group>
             </Box>
           </Group>
 
-          <Group gap="xs">
+          <Group gap={8}>
+            <div className="header-user-pill">
+              <div className="header-avatar">{(auth?.nombre || 'U')[0].toUpperCase()}</div>
+              <Text fz="xs" fw={600} c="var(--app-text)" className="header-user-name">{auth?.nombre?.split(' ')[0] || 'Usuario'}</Text>
+            </div>
+            <div className="header-actions-divider" />
             <Tooltip label={colorScheme === 'dark' ? 'Modo claro' : 'Modo oscuro'} position="bottom">
-              <ActionIcon variant="default" size="lg" radius="md" onClick={toggleColorScheme}>
+              <ActionIcon className="header-action-btn" variant="subtle" size="lg" radius="xl" onClick={toggleColorScheme}>
                 {colorScheme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
               </ActionIcon>
             </Tooltip>
             <Tooltip label="Cerrar Sesión" position="bottom">
               <ActionIcon
+                className="header-action-btn header-action-btn--danger"
                 variant="subtle"
-                color="red"
                 size="lg"
-                radius="md"
+                radius="xl"
                 onClick={() => { cerrarSesionAuth(); navigate('/login'); }}
               >
                 <LogOut size={16} />
@@ -121,12 +134,7 @@ const MainLayout = () => {
 
       {/* ─── SIDEBAR ─── */}
       <AppShell.Navbar p="xs" className="main-navbar">
-        <AppShell.Section>
-          <Text c="dimmed" fz="xs" mb={6} px={4}>
-            Hola, <Text span fw={600} c="var(--app-text)">{auth?.nombre || 'Usuario'}</Text>
-          </Text>
-          <Divider mb={6} />
-        </AppShell.Section>
+
 
         <AppShell.Section>
           {/* ─ COTIZADOR ─ */}
@@ -176,7 +184,7 @@ const MainLayout = () => {
             className="nav-section"
             active={isGestionSection}
             variant="light"
-            color="teal"
+            color="cyan"
             style={{ borderRadius: 'var(--mantine-radius-sm)' }}
           >
             <NavLink
@@ -185,7 +193,7 @@ const MainLayout = () => {
               active={isGestionVehiculos}
               onClick={() => handleNav('/gestion/vehiculos')}
               variant="light"
-              color="teal"
+              color="cyan"
               pl={28}
               fz="sm"
               style={{ borderRadius: 'var(--mantine-radius-sm)' }}
@@ -196,7 +204,7 @@ const MainLayout = () => {
               active={isGestionRRHH}
               onClick={() => handleNav('/gestion/rrhh')}
               variant="light"
-              color="teal"
+              color="cyan"
               pl={28}
               fz="sm"
               style={{ borderRadius: 'var(--mantine-radius-sm)' }}
@@ -213,7 +221,7 @@ const MainLayout = () => {
             onClick={() => handleNav('/bi')}
             className="nav-section"
             variant="light"
-            color="violet"
+            color="cyan"
             style={{ borderRadius: 'var(--mantine-radius-sm)' }}
           />
 
@@ -225,7 +233,7 @@ const MainLayout = () => {
             onClick={() => handleNav('/configuracion')}
             className="nav-section"
             variant="light"
-            color="orange"
+            color="cyan"
             mt={4}
             style={{ borderRadius: 'var(--mantine-radius-sm)' }}
           />

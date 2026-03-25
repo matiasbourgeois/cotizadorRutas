@@ -1,8 +1,9 @@
-import { Container, Title, Text, Paper, Group, Button, Table, ActionIcon, TextInput, Badge, Stack, Loader, Center, Modal, Select, NumberInput, Tooltip } from '@mantine/core';
+import { Container, Title, Text, Paper, Group, Button, Table, ActionIcon, TextInput, Badge, Stack, Loader, Center, Modal, Select, NumberInput, Menu } from '@mantine/core';
 import { useState, useEffect } from 'react';
-import { Plus, Search, Pencil, Trash2, Truck } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Truck, MoreVertical } from 'lucide-react';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { modals } from '@mantine/modals';
 import clienteAxios from '../../api/clienteAxios';
 
 const tiposVehiculo = [
@@ -50,6 +51,8 @@ const GestionVehiculos = () => {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [configDefaults, setConfigDefaults] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const fetchVehiculos = async () => {
     try {
@@ -65,14 +68,34 @@ const GestionVehiculos = () => {
 
   useEffect(() => { fetchVehiculos(); }, []);
 
+  // Fetch configuracion-defaults on mount
+  useEffect(() => {
+    const fetchDefaults = async () => {
+      try {
+        const { data } = await clienteAxios.get('/configuracion-defaults');
+        setConfigDefaults(data);
+      } catch (e) { /* silent */ }
+    };
+    fetchDefaults();
+  }, []);
+
   const handleNew = () => {
     setEditingId(null);
-    setForm(emptyForm);
+    setFieldErrors({});
+    // Apply defaults for default type
+    const tipo = 'utilitario';
+    const defs = configDefaults?.vehiculos?.[tipo];
+    if (defs) {
+      setForm({ ...emptyForm, ...defs, tipoVehiculo: tipo, patente: '', marca: '', modelo: '', año: new Date().getFullYear(), observaciones: '' });
+    } else {
+      setForm(emptyForm);
+    }
     openModal();
   };
 
   const handleEdit = (v) => {
     setEditingId(v._id);
+    setFieldErrors({});
     setForm({
       tipoVehiculo: v.tipoVehiculo || 'utilitario',
       patente: v.patente || '',
@@ -100,20 +123,39 @@ const GestionVehiculos = () => {
     openModal();
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('¿Estás seguro de eliminar este vehículo?')) return;
-    try {
-      await clienteAxios.delete(`/vehiculos/${id}`);
-      notifications.show({ title: 'Eliminado', message: 'Vehículo eliminado correctamente', color: 'teal' });
-      fetchVehiculos();
-    } catch (err) {
-      notifications.show({ title: 'Error', message: 'No se pudo eliminar', color: 'red' });
-    }
+  const handleDelete = (id) => {
+    modals.openConfirmModal({
+      title: 'Confirmar eliminación',
+      centered: true,
+      children: <Text size="sm">¿Estás seguro de que querés eliminar este vehículo? Esta acción es irreversible.</Text>,
+      labels: { confirm: 'Eliminar', cancel: 'Cancelar' },
+      confirmProps: { color: 'red' },
+      onConfirm: async () => {
+        try {
+          await clienteAxios.delete(`/vehiculos/${id}`);
+          notifications.show({ title: 'Eliminado', message: 'Vehículo eliminado correctamente', color: 'teal' });
+          fetchVehiculos();
+        } catch (err) {
+          notifications.show({ title: 'Error', message: 'No se pudo eliminar', color: 'red' });
+        }
+      },
+    });
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (!form.patente || form.patente.trim().length < 6) errors.patente = 'La patente es obligatoria (mín. 6 caracteres)';
+    if (!form.marca || form.marca.trim().length === 0) errors.marca = 'La marca es obligatoria';
+    if (!form.modelo || form.modelo.trim().length === 0) errors.modelo = 'El modelo es obligatorio';
+    if (!form.rendimientoKmLitro || form.rendimientoKmLitro <= 0) errors.rendimientoKmLitro = 'El rendimiento debe ser mayor a 0';
+    return errors;
   };
 
   const handleSave = async () => {
-    if (!form.patente || !form.marca || !form.modelo) {
-      notifications.show({ title: 'Campos requeridos', message: 'Patente, marca y modelo son obligatorios', color: 'orange' });
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      notifications.show({ title: 'Campos con errores', message: 'Corregí los campos marcados en rojo', color: 'orange' });
       return;
     }
     setSaving(true);
@@ -144,7 +186,28 @@ const GestionVehiculos = () => {
     `${v.marca} ${v.modelo} ${v.patente}`.toLowerCase().includes(search.toLowerCase())
   );
 
-  const updateField = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
+  const updateField = (field, value) => {
+    // Clear error for this field on change
+    if (fieldErrors[field]) setFieldErrors(prev => ({ ...prev, [field]: undefined }));
+
+    if (field === 'tipoVehiculo' && !editingId && configDefaults?.vehiculos?.[value]) {
+      // Auto-fill defaults when changing type on NEW vehicle
+      const defs = configDefaults.vehiculos[value];
+      setForm(prev => ({
+        ...prev,
+        ...defs,
+        tipoVehiculo: value,
+        // Preserve identity fields
+        patente: prev.patente,
+        marca: prev.marca,
+        modelo: prev.modelo,
+        año: prev.año,
+        observaciones: prev.observaciones,
+      }));
+    } else {
+      setForm(prev => ({ ...prev, [field]: value }));
+    }
+  };
 
   return (
     <Container fluid>
@@ -178,41 +241,45 @@ const GestionVehiculos = () => {
           </Center>
         ) : (
           <Table.ScrollContainer minWidth={700}>
-            <Table striped highlightOnHover>
+            <Table highlightOnHover verticalSpacing="md">
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>Patente</Table.Th>
-                  <Table.Th>Marca / Modelo</Table.Th>
+                  <Table.Th>Vehículo</Table.Th>
                   <Table.Th>Tipo</Table.Th>
                   <Table.Th>Año</Table.Th>
                   <Table.Th>Combustible</Table.Th>
                   <Table.Th>Rendimiento</Table.Th>
-                  <Table.Th ta="center">Acciones</Table.Th>
+                  <Table.Th ta="right">Acciones</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
                 {filtered.map(v => (
                   <Table.Tr key={v._id}>
-                    <Table.Td fw={600}>{v.patente}</Table.Td>
-                    <Table.Td>{v.marca} {v.modelo}</Table.Td>
+                    <Table.Td>
+                      <Stack gap={0}>
+                        <Text fz="sm" fw={500}>{v.patente}</Text>
+                        <Text fz="xs" c="dimmed">{v.marca} {v.modelo}</Text>
+                      </Stack>
+                    </Table.Td>
                     <Table.Td>
                       <Badge variant="light" color="cyan" size="sm">{v.tipoVehiculo}</Badge>
                     </Table.Td>
                     <Table.Td>{v.año}</Table.Td>
                     <Table.Td>{v.tipoCombustible}</Table.Td>
-                    <Table.Td>{v.rendimientoKmLitro} km/l</Table.Td>
+                    <Table.Td><Text fw={500}>{v.rendimientoKmLitro} km/l</Text></Table.Td>
                     <Table.Td>
-                      <Group gap="xs" justify="center">
-                        <Tooltip label="Editar">
-                          <ActionIcon variant="light" color="cyan" onClick={() => handleEdit(v)}>
-                            <Pencil size={16} />
-                          </ActionIcon>
-                        </Tooltip>
-                        <Tooltip label="Eliminar">
-                          <ActionIcon variant="light" color="red" onClick={() => handleDelete(v._id)}>
-                            <Trash2 size={16} />
-                          </ActionIcon>
-                        </Tooltip>
+                      <Group justify="flex-end">
+                        <Menu shadow="md" width={200}>
+                          <Menu.Target>
+                            <ActionIcon variant="subtle" color="gray"><MoreVertical size={16} /></ActionIcon>
+                          </Menu.Target>
+                          <Menu.Dropdown>
+                            <Menu.Label>Acciones</Menu.Label>
+                            <Menu.Item leftSection={<Pencil size={14} />} onClick={() => handleEdit(v)}>Editar</Menu.Item>
+                            <Menu.Divider />
+                            <Menu.Item color="red" leftSection={<Trash2 size={14} />} onClick={() => handleDelete(v._id)}>Eliminar</Menu.Item>
+                          </Menu.Dropdown>
+                        </Menu>
                       </Group>
                     </Table.Td>
                   </Table.Tr>
@@ -234,11 +301,11 @@ const GestionVehiculos = () => {
         <Stack gap="sm">
           <Group grow>
             <Select label="Tipo" data={tiposVehiculo} value={form.tipoVehiculo} onChange={v => updateField('tipoVehiculo', v)} />
-            <TextInput label="Patente" placeholder="ABC-123" value={form.patente} onChange={e => updateField('patente', e.target.value)} required />
+            <TextInput label="Patente" placeholder="ABC-123" value={form.patente} onChange={e => updateField('patente', e.target.value)} error={fieldErrors.patente} required />
           </Group>
           <Group grow>
-            <TextInput label="Marca" placeholder="Iveco" value={form.marca} onChange={e => updateField('marca', e.target.value)} required />
-            <TextInput label="Modelo" placeholder="Daily 35S14" value={form.modelo} onChange={e => updateField('modelo', e.target.value)} required />
+            <TextInput label="Marca" placeholder="Iveco" value={form.marca} onChange={e => updateField('marca', e.target.value)} error={fieldErrors.marca} required />
+            <TextInput label="Modelo" placeholder="Daily 35S14" value={form.modelo} onChange={e => updateField('modelo', e.target.value)} error={fieldErrors.modelo} required />
           </Group>
           <Group grow>
             <NumberInput label="Año" value={form.año} onChange={v => updateField('año', v)} min={1990} max={2030} />
@@ -248,7 +315,7 @@ const GestionVehiculos = () => {
           <Text fw={600} size="sm" mt="sm" c="var(--app-brand-primary)">Configuración Económica</Text>
 
           <Group grow>
-            <NumberInput label="Rendimiento (km/l)" value={form.rendimientoKmLitro} onChange={v => updateField('rendimientoKmLitro', v)} min={1} decimalScale={1} />
+            <NumberInput label="Rendimiento (km/l)" value={form.rendimientoKmLitro} onChange={v => updateField('rendimientoKmLitro', v)} min={1} decimalScale={1} error={fieldErrors.rendimientoKmLitro} />
             <NumberInput label="Precio combustible ($/l)" value={form.precioLitroCombustible} onChange={v => updateField('precioLitroCombustible', v)} min={0} prefix="$" />
           </Group>
           <Group grow>

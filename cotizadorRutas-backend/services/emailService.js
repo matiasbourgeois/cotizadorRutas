@@ -64,3 +64,49 @@ export const enviarEmailVerificacion = async (email, nombre, token) => {
 
   await getTransporter().sendMail(mailOptions);
 };
+
+/**
+ * Envía el email de recuperación de contraseña.
+ * @param {string} email - Dirección de email del destinatario
+ * @param {string} nombre - Nombre del usuario
+ * @param {string} token - Token de recuperación único
+ */
+export const enviarEmailRecuperacion = async (email, nombre, token) => {
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+  const linkRecuperacion = `${frontendUrl}/recuperar/${token}`;
+
+  const mailOptions = {
+    from: `"Cotizador Logístico" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: 'Recuperá tu contraseña — Cotizador Logístico',
+    html: `
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #f8f9fa; border-radius: 12px;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h1 style="color: #1a365d; margin: 0;">Cotizador Logístico</h1>
+        </div>
+        <div style="background: white; padding: 32px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+          <h2 style="color: #2d3748; margin-top: 0;">Hola, ${nombre}</h2>
+          <p style="color: #4a5568; font-size: 16px; line-height: 1.6;">
+            Recibimos una solicitud para restablecer la contraseña de tu cuenta. Hacé clic en el siguiente botón para crear una nueva:
+          </p>
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${linkRecuperacion}" 
+               style="background: #3182ce; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
+              Restablecer contraseña
+            </a>
+          </div>
+          <p style="color: #718096; font-size: 14px;">
+            Este enlace expira en <strong>1 hora</strong>. Si no solicitaste este cambio, podés ignorar este email — tu contraseña seguirá igual.
+          </p>
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+          <p style="color: #a0aec0; font-size: 12px; margin: 0;">
+            Si el botón no funciona, copiá y pegá este enlace en tu navegador:<br>
+            <a href="${linkRecuperacion}" style="color: #3182ce;">${linkRecuperacion}</a>
+          </p>
+        </div>
+      </div>
+    `,
+  };
+
+  await getTransporter().sendMail(mailOptions);
+};

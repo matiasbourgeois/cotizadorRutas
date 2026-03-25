@@ -17,6 +17,17 @@ export const obtenerConfiguracion = async (req, res) => {
       await config.save();
     }
 
+    // Auto-migrate flat recursosHumanos → nested (empleado/contratado)
+    if (config.recursosHumanos && config.recursosHumanos.sueldoBasico != null && !config.recursosHumanos.empleado) {
+      const oldData = config.recursosHumanos.toObject ? config.recursosHumanos.toObject() : { ...config.recursosHumanos };
+      delete oldData._id;
+      config.recursosHumanos = {
+        empleado: { ...oldData },
+        contratado: { ...DEFAULTS_RRHH.contratado, ...oldData, porcentajeCargasSociales: 0, adicionalActividadPorc: 0, adicionalNoRemunerativoFijo: 0, sueldoBasico: 600000 },
+      };
+      await config.save();
+    }
+
     res.json(config);
   } catch (error) {
     console.error('Error al obtener configuración:', error);
@@ -44,10 +55,14 @@ export const actualizarConfiguracion = async (req, res) => {
       }
     }
 
-    // Merge parcial RRHH
+    // Merge parcial RRHH — now per type (empleado/contratado)
     if (recursosHumanos) {
-      for (const [campo, valor] of Object.entries(recursosHumanos)) {
-        updateData[`recursosHumanos.${campo}`] = valor;
+      for (const tipo of ['empleado', 'contratado']) {
+        if (recursosHumanos[tipo]) {
+          for (const [campo, valor] of Object.entries(recursosHumanos[tipo])) {
+            updateData[`recursosHumanos.${tipo}.${campo}`] = valor;
+          }
+        }
       }
     }
 
@@ -87,7 +102,10 @@ export const resetearConfiguracion = async (req, res) => {
             grande: { ...DEFAULTS_VEHICULO.grande },
             camion: { ...DEFAULTS_VEHICULO.camion },
           },
-          recursosHumanos: { ...DEFAULTS_RRHH },
+          recursosHumanos: {
+            empleado: { ...DEFAULTS_RRHH.empleado },
+            contratado: { ...DEFAULTS_RRHH.contratado },
+          },
           calculos: { ...DEFAULTS_CALCULOS },
         },
       },
@@ -122,14 +140,14 @@ export const obtenerDefaultsVehiculoPorTipo = async (usuarioId, tipo) => {
  * Helper: Obtiene los defaults de RRHH para un usuario.
  * Usado internamente por recursoHumanoController.
  */
-export const obtenerDefaultsRRHH = async (usuarioId) => {
+export const obtenerDefaultsRRHH = async (usuarioId, tipo = 'empleado') => {
   try {
     const config = await ConfiguracionDefaults.findOne({ usuario: usuarioId });
-    if (config?.recursosHumanos) {
-      return config.recursosHumanos.toObject();
+    if (config?.recursosHumanos?.[tipo]) {
+      return config.recursosHumanos[tipo].toObject();
     }
   } catch (e) {
     console.error('Error leyendo defaults de RRHH:', e);
   }
-  return { ...DEFAULTS_RRHH };
+  return { ...(DEFAULTS_RRHH[tipo] || DEFAULTS_RRHH.empleado) };
 };

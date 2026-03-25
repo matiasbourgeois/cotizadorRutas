@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { MantineProvider, createTheme } from '@mantine/core';
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import { AuthProvider } from './context/AuthContext.jsx';
 
@@ -13,6 +14,8 @@ import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
 import './index.css';
+import './styles/FormsPremium.css';
+import './styles/AuthPremium.css';
 
 // Definimos nuestro tema personalizado
 const theme = createTheme({
@@ -34,16 +37,18 @@ const theme = createTheme({
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <MantineProvider theme={theme} defaultColorScheme="light">
-        {/* ✅ 2. Envuelve la app con ModalsProvider */}
-        <ModalsProvider>
-          <AuthProvider>
-            <Notifications position="top-right" />
-            <App />
-          </AuthProvider>
-        </ModalsProvider>
-      </MantineProvider>
-    </BrowserRouter>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <BrowserRouter>
+        <MantineProvider theme={theme} defaultColorScheme="light">
+          {/* ✅ 2. Envuelve la app con ModalsProvider */}
+          <ModalsProvider>
+            <AuthProvider>
+              <Notifications position="top-right" />
+              <App />
+            </AuthProvider>
+          </ModalsProvider>
+        </MantineProvider>
+      </BrowserRouter>
+    </GoogleOAuthProvider>
   </React.StrictMode>
 );

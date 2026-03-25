@@ -11,6 +11,8 @@ import RutaProtegida from "./layouts/RutaProtegida";
 import LoginPage from "./pages/auth/LoginPage";
 import RegistroPage from "./pages/auth/RegistroPage";
 import VerificarEmailPage from "./pages/auth/VerificarEmailPage";
+import OlvidePasswordPage from "./pages/auth/OlvidePasswordPage";
+import RecuperarPasswordPage from "./pages/auth/RecuperarPasswordPage";
 import LandingPage from "./pages/LandingPage";
 
 // Pasos del cotizador
@@ -37,6 +39,8 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/registro" element={<RegistroPage />} />
       <Route path="/verificar/:token" element={<VerificarEmailPage />} />
+      <Route path="/olvide-password" element={<OlvidePasswordPage />} />
+      <Route path="/recuperar/:token" element={<RecuperarPasswordPage />} />
 
       {/* Rutas privadas (requieren login) */}
       <Route path="/" element={<RutaProtegida />}>

@@ -359,13 +359,13 @@
 }
 
 .step-btn-back:hover {
-  background: var(--app-surface-hover);
-  border-color: var(--app-text-muted);
-  transform: translateX(-2px);
+  background: rgba(34, 211, 238, 0.06);
+  border-color: rgba(34, 211, 238, 0.25);
+  color: var(--app-text);
 }
 
 .step-btn-back:active {
-  transform: translateX(-1px) scale(0.98);
+  transform: scale(0.97);
 }
 
 .step-btn-next {

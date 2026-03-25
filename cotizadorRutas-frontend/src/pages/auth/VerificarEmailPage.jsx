@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import clienteAxios from '../../api/clienteAxios';
 import {
-  Container, Title, Paper, Text, Button, Stack, Loader, Center,
+  Paper, Text, Button, Stack, Loader, Center,
 } from '@mantine/core';
-import { CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { Check, X, ArrowLeft } from 'lucide-react';
 
 const VerificarEmailPage = () => {
   const { token } = useParams();
-  const [estado, setEstado] = useState('cargando'); // cargando | exito | error | expirado
+  const [estado, setEstado] = useState('cargando');
   const [mensaje, setMensaje] = useState('');
 
   useEffect(() => {
@@ -32,45 +32,77 @@ const VerificarEmailPage = () => {
   }, [token]);
 
   return (
-    <Container size={460} my={60}>
-      <Paper withBorder shadow="md" p={40} radius="md">
-        {estado === 'cargando' && (
-          <Center>
+    <div className="auth-page">
+      <Link to="/landing" className="auth-logo" style={{ textDecoration: 'none' }}>
+        <div className="auth-logo-icon"><img src="/favicon.png" alt="" /></div>
+        <div className="auth-logo-text">
+          Cotizador <span className="auth-logo-accent">Logístico</span>
+        </div>
+      </Link>
+      <div className="auth-subtitle">Verificación de cuenta</div>
+
+      <div className="auth-card">
+        <Paper shadow="lg" p={40} radius="lg">
+          {estado === 'cargando' && (
+            <Center>
+              <Stack align="center" gap="md">
+                <Loader size="lg" color="cyan" />
+                <Text size="lg" fw={500}>Verificando tu cuenta...</Text>
+              </Stack>
+            </Center>
+          )}
+
+          {estado === 'exito' && (
             <Stack align="center" gap="md">
-              <Loader size="lg" />
-              <Text size="lg">Verificando tu cuenta...</Text>
+              <div className="auth-icon-circle success">
+                <Check size={32} color="white" />
+              </div>
+              <Text fw={700} fz="xl" ta="center">¡Cuenta verificada!</Text>
+              <Text ta="center" c="dimmed">{mensaje}</Text>
+              <Button
+                component={Link}
+                to="/login"
+                fullWidth
+                mt="md"
+                size="md"
+                className="auth-btn-primary"
+              >
+                Iniciar sesión
+              </Button>
             </Stack>
-          </Center>
-        )}
+          )}
 
-        {estado === 'exito' && (
-          <Stack align="center" gap="md">
-            <CheckCircle size={64} color="var(--mantine-color-green-6)" />
-            <Title order={2} ta="center" c="green">¡Cuenta verificada!</Title>
-            <Text ta="center" c="dimmed" size="lg">{mensaje}</Text>
-            <Button component={Link} to="/login" fullWidth mt="md" size="md">
-              Iniciar sesión
-            </Button>
-          </Stack>
-        )}
+          {(estado === 'error' || estado === 'expirado') && (
+            <Stack align="center" gap="md">
+              <div className="auth-icon-circle error">
+                <X size={32} color="white" />
+              </div>
+              <Text fw={700} fz="xl" ta="center" c="red.6">Verificación fallida</Text>
+              <Text ta="center" c="dimmed">{mensaje}</Text>
+              {estado === 'expirado' && (
+                <Text ta="center" size="sm" c="dimmed">
+                  Podés solicitar un nuevo enlace desde la pantalla de login.
+                </Text>
+              )}
+              <Button
+                component={Link}
+                to="/login"
+                fullWidth
+                mt="md"
+                variant="light"
+                color="cyan"
+                size="md"
+                leftSection={<ArrowLeft size={16} />}
+              >
+                Ir al login
+              </Button>
+            </Stack>
+          )}
+        </Paper>
+      </div>
 
-        {(estado === 'error' || estado === 'expirado') && (
-          <Stack align="center" gap="md">
-            <XCircle size={64} color="var(--mantine-color-red-6)" />
-            <Title order={2} ta="center" c="red">Verificación fallida</Title>
-            <Text ta="center" c="dimmed" size="lg">{mensaje}</Text>
-            {estado === 'expirado' && (
-              <Text ta="center" size="sm" c="dimmed">
-                Podés solicitar un nuevo enlace desde la pantalla de login.
-              </Text>
-            )}
-            <Button component={Link} to="/login" fullWidth mt="md" variant="light" size="md">
-              Ir al login
-            </Button>
-          </Stack>
-        )}
-      </Paper>
-    </Container>
+      <div className="auth-footer">© {new Date().getFullYear()} Cotizador Logístico</div>
+    </div>
   );
 };
 

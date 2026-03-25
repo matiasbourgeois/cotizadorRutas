@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════
-   Step5.css — V3 Command Center Design
-   Hero profit card · Growing sliders · Compact secondary row
+   Step5.css — V4 Pricing Command Center
+   Compact hero · Unified slider console · Waterfall bar
    ═══════════════════════════════════════════════════════════════ */
 
-/* ─── Main container ─── */
+/* ─── Container ─── */
 .s5 {
   display: grid;
   grid-template-columns: 1fr 340px;
@@ -12,7 +12,6 @@
   overflow: hidden;
 }
 
-/* ─── Left column ─── */
 .s5-main {
   display: flex;
   flex-direction: column;
@@ -21,16 +20,16 @@
   overflow: hidden;
 }
 
-/* ═══ HERO CARD — Margen Neto ═══ */
+/* ═══ HERO — Margen Neto banner ═══ */
 .s5-hero {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 24px;
+  padding: 12px 22px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-  border: 1px solid rgba(34, 211, 238, 0.2);
+  background: linear-gradient(135deg, #1e293b, #334155);
+  border: 1px solid rgba(34, 211, 238, 0.15);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -39,34 +38,23 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(34,211,238,0.08), transparent 50%, rgba(16,185,129,0.06));
-  pointer-events: none;
-}
-
-.s5-hero::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(34,211,238,0.06) 0%, transparent 70%);
+  background: linear-gradient(135deg, rgba(34,211,238,0.06), transparent 60%, rgba(16,185,129,0.04));
   pointer-events: none;
 }
 
 .s5-hero-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   position: relative;
   z-index: 1;
 }
 
 .s5-hero-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(34,211,238,0.15));
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(34,211,238,0.12));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -75,15 +63,15 @@
 }
 
 .s5-hero-label {
-  font-size: 0.72rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.45);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .s5-hero-pct {
-  font-size: 1.6rem;
+  font-size: 1.9rem;
   font-weight: 900;
   color: #10b981;
   line-height: 1;
@@ -96,13 +84,12 @@
 }
 
 .s5-hero-money-label {
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.4);
-  font-weight: 500;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.35);
 }
 
 .s5-hero-money {
-  font-size: 1.8rem;
+  font-size: 1.9rem;
   font-weight: 900;
   color: #22d3ee;
   line-height: 1;
@@ -110,59 +97,58 @@
 }
 
 .s5-hero-money-sub {
-  font-size: 0.62rem;
-  color: rgba(255,255,255,0.3);
-  margin-top: 2px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.25);
+  margin-top: 1px;
 }
 
-/* ═══ SLIDER CARDS — grow to fill ═══ */
-.s5-sliders {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+/* ═══ PRICING CONSOLE — unified panel ═══ */
+.s5-console {
   flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  overflow: hidden;
+}
+
+.s5-console-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 22px;
+  gap: 0;
   min-height: 0;
 }
 
-.s5-slider-card {
+/* ─── Slider sections ─── */
+.s5-slider-section {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 16px 20px;
-  border-radius: 12px;
-  border: 1px solid var(--app-border);
-  background: var(--app-surface);
-  position: relative;
-  overflow: hidden;
-  gap: 10px;
+  justify-content: center;
+  padding: 8px 0;
+  min-height: 0;
 }
-
-.s5-slider-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-}
-
-.s5-slider-card--cyan::before { background: linear-gradient(90deg, #22d3ee, rgba(34,211,238,0.2)); }
-.s5-slider-card--violet::before { background: linear-gradient(90deg, #8b5cf6, rgba(139,92,246,0.2)); }
 
 .s5-slider-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  margin-bottom: 6px;
 }
 
 .s5-slider-label-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .s5-slider-icon {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -170,17 +156,17 @@
   flex-shrink: 0;
 }
 
-.s5-slider-icon--cyan { background: rgba(34,211,238,0.12); color: #22d3ee; }
-.s5-slider-icon--violet { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+.s5-slider-icon--cyan { background: rgba(34,211,238,0.1); color: #22d3ee; }
+.s5-slider-icon--violet { background: rgba(139,92,246,0.1); color: #8b5cf6; }
 
 .s5-slider-title {
-  font-size: 0.78rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--app-text);
 }
 
-.s5-slider-subtitle {
-  font-size: 0.65rem;
+.s5-slider-sub {
+  font-size: 0.78rem;
   color: var(--app-text-muted);
 }
 
@@ -194,26 +180,11 @@
 .s5-slider-big-pct--cyan { color: #22d3ee; }
 .s5-slider-big-pct--violet { color: #8b5cf6; }
 
-.s5-slider-track {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 0;
-}
-
-.s5-slider-track .mantine-Slider-root {
-  flex-shrink: 0;
-}
-
 .s5-slider-amount {
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--app-text-muted);
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  margin-top: 6px;
 }
 
 .s5-slider-amount span {
@@ -221,22 +192,98 @@
   font-weight: 800;
 }
 
-/* ═══ SECONDARY ROW — compact ═══ */
+/* Divider between sliders */
+.s5-divider {
+  height: 1px;
+  background: var(--app-border);
+  flex-shrink: 0;
+  margin: 4px 0;
+}
+
+/* ═══ PRICING WATERFALL BAR ═══ */
+.s5-waterfall {
+  flex-shrink: 0;
+  padding: 10px 22px 14px;
+  border-top: 1px solid var(--app-border);
+  background: linear-gradient(180deg, transparent, rgba(34,211,238,0.02));
+}
+
+.s5-waterfall-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--app-text-muted);
+  margin-bottom: 8px;
+}
+
+.s5-waterfall-bar {
+  display: flex;
+  border-radius: 6px;
+  overflow: hidden;
+  height: 24px;
+}
+
+.s5-waterfall-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+  padding: 0 4px;
+  transition: flex 0.3s ease;
+}
+
+.s5-waterfall-seg--base { background: #334155; }
+.s5-waterfall-seg--gain { background: #22d3ee; }
+.s5-waterfall-seg--admin { background: #8b5cf6; }
+.s5-waterfall-seg--extra { background: #f59e0b; }
+
+.s5-waterfall-legend {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.s5-waterfall-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--app-text-muted);
+}
+
+.s5-waterfall-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.s5-waterfall-legend-val {
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+/* ═══ SECONDARY ROW ═══ */
 .s5-secondary {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
 .s5-sec-card {
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 10px;
   border: 1px solid var(--app-border);
   background: var(--app-surface);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   position: relative;
   overflow: hidden;
 }
@@ -249,22 +296,22 @@
 }
 
 .s5-sec-card--amber::before { background: linear-gradient(90deg, #f59e0b, transparent); }
-.s5-sec-card--slate::before { background: linear-gradient(90deg, rgba(128,128,128,0.3), transparent); }
+.s5-sec-card--slate::before { background: linear-gradient(90deg, rgba(128,128,128,0.25), transparent); }
 
 .s5-sec-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.65rem;
+  gap: 5px;
+  font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: var(--app-text-muted);
 }
 
 .s5-sec-icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -274,20 +321,17 @@
 .s5-sec-icon--amber { background: rgba(245,158,11,0.12); color: #f59e0b; }
 .s5-sec-icon--slate { background: rgba(128,128,128,0.12); color: var(--app-text-muted); }
 
-/* ─── Bottom nav ─── */
+/* ─── Nav ─── */
 .s5-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
-  padding-top: 6px;
+  padding-top: 4px;
 }
 
-/* ─── Finalize button group ─── */
-.s5-finalize-group {
-  display: flex;
-  gap: 0;
-}
+/* ─── Finalize button ─── */
+.s5-finalize-group { display: flex; gap: 0; }
 
 .s5-btn-final {
   display: inline-flex;
@@ -295,7 +339,7 @@
   gap: 8px;
   padding: 10px 22px;
   border: none;
-  font-size: 0.88rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: white;
   cursor: pointer;
@@ -334,12 +378,10 @@
 
 .s5-btn-final--drop:hover { background: linear-gradient(135deg, #047857, #065f46); }
 
-.s5-btn-final:disabled {
-  opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none;
-}
+.s5-btn-final:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 .s5-btn-final:disabled::after { display: none; }
 
-/* ─── Responsive 720p ─── */
+/* ─── 720p ─── */
 @media (max-height: 800px) {
   .s5 {
     height: calc(100vh - 48px - 50px - 36px);
@@ -347,17 +389,20 @@
     grid-template-columns: 1fr 260px;
   }
   .s5-main { gap: 6px; }
-  .s5-hero { padding: 10px 16px; border-radius: 10px; }
-  .s5-hero-icon { width: 32px; height: 32px; }
+  .s5-hero { padding: 8px 16px; border-radius: 10px; }
+  .s5-hero-icon { width: 30px; height: 30px; }
   .s5-hero-pct { font-size: 1.2rem; }
-  .s5-hero-money { font-size: 1.3rem; }
-  .s5-sliders { gap: 6px; }
-  .s5-slider-card { padding: 10px 14px; gap: 6px; border-radius: 10px; }
-  .s5-slider-big-pct { font-size: 1.5rem; }
-  .s5-slider-amount { font-size: 0.75rem; margin-top: 4px; }
+  .s5-hero-money { font-size: 1.2rem; }
+  .s5-console { border-radius: 10px; }
+  .s5-console-body { padding: 10px 16px; }
+  .s5-slider-section { padding: 4px 0; }
+  .s5-slider-big-pct { font-size: 1.2rem; }
+  .s5-slider-amount { font-size: 0.7rem; margin-top: 3px; }
+  .s5-waterfall { padding: 6px 16px 10px; }
+  .s5-waterfall-bar { height: 18px; }
   .s5-secondary { gap: 6px; }
-  .s5-sec-card { padding: 6px 10px; gap: 4px; border-radius: 8px; }
-  .s5-sec-label { font-size: 0.58rem; }
+  .s5-sec-card { padding: 6px 10px; gap: 3px; border-radius: 8px; }
+  .s5-sec-label { font-size: 0.56rem; }
   .s5-btn-final { padding: 8px 16px; font-size: 0.82rem; }
   .s5-nav { padding-top: 2px; }
 }

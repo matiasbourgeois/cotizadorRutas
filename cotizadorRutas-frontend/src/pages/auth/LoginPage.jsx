@@ -4,10 +4,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import clienteAxios from '../../api/clienteAxios';
 import {
-    Container, Title, Paper, TextInput, PasswordInput, Button, Stack, Text,
+    Paper, TextInput, PasswordInput, Button, Stack, Text,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { AtSign, Lock } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -70,60 +71,113 @@ const LoginPage = () => {
         }
     };
 
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            const { data } = await clienteAxios.post('/auth/google', {
+                credential: credentialResponse.credential,
+            });
+            localStorage.setItem('token_cotizador', data.token);
+            localStorage.setItem('authData', JSON.stringify(data));
+            setAuth(data);
+            navigate('/');
+        } catch (error) {
+            notifications.show({
+                title: 'Error con Google',
+                message: error.response?.data?.msg || 'No se pudo iniciar sesión con Google.',
+                color: 'red',
+            });
+        }
+    };
+
     return (
-        <Container size={420} my={40}>
-            <Title ta="center" c="var(--app-brand-primary)">Cotizador Logístico</Title>
-            <Title ta="center" c="var(--app-brand-primary)">
-                Iniciar Sesión
-            </Title>
+        <div className="auth-page">
+            <Link to="/landing" className="auth-logo" style={{ textDecoration: 'none' }}>
+                <div className="auth-logo-icon"><img src="/favicon.png" alt="" /></div>
+                <div className="auth-logo-text">
+                    Cotizador <span className="auth-logo-accent">Logístico</span>
+                </div>
+            </Link>
+            <div className="auth-subtitle">Iniciá sesión en tu cuenta</div>
 
-            <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-                <form onSubmit={handleSubmit}>
-                    <Stack>
-                        <TextInput
-                            required
-                            label="Email"
-                            placeholder="tu.email@dominio.com"
-                            value={email}
-                            onChange={(event) => setEmail(event.currentTarget.value)}
-                            leftSection={<AtSign size={16} />}
-                        />
+            <div className="auth-card">
+                <Paper shadow="lg" p={32} radius="lg">
+                    <form onSubmit={handleSubmit}>
+                        <Stack>
+                            <TextInput
+                                required
+                                label="Email"
+                                placeholder="tu.email@dominio.com"
+                                value={email}
+                                onChange={(event) => setEmail(event.currentTarget.value)}
+                                leftSection={<AtSign size={16} />}
+                            />
 
-                        <PasswordInput
-                            required
-                            label="Contraseña"
-                            placeholder="Tu contraseña"
-                            value={password}
-                            onChange={(event) => setPassword(event.currentTarget.value)}
-                            leftSection={<Lock size={16} />}
-                        />
+                            <PasswordInput
+                                required
+                                label="Contraseña"
+                                placeholder="Tu contraseña"
+                                value={password}
+                                onChange={(event) => setPassword(event.currentTarget.value)}
+                                leftSection={<Lock size={16} />}
+                            />
 
-                        {noVerificado && (
-                            <Button
-                                variant="light"
-                                color="yellow"
-                                fullWidth
-                                loading={reenviando}
-                                onClick={handleReenviarVerificacion}
-                            >
-                                Reenviar email de verificación
-                            </Button>
-                        )}
+                            {noVerificado && (
+                                <Button
+                                    variant="light"
+                                    color="yellow"
+                                    fullWidth
+                                    loading={reenviando}
+                                    onClick={handleReenviarVerificacion}
+                                >
+                                    Reenviar email de verificación
+                                </Button>
+                            )}
 
-                        <Button fullWidth mt="xl" type="submit" loading={loading}>
-                            Ingresar
-                        </Button>
-
-                        <Text ta="center" mt="md" size="sm">
-                            ¿No tenés cuenta?{' '}
-                            <Text component={Link} to="/registro" c="blue" inherit>
-                                Registrate
+                            <Text ta="right" size="xs">
+                                <Text component={Link} to="/olvide-password" className="auth-link" inherit>
+                                    ¿Olvidaste tu contraseña?
+                                </Text>
                             </Text>
-                        </Text>
-                    </Stack>
-                </form>
-            </Paper>
-        </Container>
+
+                            <Button fullWidth type="submit" loading={loading} className="auth-btn-primary" size="md">
+                                Ingresar
+                            </Button>
+
+                            <div className="auth-divider">
+                                <Text size="xs" c="dimmed">o</Text>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <GoogleLogin
+                                    onSuccess={handleGoogleSuccess}
+                                    onError={() => {
+                                        notifications.show({
+                                            title: 'Error',
+                                            message: 'No se pudo conectar con Google.',
+                                            color: 'red',
+                                        });
+                                    }}
+                                    text="continue_with"
+                                    shape="pill"
+                                    size="large"
+                                    width="300"
+                                    locale="es"
+                                />
+                            </div>
+
+                            <Text ta="center" mt="xs" size="sm">
+                                ¿No tenés cuenta?{' '}
+                                <Text component={Link} to="/registro" className="auth-link" inherit>
+                                    Registrate
+                                </Text>
+                            </Text>
+                        </Stack>
+                    </form>
+                </Paper>
+            </div>
+
+            <div className="auth-footer">© {new Date().getFullYear()} Cotizador Logístico</div>
+        </div>
     );
 };
 

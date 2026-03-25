@@ -8,7 +8,6 @@ import { User, Mail, Phone, Fingerprint } from "lucide-react"; // Íconos para l
 const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
   
   const form = useForm({
-    mode: 'uncontrolled',
     initialValues: {
       nombre: "",
       dni: "",
@@ -18,8 +17,11 @@ const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
     },
 
     validate: {
-      nombre: (value) => (value.trim().length < 3 ? 'El nombre es obligatorio' : null),
-      dni: (value) => (/^\d{7,8}$/.test(value) ? null : 'El DNI debe tener 7 u 8 números, sin puntos'),
+      nombre: (value) => (value.trim().length < 3 ? 'El nombre es obligatorio (mín. 3 caracteres)' : null),
+      dni: (value) => {
+        if (!value) return null; // DNI es opcional
+        return /^\d{7,8}$/.test(value) ? null : 'El DNI debe tener 7 u 8 números, sin puntos';
+      },
       email: (value) => {
         if (!value) return null; // El email es opcional
         return /^\S+@\S+$/.test(value) ? null : 'El formato del email no es válido';
@@ -103,7 +105,7 @@ const ModalCrearRecursoHumano = ({ show, onHide, onCrear }) => {
               Cancelar
             </Button>
             {/* ✅ 5. El botón de Crear se deshabilita si los campos obligatorios no son válidos */}
-            <Button type="submit" disabled={!form.isValid()}>
+            <Button type="submit">
               Crear Recurso
             </Button>
           </Group>

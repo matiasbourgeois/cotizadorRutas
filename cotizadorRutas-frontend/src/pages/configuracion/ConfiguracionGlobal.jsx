@@ -100,6 +100,55 @@ const VehiculoForm = ({ data, onChange }) => {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// Sub-tab para un tipo de RRHH (empleado / contratado)
+// ═══════════════════════════════════════════════════════════════════
+const RRHHForm = ({ data, onChange }) => {
+  const set = (campo, val) => onChange({ ...data, [campo]: val });
+
+  return (
+    <Stack gap="md">
+      <Seccion icon={DollarSign} color="teal" titulo="Sueldo y Adicionales Base">
+        <SimpleGrid cols={{ base: 1, sm: 3 }}>
+          <Campo label="Sueldo Básico ($)" value={data.sueldoBasico} onChange={v => set('sueldoBasico', v)} prefix="$" />
+          <Campo label="Adicional Actividad (%)" value={data.adicionalActividadPorc} onChange={v => set('adicionalActividadPorc', v)} suffix="%" decimalScale={1} />
+          <Campo label="Adicional No Rem. Fijo ($)" value={data.adicionalNoRemunerativoFijo} onChange={v => set('adicionalNoRemunerativoFijo', v)} prefix="$" />
+        </SimpleGrid>
+      </Seccion>
+
+      <Seccion icon={Gauge} color="cyan" titulo="Adicionales por Kilómetro">
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
+          <Campo label="Adicional km Remunerativo ($/km)" value={data.adicionalKmRemunerativo} onChange={v => set('adicionalKmRemunerativo', v)} prefix="$" decimalScale={2} />
+          <Campo label="Mínimo km Remunerativo" value={data.minKmRemunerativo} onChange={v => set('minKmRemunerativo', v)} suffix=" km" />
+          <Campo label="Viático por km No Rem. ($/km)" value={data.viaticoPorKmNoRemunerativo} onChange={v => set('viaticoPorKmNoRemunerativo', v)} prefix="$" decimalScale={2} />
+          <Campo label="Mínimo km No Remunerativo" value={data.minKmNoRemunerativo} onChange={v => set('minKmNoRemunerativo', v)} suffix=" km" />
+        </SimpleGrid>
+      </Seccion>
+
+      <Seccion icon={Weight} color="orange" titulo="Carga y Descarga">
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
+          <Campo label="Adicional carga/descarga ($)" value={data.adicionalCargaDescargaCadaXkm} onChange={v => set('adicionalCargaDescargaCadaXkm', v)} prefix="$" decimalScale={2} />
+          <Campo label="Cada cuántos km aplica" value={data.kmPorUnidadDeCarga} onChange={v => set('kmPorUnidadDeCarga', v)} suffix=" km" />
+        </SimpleGrid>
+      </Seccion>
+
+      <Seccion icon={Clock} color="violet" titulo="Jornada Laboral">
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
+          <Campo label="Horas laborales mensuales" value={data.horasLaboralesMensuales} onChange={v => set('horasLaboralesMensuales', v)} suffix=" hs" />
+          <Campo label="Mínimo minutos facturables" value={data.minimoMinutosFacturables} onChange={v => set('minimoMinutosFacturables', v)} suffix=" min" />
+        </SimpleGrid>
+      </Seccion>
+
+      <Seccion icon={Shield} color="blue" titulo="Cargas y Overhead">
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
+          <Campo label="Cargas Sociales (%)" value={data.porcentajeCargasSociales} onChange={v => set('porcentajeCargasSociales', v)} suffix="%" max={100} />
+          <Campo label="Overhead Contratado (%)" value={data.porcentajeOverheadContratado} onChange={v => set('porcentajeOverheadContratado', v)} suffix="%" max={100} />
+        </SimpleGrid>
+      </Seccion>
+    </Stack>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // COMPONENTE PRINCIPAL
 // ═══════════════════════════════════════════════════════════════════
 
@@ -108,6 +157,11 @@ const TIPO_LABELS = {
   mediano: { label: 'Mediano', icon: Truck, color: 'teal' },
   grande: { label: 'Grande', icon: Truck, color: 'violet' },
   camion: { label: 'Camión', icon: Truck, color: 'red' },
+};
+
+const TIPO_RRHH_LABELS = {
+  empleado:   { label: 'Empleado',   icon: Users, color: 'blue' },
+  contratado: { label: 'Contratado', icon: Zap,   color: 'yellow' },
 };
 
 const ConfiguracionGlobal = () => {
@@ -170,10 +224,10 @@ const ConfiguracionGlobal = () => {
     }));
   };
 
-  const setRRHH = (campo, val) => {
+  const setRRHH = (tipo, data) => {
     setConfig(prev => ({
       ...prev,
-      recursosHumanos: { ...prev.recursosHumanos, [campo]: val },
+      recursosHumanos: { ...prev.recursosHumanos, [tipo]: data },
     }));
   };
 
@@ -230,6 +284,7 @@ const ConfiguracionGlobal = () => {
           </Tabs.Tab>
           <Tabs.Tab value="rrhh" leftSection={<Users size={16} />}>
             Recursos Humanos
+            <Badge size="xs" ml={6} color="blue" variant="light">2 tipos</Badge>
           </Tabs.Tab>
           <Tabs.Tab value="calculos" leftSection={<Calculator size={16} />}>
             Constantes de Cálculo
@@ -260,50 +315,24 @@ const ConfiguracionGlobal = () => {
 
         {/* ════════ TAB RRHH ════════ */}
         <Tabs.Panel value="rrhh">
-          <Stack gap="md">
-            <Seccion icon={DollarSign} color="teal" titulo="Sueldo y Adicionales Base">
-              <SimpleGrid cols={{ base: 1, sm: 3 }}>
-                <Campo label="Sueldo Básico ($)" value={config.recursosHumanos?.sueldoBasico} onChange={v => setRRHH('sueldoBasico', v)} prefix="$" />
-                <Campo label="Adicional Actividad (%)" value={config.recursosHumanos?.adicionalActividadPorc} onChange={v => setRRHH('adicionalActividadPorc', v)} suffix="%" decimalScale={1} />
-                <Campo label="Adicional No Rem. Fijo ($)" value={config.recursosHumanos?.adicionalNoRemunerativoFijo} onChange={v => setRRHH('adicionalNoRemunerativoFijo', v)} prefix="$" />
-              </SimpleGrid>
-            </Seccion>
+          <Tabs defaultValue="empleado" variant="outline" radius="md">
+            <Tabs.List mb="md">
+              {Object.entries(TIPO_RRHH_LABELS).map(([tipo, { label, icon: Icon, color }]) => (
+                <Tabs.Tab key={tipo} value={tipo} leftSection={<Icon size={14} />} color={color}>
+                  {label}
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
 
-            <Seccion icon={Gauge} color="cyan" titulo="Adicionales por Kilómetro">
-              <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                <Campo label="Adicional km Remunerativo ($/km)" value={config.recursosHumanos?.adicionalKmRemunerativo} onChange={v => setRRHH('adicionalKmRemunerativo', v)} prefix="$" decimalScale={2} />
-                <Campo label="Mínimo km Remunerativo" value={config.recursosHumanos?.minKmRemunerativo} onChange={v => setRRHH('minKmRemunerativo', v)} suffix=" km" />
-                <Campo label="Viático por km No Rem. ($/km)" value={config.recursosHumanos?.viaticoPorKmNoRemunerativo} onChange={v => setRRHH('viaticoPorKmNoRemunerativo', v)} prefix="$" decimalScale={2} />
-                <Campo label="Mínimo km No Remunerativo" value={config.recursosHumanos?.minKmNoRemunerativo} onChange={v => setRRHH('minKmNoRemunerativo', v)} suffix=" km" />
-              </SimpleGrid>
-            </Seccion>
-
-            <Seccion icon={Weight} color="orange" titulo="Carga y Descarga">
-              <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                <Campo label="Adicional carga/descarga ($)" value={config.recursosHumanos?.adicionalCargaDescargaCadaXkm} onChange={v => setRRHH('adicionalCargaDescargaCadaXkm', v)} prefix="$" decimalScale={2} />
-                <Campo label="Cada cuántos km aplica" value={config.recursosHumanos?.kmPorUnidadDeCarga} onChange={v => setRRHH('kmPorUnidadDeCarga', v)} suffix=" km" />
-              </SimpleGrid>
-            </Seccion>
-
-            <Seccion icon={Clock} color="violet" titulo="Jornada Laboral">
-              <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                <Campo label="Horas laborales mensuales" value={config.recursosHumanos?.horasLaboralesMensuales} onChange={v => setRRHH('horasLaboralesMensuales', v)} suffix=" hs" />
-                <Campo label="Mínimo minutos facturables" value={config.recursosHumanos?.minimoMinutosFacturables} onChange={v => setRRHH('minimoMinutosFacturables', v)} suffix=" min" />
-              </SimpleGrid>
-            </Seccion>
-
-            <Divider label="Por tipo de contratación" labelPosition="center" />
-
-            <SimpleGrid cols={{ base: 1, sm: 2 }}>
-              <Seccion icon={Users} color="blue" titulo="Empleado (Rel. Dependencia)">
-                <Campo label="Cargas Sociales (%)" value={config.recursosHumanos?.porcentajeCargasSociales} onChange={v => setRRHH('porcentajeCargasSociales', v)} suffix="%" max={100} />
-              </Seccion>
-
-              <Seccion icon={Zap} color="yellow" titulo="Contratado (Monotributista)">
-                <Campo label="Overhead (%)" value={config.recursosHumanos?.porcentajeOverheadContratado} onChange={v => setRRHH('porcentajeOverheadContratado', v)} suffix="%" max={100} />
-              </Seccion>
-            </SimpleGrid>
-          </Stack>
+            {Object.keys(TIPO_RRHH_LABELS).map(tipo => (
+              <Tabs.Panel key={tipo} value={tipo}>
+                <RRHHForm
+                  data={config.recursosHumanos?.[tipo] || {}}
+                  onChange={data => setRRHH(tipo, data)}
+                />
+              </Tabs.Panel>
+            ))}
+          </Tabs>
         </Tabs.Panel>
 
         {/* ════════ TAB CÁLCULOS ════════ */}

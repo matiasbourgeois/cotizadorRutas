@@ -1,20 +1,93 @@
-@keyframes pulseEffect {
-  0% {
-    box-shadow: 0 0 0 0 var(--app-pulse-color);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba(22, 163, 224, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(22, 163, 224, 0);
-  }
+/* ═══════════════════════════════════════════════════════════════
+   Asistente.css — Premium contextual AI assistant
+   Matches sidebar card style · Cyan left border · Bullet tips
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Card shell ─── */
+.ai-card {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--app-border);
+  padding: 12px 14px 12px 16px;
+  margin-top: 12px;
+  overflow: hidden;
+  background: var(--app-surface);
 }
 
-.icon-pulse {
+.ai-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #22d3ee, rgba(34,211,238,0.15));
+  border-radius: 0 2px 2px 0;
+}
+
+/* ─── Header ─── */
+.ai-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ai-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(34,211,238,0.1);
+  color: #22d3ee;
+  flex-shrink: 0;
+}
+
+.ai-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--app-text);
+  margin: 0;
+}
+
+.ai-subtitle {
+  font-size: 0.6rem;
+  color: var(--app-text-muted);
+  margin-left: auto;
+  font-weight: 500;
+}
+
+/* ─── Tips list ─── */
+.ai-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-tip {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.ai-tip-bullet {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  animation: pulseEffect 2s infinite;
+  background: #22d3ee;
+  flex-shrink: 0;
+  margin-top: 6px;
 }
 
+.ai-tip-text {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--app-text-secondary, var(--app-text-muted));
+}
+
+/* ─── Typing cursor ─── */
 .typing-cursor {
   display: inline-block;
   width: 1ch;
@@ -27,4 +100,14 @@
 
 @media print {
   .typing-cursor { display: none; }
+}
+
+/* ─── 720p ─── */
+@media (max-height: 800px) {
+  .ai-card { padding: 8px 10px 8px 14px; margin-top: 8px; border-radius: 10px; }
+  .ai-header { margin-bottom: 6px; gap: 6px; }
+  .ai-icon { width: 22px; height: 22px; }
+  .ai-title { font-size: 0.78rem; }
+  .ai-tips { gap: 5px; }
+  .ai-tip-text { font-size: 0.72rem; }
 }

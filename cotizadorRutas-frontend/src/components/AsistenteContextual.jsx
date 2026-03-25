@@ -1,18 +1,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
-import { Paper, Title, Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import { HelpCircle } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import './Asistente.css';
 import TypingText from './TypingText';
 
-const TYPING_SPEED = 25;   // ms por carácter
-const BASE_DELAY   = 120;  // retardo inicial del primer tip
+const TYPING_SPEED = 25;
+const BASE_DELAY   = 120;
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ──────────────────────────────────────────────────────────────────────────────
-
-// Muestra los párrafos de un tip en serie (uno tras otro)
+// Sequential paragraph typing within a single tip
 function ParrafosSecuenciales({ texto, onDone, initialDelayMs = 0 }) {
   const parrafos = useMemo(
     () => String(texto ?? '').split(/\n\s*\n/),
@@ -22,13 +17,11 @@ function ParrafosSecuenciales({ texto, onDone, initialDelayMs = 0 }) {
   const [current, setCurrent] = useState(0);
   const [finished, setFinished] = useState(false);
 
-  // Reiniciar cuando cambia el texto
   useEffect(() => {
     setCurrent(0);
     setFinished(false);
   }, [texto]);
 
-  // Avisar al padre cuando se terminaron todos los párrafos
   useEffect(() => {
     if (!finished && current >= parrafos.length) {
       setFinished(true);
@@ -37,95 +30,86 @@ function ParrafosSecuenciales({ texto, onDone, initialDelayMs = 0 }) {
   }, [current, parrafos.length, finished, onDone]);
 
   return (
-    <Stack gap={4}>
+    <>
       {parrafos.map((p, i) => {
         if (i < current) {
-          // ya terminado: texto completo, sin cursor
           return (
-            <Text key={i} size="sm" c="var(--app-text-secondary)">
-              {p}
-            </Text>
+            <div key={i} className="ai-tip">
+              <div className="ai-tip-bullet" />
+              <span className="ai-tip-text">{p}</span>
+            </div>
           );
         }
         if (i === current) {
-          // activo: se tipea; cuando termina, avanza al siguiente
           return (
-            <Text key={i} size="sm" c="var(--app-text-secondary)">
-              <TypingText
-                text={p}
-                speed={TYPING_SPEED}
-                startDelay={i === 0 ? initialDelayMs : 0}
-                showCursor
-                onDone={() => setCurrent((prev) => prev + 1)}
-              />
-            </Text>
+            <div key={i} className="ai-tip">
+              <div className="ai-tip-bullet" />
+              <span className="ai-tip-text">
+                <TypingText
+                  text={p}
+                  speed={TYPING_SPEED}
+                  startDelay={i === 0 ? initialDelayMs : 0}
+                  showCursor
+                  onDone={() => setCurrent((prev) => prev + 1)}
+                />
+              </span>
+            </div>
           );
         }
-        // futuros: aún no se montan
         return null;
       })}
-    </Stack>
+    </>
   );
 }
 
-// Render estático de un tip (para los ya finalizados)
+// Static tip (already typed)
 function TipEstatico({ texto }) {
   const parrafos = useMemo(
     () => String(texto ?? '').split(/\n\s*\n/),
     [texto]
   );
   return (
-    <Stack gap={4}>
+    <>
       {parrafos.map((p, i) => (
-        <Text key={i} size="sm" c="var(--app-text-secondary)">
-          {p}
-        </Text>
+        <div key={i} className="ai-tip">
+          <div className="ai-tip-bullet" />
+          <span className="ai-tip-text">{p}</span>
+        </div>
       ))}
-    </Stack>
+    </>
   );
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Componente principal
-// ──────────────────────────────────────────────────────────────────────────────
 
 const AsistenteContextual = ({ consejos }) => {
   if (!consejos || consejos.length === 0) return null;
 
-  // Secuencia total: un tip por vez
   const [activeTip, setActiveTip] = useState(0);
 
-  // Clave textual estable: solo cambia si cambia el contenido de los tips
   const consejosKey = useMemo(
     () => (consejos || []).map(t => t?.texto ?? '').join('||'),
     [consejos]
   );
 
-  // Reiniciar la secuencia solo cuando cambie el contenido real
   useEffect(() => {
     setActiveTip(0);
   }, [consejosKey]);
 
   return (
-    <Paper withBorder p="md" mt="md" radius="md" shadow="sm">
-      <Group mb="sm">
-        <ThemeIcon variant="filled" color="cyan" size="lg" radius="xl" className="icon-pulse">
-          <HelpCircle size={18} />
-        </ThemeIcon>
-  <Title order={5} c="var(--app-brand-primary)">Asistente IA</Title>
-  <Text size="xs" c="dimmed" aria-label="descargo">Sugerencias generadas automáticamente</Text>
+    <div className="ai-card">
+      {/* Header */}
+      <div className="ai-header">
+        <div className="ai-icon"><Sparkles size={13} /></div>
+        <span className="ai-title">Asistente IA</span>
+        <span className="ai-subtitle">Auto-generado</span>
+      </div>
 
-
-      </Group>
-
-      <Stack gap="md">
+      {/* Tips */}
+      <div className="ai-tips">
         {consejos.map((tip, i) => {
           if (i < activeTip) {
-            // tips anteriores: ya completos (sin animación)
             return <TipEstatico key={i} texto={tip?.texto} />;
           }
           if (i === activeTip) {
-            // tip activo: animar párrafos en serie
             return (
               <ParrafosSecuenciales
                 key={i}
@@ -135,11 +119,10 @@ const AsistenteContextual = ({ consejos }) => {
               />
             );
           }
-          // tips futuros: aún no se montan
           return null;
         })}
-      </Stack>
-    </Paper>
+      </div>
+    </div>
   );
 };
 

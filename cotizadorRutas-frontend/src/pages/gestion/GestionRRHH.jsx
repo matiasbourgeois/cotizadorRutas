@@ -1,8 +1,9 @@
-import { Container, Title, Text, Paper, Group, Button, Table, ActionIcon, TextInput, Badge, Stack, Loader, Center, Modal, Select, NumberInput, Tooltip } from '@mantine/core';
+import { Container, Title, Text, Paper, Group, Button, Table, ActionIcon, TextInput, Badge, Stack, Loader, Center, Modal, Select, NumberInput, Menu } from '@mantine/core';
 import { useState, useEffect } from 'react';
-import { Plus, Search, Pencil, Trash2, Users } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Users, MoreVertical } from 'lucide-react';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { modals } from '@mantine/modals';
 import clienteAxios from '../../api/clienteAxios';
 
 const tiposContratacion = [
@@ -41,6 +42,8 @@ const GestionRRHH = () => {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [configDefaults, setConfigDefaults] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const fetchRecursos = async () => {
     try {
@@ -56,14 +59,33 @@ const GestionRRHH = () => {
 
   useEffect(() => { fetchRecursos(); }, []);
 
+  // Fetch configuracion-defaults on mount
+  useEffect(() => {
+    const fetchDefaults = async () => {
+      try {
+        const { data } = await clienteAxios.get('/configuracion-defaults');
+        setConfigDefaults(data);
+      } catch (e) { /* silent */ }
+    };
+    fetchDefaults();
+  }, []);
+
   const handleNew = () => {
     setEditingId(null);
-    setForm(emptyForm);
+    setFieldErrors({});
+    const tipo = 'empleado';
+    const defs = configDefaults?.recursosHumanos?.[tipo];
+    if (defs) {
+      setForm({ ...emptyForm, ...defs, tipoContratacion: tipo, nombre: '', dni: '', cuil: '', telefono: '', email: '', observaciones: '' });
+    } else {
+      setForm(emptyForm);
+    }
     openModal();
   };
 
   const handleEdit = (r) => {
     setEditingId(r._id);
+    setFieldErrors({});
     setForm({
       tipoContratacion: r.tipoContratacion || 'empleado',
       nombre: r.nombre || '',
@@ -89,20 +111,40 @@ const GestionRRHH = () => {
     openModal();
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('¿Estás seguro de eliminar este recurso?')) return;
-    try {
-      await clienteAxios.delete(`/recursos-humanos/${id}`);
-      notifications.show({ title: 'Eliminado', message: 'Recurso eliminado correctamente', color: 'teal' });
-      fetchRecursos();
-    } catch (err) {
-      notifications.show({ title: 'Error', message: 'No se pudo eliminar', color: 'red' });
-    }
+  const handleDelete = (id) => {
+    modals.openConfirmModal({
+      title: 'Confirmar eliminación',
+      centered: true,
+      children: <Text size="sm">¿Estás seguro de que querés eliminar este recurso humano? Esta acción es irreversible.</Text>,
+      labels: { confirm: 'Eliminar', cancel: 'Cancelar' },
+      confirmProps: { color: 'red' },
+      onConfirm: async () => {
+        try {
+          await clienteAxios.delete(`/recursos-humanos/${id}`);
+          notifications.show({ title: 'Eliminado', message: 'Recurso eliminado correctamente', color: 'teal' });
+          fetchRecursos();
+        } catch (err) {
+          notifications.show({ title: 'Error', message: 'No se pudo eliminar', color: 'red' });
+        }
+      },
+    });
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (!form.nombre || form.nombre.trim().length < 3) errors.nombre = 'El nombre es obligatorio (mín. 3 caracteres)';
+    if (!form.tipoContratacion) errors.tipoContratacion = 'Seleccioná un tipo de contratación';
+    if (!form.sueldoBasico || form.sueldoBasico <= 0) errors.sueldoBasico = 'El sueldo básico debe ser mayor a 0';
+    if (form.email && !/^\S+@\S+$/.test(form.email)) errors.email = 'El formato del email no es válido';
+    if (form.dni && !/^\d{7,8}$/.test(form.dni)) errors.dni = 'El DNI debe tener 7 u 8 números, sin puntos';
+    return errors;
   };
 
   const handleSave = async () => {
-    if (!form.nombre || !form.tipoContratacion) {
-      notifications.show({ title: 'Campos requeridos', message: 'Nombre y tipo de contratación son obligatorios', color: 'orange' });
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      notifications.show({ title: 'Campos con errores', message: 'Corregí los campos marcados en rojo', color: 'orange' });
       return;
     }
     setSaving(true);
@@ -132,7 +174,29 @@ const GestionRRHH = () => {
     `${r.nombre} ${r.dni} ${r.tipoContratacion}`.toLowerCase().includes(search.toLowerCase())
   );
 
-  const updateField = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
+  const updateField = (field, value) => {
+    // Clear error for this field on change
+    if (fieldErrors[field]) setFieldErrors(prev => ({ ...prev, [field]: undefined }));
+
+    if (field === 'tipoContratacion' && !editingId && configDefaults?.recursosHumanos?.[value]) {
+      // Auto-fill defaults when changing type on NEW resource
+      const defs = configDefaults.recursosHumanos[value];
+      setForm(prev => ({
+        ...prev,
+        ...defs,
+        tipoContratacion: value,
+        // Preserve personal fields
+        nombre: prev.nombre,
+        dni: prev.dni,
+        cuil: prev.cuil,
+        telefono: prev.telefono,
+        email: prev.email,
+        observaciones: prev.observaciones,
+      }));
+    } else {
+      setForm(prev => ({ ...prev, [field]: value }));
+    }
+  };
 
   const fmt = (n) => n != null ? `$${Number(n).toLocaleString('es-AR')}` : '—';
 
@@ -143,7 +207,7 @@ const GestionRRHH = () => {
           <Title order={2} c="var(--app-brand-primary)">Gestión de Recursos Humanos</Title>
           <Text c="dimmed" size="sm">Administra tu equipo de conductores y operarios</Text>
         </div>
-        <Button leftSection={<Plus size={16} />} color="teal" onClick={handleNew}>
+        <Button leftSection={<Plus size={16} />} color="cyan" onClick={handleNew}>
           Nuevo Recurso
         </Button>
       </Group>
@@ -158,7 +222,7 @@ const GestionRRHH = () => {
         />
 
         {loading ? (
-          <Center py="xl"><Loader color="teal" /></Center>
+          <Center py="xl"><Loader color="cyan" /></Center>
         ) : filtered.length === 0 ? (
           <Center py="xl">
             <Stack align="center" gap="xs">
@@ -168,41 +232,45 @@ const GestionRRHH = () => {
           </Center>
         ) : (
           <Table.ScrollContainer minWidth={700}>
-            <Table striped highlightOnHover>
+            <Table highlightOnHover verticalSpacing="md">
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>Nombre</Table.Th>
-                  <Table.Th>DNI</Table.Th>
+                  <Table.Th>Personal</Table.Th>
                   <Table.Th>Tipo</Table.Th>
                   <Table.Th>Sueldo Básico</Table.Th>
                   <Table.Th>Adic. Actividad</Table.Th>
-                  <Table.Th ta="center">Acciones</Table.Th>
+                  <Table.Th ta="right">Acciones</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
                 {filtered.map(r => (
                   <Table.Tr key={r._id}>
-                    <Table.Td fw={600}>{r.nombre || '—'}</Table.Td>
-                    <Table.Td>{r.dni || '—'}</Table.Td>
+                    <Table.Td>
+                      <Stack gap={0}>
+                        <Text fz="sm" fw={500}>{r.nombre || '—'}</Text>
+                        <Text fz="xs" c="dimmed">{r.dni ? `DNI ${r.dni}` : 'Sin DNI'}</Text>
+                      </Stack>
+                    </Table.Td>
                     <Table.Td>
                       <Badge variant="light" color={r.tipoContratacion === 'empleado' ? 'blue' : 'orange'} size="sm">
                         {r.tipoContratacion}
                       </Badge>
                     </Table.Td>
-                    <Table.Td>{fmt(r.sueldoBasico)}</Table.Td>
+                    <Table.Td><Text fw={500}>{fmt(r.sueldoBasico)}</Text></Table.Td>
                     <Table.Td>{r.adicionalActividadPorc}%</Table.Td>
                     <Table.Td>
-                      <Group gap="xs" justify="center">
-                        <Tooltip label="Editar">
-                          <ActionIcon variant="light" color="teal" onClick={() => handleEdit(r)}>
-                            <Pencil size={16} />
-                          </ActionIcon>
-                        </Tooltip>
-                        <Tooltip label="Eliminar">
-                          <ActionIcon variant="light" color="red" onClick={() => handleDelete(r._id)}>
-                            <Trash2 size={16} />
-                          </ActionIcon>
-                        </Tooltip>
+                      <Group justify="flex-end">
+                        <Menu shadow="md" width={200}>
+                          <Menu.Target>
+                            <ActionIcon variant="subtle" color="gray"><MoreVertical size={16} /></ActionIcon>
+                          </Menu.Target>
+                          <Menu.Dropdown>
+                            <Menu.Label>Acciones</Menu.Label>
+                            <Menu.Item leftSection={<Pencil size={14} />} onClick={() => handleEdit(r)}>Editar</Menu.Item>
+                            <Menu.Divider />
+                            <Menu.Item color="red" leftSection={<Trash2 size={14} />} onClick={() => handleDelete(r._id)}>Eliminar</Menu.Item>
+                          </Menu.Dropdown>
+                        </Menu>
                       </Group>
                     </Table.Td>
                   </Table.Tr>
@@ -223,22 +291,22 @@ const GestionRRHH = () => {
       >
         <Stack gap="sm">
           <Group grow>
-            <Select label="Tipo Contratación" data={tiposContratacion} value={form.tipoContratacion} onChange={v => updateField('tipoContratacion', v)} required />
-            <TextInput label="Nombre Completo" placeholder="Juan Pérez" value={form.nombre} onChange={e => updateField('nombre', e.target.value)} required />
+            <Select label="Tipo Contratación" data={tiposContratacion} value={form.tipoContratacion} onChange={v => updateField('tipoContratacion', v)} error={fieldErrors.tipoContratacion} required />
+            <TextInput label="Nombre Completo" placeholder="Juan Pérez" value={form.nombre} onChange={e => updateField('nombre', e.target.value)} error={fieldErrors.nombre} required />
           </Group>
           <Group grow>
-            <TextInput label="DNI" placeholder="12345678" value={form.dni} onChange={e => updateField('dni', e.target.value)} />
+            <TextInput label="DNI" placeholder="12345678" value={form.dni} onChange={e => updateField('dni', e.target.value)} error={fieldErrors.dni} />
             <TextInput label="CUIL" placeholder="20-12345678-9" value={form.cuil} onChange={e => updateField('cuil', e.target.value)} />
           </Group>
           <Group grow>
             <TextInput label="Teléfono" value={form.telefono} onChange={e => updateField('telefono', e.target.value)} />
-            <TextInput label="Email" value={form.email} onChange={e => updateField('email', e.target.value)} />
+            <TextInput label="Email" value={form.email} onChange={e => updateField('email', e.target.value)} error={fieldErrors.email} />
           </Group>
 
           <Text fw={600} size="sm" mt="sm" c="var(--app-brand-primary)">Remuneración</Text>
 
           <Group grow>
-            <NumberInput label="Sueldo Básico ($)" value={form.sueldoBasico} onChange={v => updateField('sueldoBasico', v)} prefix="$" />
+            <NumberInput label="Sueldo Básico ($)" value={form.sueldoBasico} onChange={v => updateField('sueldoBasico', v)} prefix="$" error={fieldErrors.sueldoBasico} />
             <NumberInput label="Adic. Actividad (%)" value={form.adicionalActividadPorc} onChange={v => updateField('adicionalActividadPorc', v)} suffix="%" />
           </Group>
           <Group grow>

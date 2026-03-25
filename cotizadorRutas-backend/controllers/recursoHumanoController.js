@@ -4,7 +4,7 @@ import { obtenerDefaultsRRHH } from './configuracionDefaultsController.js';
 // Crear nuevo recurso humano — usa defaults personalizados del usuario
 export const crearRecursoHumano = async (req, res) => {
   try {
-    const defaults = await obtenerDefaultsRRHH(req.usuario._id);
+    const defaults = await obtenerDefaultsRRHH(req.usuario._id, req.body.tipoContratacion);
     // Lo que manda el user sobreescribe los defaults
     const recursoData = { ...defaults, ...req.body, usuario: req.usuario._id };
     const nuevoRecurso = new RecursoHumano(recursoData);

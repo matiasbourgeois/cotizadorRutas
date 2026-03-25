@@ -84,19 +84,36 @@ export const DEFAULTS_VEHICULO = {
 };
 
 export const DEFAULTS_RRHH = {
-  sueldoBasico: 723858,
-  adicionalActividadPorc: 15,
-  adicionalCargaDescargaCadaXkm: 30160.77,
-  kmPorUnidadDeCarga: 1000,
-  adicionalKmRemunerativo: 57.90,
-  minKmRemunerativo: 350,
-  viaticoPorKmNoRemunerativo: 57.90,
-  minKmNoRemunerativo: 350,
-  adicionalNoRemunerativoFijo: 50000,
-  horasLaboralesMensuales: 192,
-  minimoMinutosFacturables: 120,
-  porcentajeCargasSociales: 30,
-  porcentajeOverheadContratado: 10,
+  empleado: {
+    sueldoBasico: 723858,
+    adicionalActividadPorc: 15,
+    adicionalCargaDescargaCadaXkm: 30160.77,
+    kmPorUnidadDeCarga: 1000,
+    adicionalKmRemunerativo: 57.90,
+    minKmRemunerativo: 350,
+    viaticoPorKmNoRemunerativo: 57.90,
+    minKmNoRemunerativo: 350,
+    adicionalNoRemunerativoFijo: 50000,
+    horasLaboralesMensuales: 192,
+    minimoMinutosFacturables: 120,
+    porcentajeCargasSociales: 30,
+    porcentajeOverheadContratado: 0,
+  },
+  contratado: {
+    sueldoBasico: 600000,
+    adicionalActividadPorc: 0,
+    adicionalCargaDescargaCadaXkm: 30160.77,
+    kmPorUnidadDeCarga: 1000,
+    adicionalKmRemunerativo: 57.90,
+    minKmRemunerativo: 350,
+    viaticoPorKmNoRemunerativo: 57.90,
+    minKmNoRemunerativo: 350,
+    adicionalNoRemunerativoFijo: 0,
+    horasLaboralesMensuales: 192,
+    minimoMinutosFacturables: 120,
+    porcentajeCargasSociales: 0,
+    porcentajeOverheadContratado: 10,
+  },
 };
 
 export const DEFAULTS_CALCULOS = {
@@ -179,8 +196,8 @@ const configuracionDefaultsSchema = new mongoose.Schema({
     camion:     { type: vehiculoDefaultsSchema, default: () => ({ ...DEFAULTS_VEHICULO.camion }) },
   },
   recursosHumanos: {
-    type: rrhhDefaultsSchema,
-    default: () => ({ ...DEFAULTS_RRHH }),
+    empleado:   { type: rrhhDefaultsSchema, default: () => ({ ...DEFAULTS_RRHH.empleado }) },
+    contratado: { type: rrhhDefaultsSchema, default: () => ({ ...DEFAULTS_RRHH.contratado }) },
   },
   calculos: {
     type: calculosDefaultsSchema,

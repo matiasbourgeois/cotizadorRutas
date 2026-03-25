@@ -12,7 +12,6 @@ const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm({
-    mode: 'uncontrolled', 
     initialValues: {
       tipoVehiculo: "utilitario",
       patente: "",

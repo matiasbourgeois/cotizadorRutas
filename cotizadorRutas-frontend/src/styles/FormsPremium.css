@@ -1,0 +1,360 @@
+/* ═══════════════════════════════════════════════════════════════
+   FormsPremium.css — God-Tier Global Modal & Form Overrides
+   Targets ALL Mantine modals system-wide — no JSX changes needed
+   Unified cyan/slate palette · Premium inputs · Polished details
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ═══ MODAL SHELL ═══ */
+
+/* Overlay — subtle dark, blurred backdrop */
+.mantine-Modal-overlay {
+  backdrop-filter: blur(4px);
+}
+
+/* Content panel — refined */
+.mantine-Modal-content {
+  border: 1px solid var(--app-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(34,211,238,0.05) !important;
+  background: var(--app-surface) !important;
+}
+
+/* Header — clean, centered close */
+.mantine-Modal-header {
+  padding: 18px 22px 12px !important;
+  border-bottom: 1px solid var(--app-border);
+  background: transparent !important;
+}
+
+.mantine-Modal-title {
+  font-weight: 800 !important;
+  font-size: 1.05rem !important;
+  color: var(--app-text) !important;
+  letter-spacing: -0.01em;
+}
+
+/* Close button */
+.mantine-Modal-close {
+  color: var(--app-text-muted);
+  border-radius: 8px;
+  transition: all 0.15s;
+}
+
+.mantine-Modal-close:hover {
+  background: rgba(34,211,238,0.08);
+  color: #22d3ee;
+}
+
+/* Body padding */
+.mantine-Modal-body {
+  padding: 18px 22px 22px !important;
+}
+
+/* ═══ TABS — inside modals ═══ */
+
+.mantine-Modal-body .mantine-Tabs-list {
+  border-bottom: 1px solid var(--app-border);
+  gap: 0;
+}
+
+.mantine-Modal-body .mantine-Tabs-tab {
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 10px 16px;
+  border-bottom: 2px solid transparent;
+  color: var(--app-text-muted);
+  transition: all 0.15s;
+}
+
+.mantine-Modal-body .mantine-Tabs-tab:hover {
+  background: rgba(34,211,238,0.04);
+  color: var(--app-text);
+}
+
+.mantine-Modal-body .mantine-Tabs-tab[data-active] {
+  color: #22d3ee !important;
+  border-bottom-color: #22d3ee !important;
+  background: rgba(34,211,238,0.04);
+}
+
+.mantine-Modal-body .mantine-Tabs-tab .mantine-Tabs-tabSection {
+  color: inherit;
+}
+
+/* ═══ INPUTS — premium feel ═══ */
+
+.mantine-Modal-body .mantine-TextInput-input,
+.mantine-Modal-body .mantine-NumberInput-input,
+.mantine-Modal-body .mantine-Select-input,
+.mantine-Modal-body .mantine-Textarea-input {
+  border-radius: 10px !important;
+  border: 1px solid var(--app-border) !important;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-size: 0.88rem;
+}
+
+.mantine-Modal-body .mantine-TextInput-input:focus,
+.mantine-Modal-body .mantine-NumberInput-input:focus,
+.mantine-Modal-body .mantine-Select-input:focus,
+.mantine-Modal-body .mantine-Textarea-input:focus {
+  border-color: rgba(34,211,238,0.5) !important;
+  box-shadow: 0 0 0 2px rgba(34,211,238,0.1) !important;
+}
+
+/* Input labels */
+.mantine-Modal-body .mantine-InputWrapper-label {
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--app-text);
+  margin-bottom: 4px;
+}
+
+/* Input descriptions */
+.mantine-Modal-body .mantine-InputWrapper-description {
+  font-size: 0.68rem;
+  color: var(--app-text-muted);
+}
+
+/* Select dropdown */
+.mantine-Modal-body .mantine-Select-dropdown {
+  border-radius: 10px;
+  border: 1px solid var(--app-border);
+}
+
+/* Checkbox */
+.mantine-Modal-body .mantine-Checkbox-input:checked {
+  background-color: #22d3ee;
+  border-color: #22d3ee;
+}
+
+/* ═══ DIVIDERS — section labels ═══ */
+
+.mantine-Modal-body .mantine-Divider-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #22d3ee;
+}
+
+.mantine-Modal-body .mantine-Divider-root {
+  border-color: var(--app-border);
+}
+
+/* ═══ PAPER sections inside modals (config modals) ═══ */
+
+.mantine-Modal-body .mantine-Paper-root[data-with-border] {
+  border-radius: 10px !important;
+  border: 1px solid var(--app-border) !important;
+  border-left: 3px solid rgba(34,211,238,0.35) !important;
+  transition: border-left-color 0.15s;
+  padding: 14px 16px !important;
+}
+
+.mantine-Modal-body .mantine-Paper-root[data-with-border]:hover {
+  border-left-color: #22d3ee !important;
+}
+
+/* Paper title (DEPRECIATION, NEUMÁTICOS, etc.) */
+.mantine-Modal-body .mantine-Paper-root .mantine-Title-root {
+  font-size: 0.7rem !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #22d3ee !important;
+  font-weight: 700;
+}
+
+/* ═══ BUTTONS ═══ */
+
+/* Primary buttons (submit/save) */
+.mantine-Modal-body .mantine-Button-root:not([data-variant="default"]):not([data-variant="subtle"]) {
+  background: linear-gradient(135deg, #22d3ee, #06b6d4) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+  transition: all 0.15s;
+  box-shadow: 0 2px 8px rgba(34,211,238,0.2);
+}
+
+.mantine-Modal-body .mantine-Button-root:not([data-variant="default"]):not([data-variant="subtle"]):hover {
+  background: linear-gradient(135deg, #06b6d4, #0891b2) !important;
+  box-shadow: 0 4px 14px rgba(34,211,238,0.3);
+  transform: translateY(-1px);
+}
+
+/* Cancel/default buttons */
+.mantine-Modal-body .mantine-Button-root[data-variant="default"] {
+  border-radius: 10px !important;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-color: var(--app-border) !important;
+  color: var(--app-text-muted) !important;
+  transition: all 0.15s;
+}
+
+.mantine-Modal-body .mantine-Button-root[data-variant="default"]:hover {
+  background: rgba(34,211,238,0.06) !important;
+  border-color: rgba(34,211,238,0.3) !important;
+  color: #22d3ee !important;
+}
+
+/* ═══ GESTIÓN PAGES — Table & Page overrides ═══ */
+
+/* Page title headers — use system palette */
+.mantine-Container-root > .mantine-Group-root .mantine-Title-root {
+  letter-spacing: -0.02em;
+}
+
+/* "Nuevo" buttons on gestión pages */
+.mantine-Container-root > .mantine-Group-root > .mantine-Button-root {
+  border-radius: 10px !important;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+/* Table Paper container */
+.mantine-Container-root > .mantine-Paper-root {
+  border-radius: 14px !important;
+  border: 1px solid var(--app-border) !important;
+  overflow: hidden;
+}
+
+/* Table header */
+.mantine-Container-root .mantine-Table-thead .mantine-Table-th {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--app-text-muted);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+/* Table cells */
+.mantine-Container-root .mantine-Table-td {
+  font-size: 0.82rem;
+  padding: 8px 12px;
+}
+
+/* Search input on gestión pages */
+.mantine-Container-root .mantine-TextInput-input {
+  border-radius: 10px !important;
+  border: 1px solid var(--app-border) !important;
+}
+
+.mantine-Container-root .mantine-TextInput-input:focus {
+  border-color: rgba(34,211,238,0.5) !important;
+  box-shadow: 0 0 0 2px rgba(34,211,238,0.1) !important;
+}
+
+/* ═══ MENU DROPDOWN — God-Tier System-Wide ═══ */
+
+/* Dropdown panel */
+.mantine-Menu-dropdown {
+  border-radius: 12px !important;
+  border: 1px solid var(--app-border) !important;
+  background: var(--app-surface) !important;
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.12),
+    0 0 0 1px rgba(34,211,238,0.05) !important;
+  backdrop-filter: blur(12px);
+  padding: 6px !important;
+  animation: menuSlideIn 0.15s ease-out;
+}
+
+@keyframes menuSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Menu items */
+.mantine-Menu-item {
+  border-radius: 8px !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  padding: 8px 12px !important;
+  transition: all 0.12s ease !important;
+  color: var(--app-text) !important;
+}
+
+.mantine-Menu-item:hover {
+  background: rgba(34,211,238,0.08) !important;
+  color: #22d3ee !important;
+  transform: translateX(2px);
+}
+
+/* Red/danger items (Eliminar) */
+.mantine-Menu-item[data-color="red"] {
+  color: var(--app-btn-danger-text) !important;
+}
+
+.mantine-Menu-item[data-color="red"]:hover {
+  background: var(--app-btn-danger-bg) !important;
+  color: var(--app-btn-danger-text) !important;
+}
+
+/* Item left icon section */
+.mantine-Menu-itemSection {
+  color: inherit !important;
+  opacity: 0.7;
+}
+
+.mantine-Menu-item:hover .mantine-Menu-itemSection {
+  opacity: 1;
+}
+
+/* Menu label (ACCIONES header) */
+.mantine-Menu-label {
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: var(--app-text-muted) !important;
+  padding: 6px 12px 4px !important;
+}
+
+/* Menu divider */
+.mantine-Menu-divider {
+  border-color: var(--app-border) !important;
+  margin: 4px 8px !important;
+}
+
+/* MoreVertical trigger button — subtle glow on hover */
+.mantine-ActionIcon-root[data-variant="subtle"] {
+  border-radius: 8px !important;
+  transition: all 0.15s ease !important;
+}
+
+.mantine-ActionIcon-root[data-variant="subtle"]:hover {
+  background: rgba(34,211,238,0.1) !important;
+  color: #22d3ee !important;
+  transform: scale(1.1);
+}
+
+/* Dark mode refinements */
+[data-mantine-color-scheme="dark"] .mantine-Menu-dropdown {
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.4),
+    0 0 0 1px rgba(34,211,238,0.08) !important;
+}
+
+
+/* ═══ 720p RESPONSIVE ═══ */
+@media (max-height: 800px) {
+  .mantine-Modal-header { padding: 14px 18px 10px !important; }
+  .mantine-Modal-body { padding: 14px 18px 18px !important; }
+  .mantine-Modal-title { font-size: 0.92rem !important; }
+  .mantine-Modal-body .mantine-Tabs-tab { font-size: 0.75rem; padding: 8px 12px; }
+  .mantine-Modal-body .mantine-InputWrapper-label { font-size: 0.72rem; }
+  .mantine-Modal-body .mantine-TextInput-input,
+  .mantine-Modal-body .mantine-NumberInput-input,
+  .mantine-Modal-body .mantine-Select-input { font-size: 0.82rem; }
+}

@@ -1,64 +1,226 @@
 /* ═══════════════════════════════════════════════════════════════
-   MainLayout — God-tier sidebar navigation styles
+   MainLayout.css — God-tier sidebar & header
+   Unified cyan/slate palette · Premium nav items · Clean spacing
    ═══════════════════════════════════════════════════════════════ */
 
-/* Header */
+/* ─── Header ─── */
 .main-header {
-  background: var(--app-surface);
-  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface) !important;
+  border-bottom: 1px solid var(--app-border) !important;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.04), 0 0 0 0 rgba(34,211,238,0.0);
 }
 
+/* ─── Logo ─── */
 .logo-box {
   display: flex;
   flex-direction: column;
   user-select: none;
-  transition: opacity 0.15s ease;
+  transition: all 0.2s ease;
 }
 .logo-box:hover {
-  opacity: 0.85;
+  opacity: 0.9;
+}
+.logo-box:hover .logo-icon {
+  transform: rotate(-8deg) scale(1.1);
 }
 
-/* Navbar */
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.logo-favicon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.logo-text {
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.logo-text-primary {
+  font-weight: 800;
+  color: var(--app-brand-primary);
+}
+
+.logo-text-accent {
+  font-weight: 600;
+  background: linear-gradient(135deg, #22d3ee, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── User pill ─── */
+.header-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border-radius: 999px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  transition: all 0.15s ease;
+}
+
+.header-user-pill:hover {
+  border-color: rgba(34,211,238,0.3);
+  background: rgba(34,211,238,0.04);
+}
+
+.header-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22d3ee, #06b6d4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.header-user-name {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ─── Actions divider ─── */
+.header-actions-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--app-border);
+  margin: 0 4px;
+  opacity: 0.6;
+}
+
+/* ─── Action buttons ─── */
+.header-action-btn {
+  color: var(--app-text-muted) !important;
+  transition: all 0.15s ease !important;
+}
+
+.header-action-btn:hover {
+  background: rgba(34,211,238,0.08) !important;
+  color: #22d3ee !important;
+  transform: scale(1.08);
+}
+
+.header-action-btn--danger:hover {
+  background: var(--app-btn-danger-bg) !important;
+  color: var(--app-btn-danger-text) !important;
+}
+
+/* ─── Navbar shell ─── */
 .main-navbar {
   background: var(--app-surface);
   border-right: 1px solid var(--app-border);
 }
 
-/* NavLink section headings */
+/* ─── NavLink sections — Premium overrides ─── */
 .nav-section {
-  border-radius: var(--mantine-radius-md);
+  border-radius: 10px !important;
   font-weight: 600;
-  transition: background-color 0.15s ease;
+  transition: all 0.15s ease;
+  margin-bottom: 2px;
 }
 
 .nav-section .mantine-NavLink-label {
-  font-size: 0.875rem;
+  font-size: 0.88rem;
   font-weight: 600;
   letter-spacing: 0.01em;
 }
 
-/* Nested NavLinks */
+.nav-section .mantine-NavLink-section {
+  color: var(--app-text-muted);
+}
+
+/* Active section — unified cyan highlight */
+.nav-section[data-active] {
+  background-color: rgba(34, 211, 238, 0.06) !important;
+}
+
+.nav-section[data-active] > .mantine-NavLink-section {
+  color: #22d3ee !important;
+}
+
+.nav-section[data-active] > .mantine-NavLink-body .mantine-NavLink-label {
+  color: #22d3ee !important;
+}
+
+/* Hover — subtle */
+.nav-section:hover:not([data-active]) {
+  background-color: var(--app-surface-hover) !important;
+}
+
+/* ─── Nested NavLinks ─── */
+.nav-section .mantine-NavLink-children {
+  padding-left: 4px;
+}
+
 .nav-section .mantine-NavLink-children .mantine-NavLink-root {
-  border-radius: var(--mantine-radius-sm);
-  margin-bottom: 2px;
+  border-radius: 8px !important;
+  margin-bottom: 1px;
+  padding-left: 24px;
 }
 
 .nav-section .mantine-NavLink-children .mantine-NavLink-label {
   font-weight: 500;
-  font-size: 0.8125rem;
+  font-size: 0.82rem;
 }
 
-/* Active state enhancement */
-.nav-section[data-active] {
-  background-color: var(--app-surface-hover);
+/* Active child */
+.nav-section .mantine-NavLink-children .mantine-NavLink-root[data-active] {
+  background: rgba(34, 211, 238, 0.08) !important;
 }
 
-/* Hover polish */
-.nav-section:hover:not([data-active]) {
-  background-color: var(--app-surface-hover);
+.nav-section .mantine-NavLink-children .mantine-NavLink-root[data-active] .mantine-NavLink-label {
+  color: #22d3ee !important;
+  font-weight: 600;
 }
 
-/* Print — hide sidebar */
+.nav-section .mantine-NavLink-children .mantine-NavLink-root[data-active] .mantine-NavLink-section {
+  color: #22d3ee !important;
+}
+
+/* Inactive children — muted icons */
+.nav-section .mantine-NavLink-children .mantine-NavLink-root:not([data-active]) .mantine-NavLink-section {
+  color: var(--app-text-muted);
+}
+
+/* ─── Chevron — subtle ─── */
+.nav-section .mantine-NavLink-chevron {
+  color: var(--app-text-muted);
+  opacity: 0.5;
+}
+
+/* ─── Dividers — cleanup ─── */
+.main-navbar .mantine-Divider-root {
+  border-color: var(--app-border);
+  opacity: 0.5;
+}
+
+/* ─── Greeting ─── */
+.main-navbar .mantine-Text-root[data-c="dimmed"] {
+  font-size: 0.72rem;
+}
+
+/* ─── Footer version ─── */
+.main-navbar .mantine-AppShell-section:last-child .mantine-Text-root {
+  opacity: 0.4;
+}
+
+/* ─── Print ─── */
 @media print {
   .main-header,
   .main-navbar {
@@ -73,6 +235,25 @@
   }
   .nav-section .mantine-NavLink-children .mantine-NavLink-label {
     font-size: 0.75rem;
+  }
+  .logo-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+  }
+  .logo-icon svg {
+    width: 12px;
+    height: 12px;
+  }
+  .logo-text {
+    font-size: 0.88rem;
+  }
+  .header-user-name {
+    display: none;
+  }
+  .header-user-pill {
+    padding: 3px;
+    border: none;
   }
 }
 

@@ -1,115 +1,380 @@
-/* Archivo: src/components/ResumenPaso.css */
+/* ═══════════════════════════════════════════════════════════════
+   ResumenPaso.css — God-Tier Sidebar V2
+   Compact KPI strip · Rich cost cards · Professional cyan/slate
+   ═══════════════════════════════════════════════════════════════ */
 
-/* Contenedor principal — sin scroll interno, look limpio y “pro” */
-.resumen-shell {
-  max-height: 100vh;
-  overflow: hidden;
-
+/* ─── Shell ─── */
+.rp {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
   background: var(--app-surface);
   border: 1px solid var(--app-border);
-  box-shadow: var(--mantine-shadow-sm);
-  border-radius: var(--mantine-radius-md);
+  border-radius: 14px;
+  padding: 14px 16px;
+  overflow: hidden;
+  position: relative;
 }
 
-/* Título y header */
-.resumen-shell .mantine-Title-root {
-  letter-spacing: 0.1px;
+.rp::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(170deg, rgba(34,211,238,0.03) 0%, transparent 40%, rgba(34,211,238,0.02) 100%);
 }
 
-/* Badges del header */
-.resumen-shell .mantine-Badge-root {
-  border-color: var(--app-border);
+/* Empty state */
+.rp--empty { align-items: center; justify-content: center; }
+
+.rp-empty-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 4px 0 2px;
+  color: var(--app-text);
 }
 
-/* KPIs compactos */
-.resumen-shell .mantine-Grid-root {
-  row-gap: 6px;
-}
-.resumen-shell .mantine-ThemeIcon-root {
-  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.03);
-}
-
-/* Hover sutil para cards clickeables (usa el inline style cursor:pointer del Paper interno) */
-.resumen-shell .mantine-Paper-root[style*="cursor: pointer"] {
-  transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease;
-}
-.resumen-shell .mantine-Paper-root[style*="cursor: pointer"]:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--mantine-shadow-sm);
-  background-color: var(--app-surface-hover);
+.rp-empty-sub {
+  font-size: 0.8rem;
+  color: var(--app-text-muted);
+  margin: 0;
+  text-align: center;
 }
 
-/* Filas de “detalle” dentro de las cards */
-.resumen-shell .mantine-Group-root + .mantine-Group-root .mantine-Text-root {
-  /* evita que salte el layout por cambio de fuente/peso */
+/* ─── Header ─── */
+.rp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.rp-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--app-text);
+  margin: 0;
+}
+
+.rp-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rp-badge--active {
+  background: rgba(34,211,238,0.12);
+  color: #22d3ee;
+}
+
+.rp-badge--pending {
+  background: rgba(128,128,128,0.12);
+  color: var(--app-text-muted);
+}
+
+/* ─── KPI Strip — compact, no individual borders ─── */
+.rp-kpi-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--app-surface-hover);
+  flex-shrink: 0;
+}
+
+.rp-kpi {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.rp-kpi-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(34,211,238,0.1);
+  color: #22d3ee;
+  flex-shrink: 0;
+}
+
+.rp-kpi-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.rp-kpi-label {
+  font-size: 0.65rem;
+  color: var(--app-text-muted);
+  line-height: 1;
+}
+
+.rp-kpi-value {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #22d3ee;
+  line-height: 1.3;
+}
+
+/* ─── Divider ─── */
+.rp-divider {
+  height: 1px;
+  background: var(--app-border);
+  flex-shrink: 0;
+}
+
+/* ─── Cost Cards ─── */
+.rp-costs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.rp-cost {
+  border-radius: 10px;
+  border: 1px solid var(--app-border);
+  padding: 10px 12px 10px 15px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.rp-cost::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #22d3ee, rgba(34,211,238,0.15));
+  border-radius: 0 2px 2px 0;
+}
+
+.rp-cost:hover {
+  border-color: rgba(34,211,238,0.25);
+}
+
+/* Cost card header — price on top, name below */
+.rp-cost-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rp-cost-left-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(34,211,238,0.08);
+  color: #22d3ee;
+}
+
+.rp-cost-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.rp-cost-amount {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #22d3ee;
+}
+
+.rp-cost-chevron {
+  color: var(--app-text-muted);
+  transition: transform 0.15s;
+}
+
+.rp-cost-chevron--open {
+  transform: rotate(180deg);
+}
+
+/* Name + subtitle block (below price row) */
+.rp-cost-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.rp-cost-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--app-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rp-cost-meta {
+  font-size: 0.72rem;
+  color: var(--app-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rp-cost-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(34,211,238,0.08);
+  color: #22d3ee;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Cost detail rows */
+.rp-cost-detail {
+  overflow: hidden;
+}
+
+.rp-cost-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+}
+
+.rp-cost-row-label {
+  font-size: 0.78rem;
+  color: var(--app-text-muted);
+}
+
+.rp-cost-row-val {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+/* ─── Spacer ─── */
+.rp-spacer {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ─── Bottom summary ─── */
+.rp-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Progress bar */
+.rp-progress {
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+  background: var(--app-surface-hover);
+}
+
+.rp-progress-seg { transition: width 0.3s ease; }
+.rp-progress-seg--vehicle { background: #22d3ee; }
+.rp-progress-seg--rrhh { background: #64748b; }
+.rp-progress-seg--other { background: #94a3b8; }
+
+.rp-progress-legend {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.rp-progress-label { font-size: 0.72rem; font-weight: 600; }
+.rp-progress-label--vehicle { color: #22d3ee; }
+.rp-progress-label--rrhh { color: #64748b; }
+.rp-progress-label--other { color: #94a3b8; }
+
+/* Operative cost */
+.rp-op-cost {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--app-border);
+}
+
+.rp-op-cost-label { font-size: 0.82rem; font-weight: 600; color: var(--app-text-muted); }
+.rp-op-cost-value { font-size: 1.1rem; font-weight: 800; color: var(--app-text); }
+
+/* Price hero */
+.rp-price {
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #1e293b, #334155);
+  border: 1px solid rgba(34,211,238,0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.rp-price::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(34,211,238,0.06), transparent 60%);
+  pointer-events: none;
+}
+
+.rp-price-label { font-size: 0.85rem; font-weight: 700; color: #22d3ee; position: relative; z-index: 1; }
+.rp-price-sub { font-size: 0.65rem; color: rgba(255,255,255,0.35); position: relative; z-index: 1; }
+.rp-price-value {
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: #22d3ee;
+  position: relative;
+  z-index: 1;
   font-variant-numeric: tabular-nums;
 }
 
-/* Barra de distribución (Progress) más “limpia” */
-.resumen-shell .mantine-Progress-root {
-  overflow: hidden; /* bordes suaves */
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);
-}
-
-/* Bloques de totales al final (Paso 5) */
-.resumen-shell .mantine-Paper-root[style*="bg: gray"] {
-  border: 1px dashed var(--app-border);
-}
-.resumen-shell .mantine-Paper-root[style*="bg: teal"] {
-  border: 1px solid var(--mantine-color-teal-3);
-}
-
-/* Texto pequeño, legible */
-.resumen-shell .mantine-Text-root {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Animaciones discretas: si el usuario prefiere “reduced motion”, evitarlas */
-@media (prefers-reduced-motion: reduce) {
-  .resumen-shell .mantine-Paper-root[style*="cursor: pointer"] {
-    transition: none !important;
-  }
-}
-
-/* Responsivo: en pantallas chicas ajustamos pequeños detalles de espacio */
-@media (max-width: 768px) {
-  .resumen-shell {
-    box-shadow: none; /* más plano en mobile */
-  }
-}
-
-/* Responsivo 720p */
+/* ─── 720p ─── */
 @media (max-height: 800px) {
-  .resumen-shell {
-    max-height: calc(100vh - 160px);
-    overflow-y: auto;
-  }
-  .resumen-shell .mantine-Grid-root {
-    row-gap: 2px;
-  }
-  .resumen-shell .mantine-ThemeIcon-root {
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
-  }
-}
-
-/* Impresión: no interferir con el PDF */
-@media print {
-  .resumen-shell {
-    background: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
-    max-height: none !important; /* permite fluir en página impresa */
-    overflow: visible !important;
-  }
-  .resumen-shell .mantine-ThemeIcon-root {
-    display: none !important; /* limpia iconografía para PDF */
-  }
-  .resumen-shell .mantine-Paper-root[style*="cursor: pointer"] {
-    transform: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-  }
+  .rp { padding: 10px 12px; gap: 6px; border-radius: 10px; }
+  .rp-title { font-size: 0.95rem; }
+  .rp-badge { font-size: 0.58rem; padding: 2px 7px; }
+  .rp-kpi-strip { padding: 7px 10px; gap: 2px 8px; }
+  .rp-kpi-icon { width: 18px; height: 18px; }
+  .rp-kpi-label { font-size: 0.58rem; }
+  .rp-kpi-value { font-size: 0.78rem; }
+  .rp-cost { padding: 7px 10px 7px 13px; }
+  .rp-cost-icon { width: 22px; height: 22px; }
+  .rp-cost-title { font-size: 0.78rem; }
+  .rp-cost-subtitle { font-size: 0.62rem; margin-left: 30px; }
+  .rp-cost-amount { font-size: 0.88rem; }
+  .rp-cost-row-label { font-size: 0.68rem; }
+  .rp-cost-row-val { font-size: 0.72rem; }
+  .rp-progress { height: 5px; }
+  .rp-progress-label { font-size: 0.6rem; }
+  .rp-op-cost { padding: 5px 10px; }
+  .rp-op-cost-label { font-size: 0.72rem; }
+  .rp-op-cost-value { font-size: 0.92rem; }
+  .rp-price { padding: 8px 12px; }
+  .rp-price-label { font-size: 0.75rem; }
+  .rp-price-value { font-size: 1.35rem; }
 }

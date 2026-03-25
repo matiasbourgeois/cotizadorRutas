@@ -16,8 +16,13 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
+  },
+  proveedor: {
+    type: String,
+    enum: ['local', 'google'],
+    default: 'local',
   },
   verificado: {
     type: Boolean,
@@ -34,6 +39,12 @@ const userSchema = new mongoose.Schema({
     default: 0,
   },
   bloqueadoHasta: {
+    type: Date,
+  },
+  tokenRecuperacion: {
+    type: String,
+  },
+  tokenRecuperacionExpira: {
     type: Date,
   },
 }, {
