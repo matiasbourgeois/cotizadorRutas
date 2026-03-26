@@ -1,127 +1,153 @@
-// cotizadorRutas-frontend/src/pages/desglosePage/partials/CapituloRutaFrecuencia.jsx
-
-import { Paper, Title, Grid, Text, Group, ThemeIcon, Stack, Center, Divider, Badge } from '@mantine/core';
-import { Route, Calendar, Repeat } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import MapaRuta from '../../../components/MapaRuta';
 import QRCode from 'qrcode';
-import { useEffect, useState } from 'react';
+import { MapPin, Calendar, Repeat, Clock, Navigation, Package } from 'lucide-react';
 
-// Componente para los días de la semana
-const WeekdayPickerVisual = ({ diasSeleccionados = [] }) => {
-    const weekDays = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
-    return (
-        <Group justify="center" gap="xs">
-            {weekDays.map(day => {
-                const inicial = day.charAt(0).toUpperCase();
-                const isSelected = diasSeleccionados.includes(day);
-                return (
-                    <ThemeIcon key={day} size="lg" radius="xl" color={isSelected ? 'cyan' : 'gray'}>
-                        <Text size="xs" fw={700}>{inicial}</Text>
-                    </ThemeIcon>
-                );
-            })}
-        </Group>
-    );
+const splitName = pt => {
+  if (!pt?.nombre) return { name: '', addr: '' };
+  const parts = pt.nombre.split('–');
+  return { name: parts[0]?.trim(), addr: parts[1]?.trim() || '' };
 };
 
+const CapituloRutaFrecuencia = ({ data, Head, Foot }) => {
+  const [qr, setQr] = useState('');
+  const stops = data.puntosEntrega?.length || 0;
 
-const CapituloRutaFrecuencia = ({ presupuesto }) => {
-    const [qrCodeUrl, setQrCodeUrl] = useState('');
+  useEffect(() => {
+    if (stops >= 2) {
+      const pts = data.puntosEntrega;
+      const o = `${pts[0].lat},${pts[0].lng}`;
+      const d = `${pts[pts.length - 1].lat},${pts[pts.length - 1].lng}`;
+      const w = pts.slice(1, -1).map(p => `${p.lat},${p.lng}`).join('|');
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}${w ? `&waypoints=${w}` : ''}`;
+      QRCode.toDataURL(url, { width: 150, margin: 2 }).then(setQr).catch(() => {});
+    }
+  }, [data.puntosEntrega]);
 
-    useEffect(() => {
-        if (presupuesto?.puntosEntrega?.length >= 2) {
-            const puntos = presupuesto.puntosEntrega;
-            const origin = `${puntos[0].lat},${puntos[0].lng}`;
-            const destination = `${puntos[puntos.length - 1].lat},${puntos[puntos.length - 1].lng}`;
-            const waypoints = puntos.slice(1, -1).map(p => `${p.lat},${p.lng}`).join('|');
-            const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypoints ? `&waypoints=${waypoints}` : ''}`;
+  const freq = data.frecuencia;
+  const weekDays = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+  const viajesProyectados = freq.tipo === 'mensual'
+    ? ((freq.diasSeleccionados?.length || 0) * (freq.viajesPorDia || 1) * 4.33).toFixed(1)
+    : freq.vueltasTotales || 1;
 
-            QRCode.toDataURL(googleMapsUrl, { width: 180, margin: 2 })
-                .then(url => setQrCodeUrl(url))
-                .catch(err => console.error('Error al generar QR:', err));
-        }
-    }, [presupuesto.puntosEntrega]);
+  const dur = min => {
+    if (!min) return '—';
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  };
 
+  return (
+    <div className="dg-pg">
+      <Head />
+      <div className="dg-inner">
+        <h1 className="dg-chapter">Cap. 1: Recorrido y Frecuencia del Servicio</h1>
+        <p className="dg-chapter-sub">Detalle del recorrido operativo, puntos de entrega y frecuencia programada para la prestación del servicio logístico.</p>
 
-    return (
-        <div className="page">
-            <div className="header-table-placeholder"></div>
-            <div className="content">
-                <Title order={2} className="chapter-title">Capítulo 1: Análisis de Ruta y Frecuencia</Title>
-                <Text c="dimmed" mb="xl">
-                    Detalles operativos del recorrido, los puntos de entrega y la cadencia programada del servicio.
-                </Text>
-
-                <Grid gutter="xl">
-                    {/* COLUMNA IZQUIERDA: Mapa e Itinerario */}
-                    <Grid.Col span={7}>
-                        <Stack>
-                            <Paper withBorder radius="md" p={4} shadow="sm" className="map-container-final">
-                                 <MapaRuta
-                                    puntos={presupuesto.puntosEntrega}
-                                    onRutaCalculada={() => {}} // No necesita recalcular aquí
-                                />
-                            </Paper>
-                             <Title order={4} className="section-subtitle" mt="md">Itinerario de Entrega</Title>
-                             <div className="itinerary-wrapper">
-                                {presupuesto.puntosEntrega.map((punto, index) => (
-                                    <div key={index} className="itinerary-node">
-                                        <div className="itinerary-icon"><Text fw={700} c="white">{index + 1}</Text></div>
-                                        <div className="itinerary-details">
-                                            <Text fw={600} size="md">{punto.nombre.split('–')[0].trim()}</Text>
-                                            <Text c="dimmed" size="sm">{punto.nombre.split('–')[1]?.trim()}</Text>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </Stack>
-                    </Grid.Col>
-
-                    {/* COLUMNA DERECHA: Frecuencia y QR */}
-                    <Grid.Col span={5}>
-                         <Stack>
-                            <Paper withBorder p="lg" radius="md">
-                                 <Title order={4} className="section-subtitle">Frecuencia del Servicio</Title>
-                                <Divider my="sm"/>
-                                {presupuesto.frecuencia.tipo === 'mensual' ? (
-                                    <Stack align="center" gap="md">
-                                        <Badge size="xl" variant="light" color="blue" leftSection={<Calendar size={18}/>}>Servicio Mensual</Badge>
-                                        <WeekdayPickerVisual diasSeleccionados={presupuesto.frecuencia.diasSeleccionados} />
-                                        <Text size="sm">Viajes por día: <strong>{presupuesto.frecuencia.viajesPorDia}</strong></Text>
-                                        <Text size="sm" c="dimmed">Total proyectado: <strong>~{((presupuesto.frecuencia.diasSeleccionados?.length || 0) * (presupuesto.frecuencia.viajesPorDia || 1) * 4.33).toFixed(1)} viajes/mes</strong></Text>
-                                    </Stack>
-                                ) : (
-                                    <Stack gap="lg">
-                                        <Group>
-                                            <ThemeIcon variant="light" color="gray" size="lg" radius="md">
-                                                <Repeat size={20} />
-                                            </ThemeIcon>
-                                            <Title order={5} c="dimmed">Servicio Esporádico</Title>
-                                        </Group>
-                                        <Center>
-                                            <Stack align="center" gap={0}>
-                                                <Text fz={48} fw={700} c="gray.8" lh={1}>
-                                                    {presupuesto.frecuencia.vueltasTotales}
-                                                </Text>
-                                                <Text c="dimmed">Viajes Totales Programados</Text>
-                                            </Stack>
-                                        </Center>
-                                    </Stack>
-                                )}
-                            </Paper>
-                            {qrCodeUrl && (
-                                <Paper withBorder p="lg" radius="md" mt="md">
-                                    <Title order={5} ta="center" mb="md">Ver Ruta en Móvil</Title>
-                                    <Center><img src={qrCodeUrl} alt="Código QR para Google Maps" className="qr-code-image-final" /></Center>
-                                </Paper>
-                            )}
-                        </Stack>
-                    </Grid.Col>
-                </Grid>
-            </div>
-            <div className="footer-placeholder"></div>
+        {/* Map — taller to fill page */}
+        <div className="dg-map" style={{ height: 360 }}>
+          <MapaRuta puntos={data.puntosEntrega} onRutaCalculada={() => {}} />
         </div>
-    );
+
+        {/* Route list */}
+        <h3 className="dg-st">Itinerario de Paradas</h3>
+        <div className="dg-route-list">
+          {data.puntosEntrega.map((pt, i) => {
+            const { name, addr } = splitName(pt);
+            const first = i === 0;
+            const last = i === stops - 1;
+            const cls = first ? ' dg-route-item--origin' : last ? ' dg-route-item--dest' : '';
+            return (
+              <div className={`dg-route-item${cls}`} key={i}>
+                <div className="dg-route-num">{i + 1}</div>
+                <div className="dg-route-info">
+                  <div className="dg-route-name">{name || '—'}</div>
+                  {addr && <div className="dg-route-addr">{addr}</div>}
+                </div>
+                {first && <div className="dg-route-tag">Origen</div>}
+                {last && <div className="dg-route-tag">Destino</div>}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Stats + Frequency 2-col */}
+        <div className="dg-cols">
+          <div className="dg-col">
+            <h3 className="dg-st" style={{ marginTop: 0 }}>Datos del Recorrido</h3>
+            <div className="dg-strip-card" style={{ marginBottom: 10 }}>
+              {qr && <img src={qr} alt="QR" />}
+              <div>
+                <div className="dg-strip-title">Ver Ruta en Google Maps</div>
+                <div className="dg-strip-sub">Escaneá el código QR con tu dispositivo móvil</div>
+              </div>
+            </div>
+            <div className="dg-kpi-mini-row" style={{ flexDirection: 'column', gap: 8 }}>
+              <div className="dg-kpi-mini">
+                <div className="dg-kpi-mini-icon"><Navigation size={14} /></div>
+                <div>
+                  <div className="dg-kpi-mini-val">{(data.totalKilometros || 0).toFixed(1)} km</div>
+                  <div className="dg-kpi-mini-label">Distancia Total del Recorrido</div>
+                </div>
+              </div>
+              <div className="dg-kpi-mini">
+                <div className="dg-kpi-mini-icon" style={{ background: '#475569' }}><Clock size={14} /></div>
+                <div>
+                  <div className="dg-kpi-mini-val">{dur(data.duracionMin)}</div>
+                  <div className="dg-kpi-mini-label">Duración Estimada en Ruta</div>
+                </div>
+              </div>
+              <div className="dg-kpi-mini">
+                <div className="dg-kpi-mini-icon" style={{ background: '#6366f1' }}><Package size={14} /></div>
+                <div>
+                  <div className="dg-kpi-mini-val">{stops} paradas</div>
+                  <div className="dg-kpi-mini-label">Puntos de Entrega</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="dg-col">
+            <h3 className="dg-st" style={{ marginTop: 0 }}>Frecuencia del Servicio</h3>
+            {freq.tipo === 'mensual' ? (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                  <span className="dg-id-badge" style={{ color: 'var(--c2)', borderColor: 'var(--c2)' }}>
+                    <Calendar size={12} style={{ marginRight: 4, verticalAlign: -2 }} />
+                    Servicio Mensual Recurrente
+                  </span>
+                </div>
+                <div className="dg-weekdays" style={{ marginBottom: 14 }}>
+                  {weekDays.map(d => (
+                    <div key={d} className={`dg-wd${freq.diasSeleccionados?.includes(d) ? ' dg-wd--on' : ''}`}>
+                      {d.charAt(0).toUpperCase()}
+                    </div>
+                  ))}
+                </div>
+                <table className="dg-tbl">
+                  <tbody>
+                    <tr><td>Días operativos por semana</td><td className="dg-tbl-val">{freq.diasSeleccionados?.length || 0}</td></tr>
+                    <tr><td>Viajes por día</td><td className="dg-tbl-val">{freq.viajesPorDia}</td></tr>
+                    <tr><td>Total proyectado mensual</td><td className="dg-tbl-val">~{viajesProyectados} viajes</td></tr>
+                  </tbody>
+                </table>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <div className="dg-id-badge" style={{ color: '#6366f1', borderColor: '#c7d2fe', background: '#eef2ff', display: 'inline-block', marginBottom: 16 }}>
+                  <Repeat size={12} style={{ marginRight: 4, verticalAlign: -2 }} />
+                  Servicio Esporádico
+                </div>
+                <div style={{ fontSize: 42, fontWeight: 800, color: '#334155', lineHeight: 1 }}>{freq.vueltasTotales}</div>
+                <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 6 }}>Viajes Totales Programados</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <Foot p={2} />
+    </div>
+  );
 };
 
 export default CapituloRutaFrecuencia;

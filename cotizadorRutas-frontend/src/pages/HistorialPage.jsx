@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Title, Table, ScrollArea, Group, Button, Text, Center, Loader, Paper, ActionIcon, Badge, Stack, Menu, Pagination, TextInput } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, FileX, Plus, Route, MoreVertical, ExternalLink, Search, Truck, User } from 'lucide-react';
+import { Trash2, FileX, Plus, Route, MoreVertical, ExternalLink, Search, Truck, User, Share2, MessageCircle } from 'lucide-react';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import clienteAxios from '../api/clienteAxios';
@@ -120,6 +120,31 @@ const HistorialPage = () => {
                 <Menu.Label>Acciones</Menu.Label>
                 <Menu.Item leftSection={<ExternalLink size={14} />} onClick={() => window.open(`/propuesta/${presupuesto._id}`, '_blank')}>Ver Propuesta (Cliente)</Menu.Item>
                 <Menu.Item leftSection={<ExternalLink size={14} />} onClick={() => window.open(`/desglose/${presupuesto._id}`, '_blank')}>Ver Desglose (Interno)</Menu.Item>
+                <Menu.Divider />
+                <Menu.Label>Compartir Propuesta</Menu.Label>
+                <Menu.Item leftSection={<Share2 size={14} />} onClick={() => {
+                  const url = `${window.location.origin}/p/${presupuesto._id}`;
+                  navigator.clipboard.writeText(url).then(() => {
+                    notifications.show({ title: 'Link copiado', message: 'El link de la propuesta fue copiado al portapapeles', color: 'teal' });
+                  });
+                }}>Copiar Link Propuesta</Menu.Item>
+                <Menu.Item leftSection={<MessageCircle size={14} />} onClick={() => {
+                  const url = `${window.location.origin}/p/${presupuesto._id}`;
+                  const msg = `Hola, te comparto la propuesta de servicio logístico: ${url}`;
+                  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                }}>WhatsApp Propuesta</Menu.Item>
+                <Menu.Label>Compartir Desglose</Menu.Label>
+                <Menu.Item leftSection={<Share2 size={14} />} onClick={() => {
+                  const url = `${window.location.origin}/d/${presupuesto._id}`;
+                  navigator.clipboard.writeText(url).then(() => {
+                    notifications.show({ title: 'Link copiado', message: 'El link del desglose fue copiado al portapapeles', color: 'teal' });
+                  });
+                }}>Copiar Link Desglose</Menu.Item>
+                <Menu.Item leftSection={<MessageCircle size={14} />} onClick={() => {
+                  const url = `${window.location.origin}/d/${presupuesto._id}`;
+                  const msg = `Hola, te comparto el desglose de costos: ${url}`;
+                  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                }}>WhatsApp Desglose</Menu.Item>
                 <Menu.Divider />
                 <Menu.Item color="red" leftSection={<Trash2 size={14} />} onClick={() => handleEliminar(presupuesto._id)}>Eliminar Cotización</Menu.Item>
               </Menu.Dropdown>

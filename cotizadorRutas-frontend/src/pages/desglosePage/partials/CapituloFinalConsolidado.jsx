@@ -1,139 +1,152 @@
-// cotizadorRutas-frontend/src/pages/desglosePage/partials/CapituloFinalConsolidado.jsx
+const $ = v => (v || 0).toLocaleString('es-AR');
 
-import { Paper, Title, Grid, Stack, Divider, Text, Group, Alert, ThemeIcon, Center } from '@mantine/core';
-import { Target, TrendingUp, ShieldCheck, Truck, User, Plus, Info } from 'lucide-react';
+const CapituloFinalConsolidado = ({ data, Head, Foot }) => {
+  if (!data?.resumenCostos) return null;
 
-// --- Subcomponentes para un diseño limpio ---
+  const rc = data.resumenCostos;
+  const freq = data.frecuencia;
+  const kmsMens = data.vehiculo?.calculo?.kmsMensuales || 0;
 
-const CostoBlock = ({ icon, label, value, color = 'gray' }) => (
-    <Paper withBorder p="md" radius="md">
-        <Group>
-            <ThemeIcon variant="light" color={color} size={36} radius="md">{icon}</ThemeIcon>
-            <div>
-                <Text fz="sm" c="dimmed">{label}</Text>
-                <Text fz="xl" fw={600}>${(value || 0).toLocaleString('es-AR')}</Text>
-            </div>
-        </Group>
-    </Paper>
-);
+  const totalAdmin = rc.totalAdministrativo || 0;
+  const totalOtros = rc.otrosCostos || 0;
+  const totalPeajes = rc.totalPeajes || 0;
+  const totalOp = rc.totalOperativo || 0;
+  const ganancia = rc.ganancia || 0;
+  const totalFinal = rc.totalFinal || 0;
+  const montoIVA = rc.montoIVA || Math.round(totalFinal * 0.21);
+  const totalConIVA = rc.totalConIVA || (totalFinal + montoIVA);
+  const pctIVA = rc.porcentajeIVA || 21;
 
-const KpiCard = ({ label, value, color, unit = '' }) => (
-    <Paper withBorder p="lg" radius="md">
-        <Text fz="xs" c="dimmed" tt="uppercase">{label}</Text>
-        <Text fz={32} fw={700} c={color} lh={1.2}>
-            {value}
-            <Text component="span" fz="md" c="dimmed" ml={5}>{unit}</Text>
-        </Text>
-    </Paper>
-);
+  const costoOpPorKm = kmsMens > 0 ? (totalOp / kmsMens) : 0;
+  const viajesProyectados = freq.tipo === 'mensual'
+    ? ((freq.diasSeleccionados?.length || 0) * (freq.viajesPorDia || 1) * 4.33)
+    : (freq.vueltasTotales || 1);
+  const costoPorViaje = viajesProyectados > 0 ? (totalFinal / viajesProyectados) : 0;
+  const margenPct = data.configuracion?.porcentajeGanancia || 0;
 
-const ComposicionBarras = ({ costo, ganancia, total }) => {
-    const costoPct = total > 0 ? (costo / total) * 100 : 0;
-    const gananciaPct = total > 0 ? (ganancia / total) * 100 : 0;
+  const pctCosto = totalFinal > 0 ? (totalOp / totalFinal * 100) : 0;
+  const pctGanancia = totalFinal > 0 ? (ganancia / totalFinal * 100) : 0;
 
-    return (
-        <Stack gap="xs">
-            <div>
-                <Group justify="space-between"><Text size="sm">Costo Operativo</Text><Text size="sm" fw={500}>${costo.toLocaleString('es-AR')}</Text></Group>
-                <div style={{ width: '100%', backgroundColor: '#e9ecef', borderRadius: 4, height: 20, overflow: 'hidden' }}>
-                    <div style={{ width: `${costoPct}%`, backgroundColor: '#495057', height: '100%' }}></div>
-                </div>
-            </div>
-            <div>
-                <Group justify="space-between"><Text size="sm" c="teal.8">Margen de Ganancia</Text><Text size="sm" c="teal.8" fw={500}>${ganancia.toLocaleString('es-AR')}</Text></Group>
-                <div style={{ width: '100%', backgroundColor: '#e9ecef', borderRadius: 4, height: 20, overflow: 'hidden' }}>
-                    <div style={{ width: `${gananciaPct}%`, backgroundColor: '#20c997', height: '100%' }}></div>
-                </div>
-            </div>
-        </Stack>
-    );
-};
+  return (
+    <div className="dg-pg">
+      <Head />
+      <div className="dg-inner">
+        <h1 className="dg-chapter">Cap. 6: Consolidado Económico y Rentabilidad</h1>
+        <p className="dg-chapter-sub">Resumen de todos los costos operativos, definición del precio de venta y análisis de la rentabilidad proyectada del servicio.</p>
 
+        {/* Construction table */}
+        <h3 className="dg-st">Construcción del Precio de Venta</h3>
+        <table className="dg-tbl">
+          <thead><tr><th>Concepto</th><th style={{ textAlign: 'right' }}>Monto Mensual</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span style={{ marginRight: 6 }}>🚛</span> Costo Total del Vehículo</td>
+              <td className="dg-tbl-val">${$(rc.totalVehiculo)}</td>
+            </tr>
+            <tr>
+              <td><span style={{ marginRight: 6 }}>👤</span> Costo Total del Recurso Humano</td>
+              <td className="dg-tbl-val">${$(rc.totalRecurso)}</td>
+            </tr>
+            {totalAdmin > 0 && <tr>
+              <td><span style={{ marginRight: 6 }}>📋</span> Costos Administrativos</td>
+              <td className="dg-tbl-val">${$(totalAdmin)}</td>
+            </tr>}
+            {totalOtros > 0 && <tr>
+              <td><span style={{ marginRight: 6 }}>🛡️</span> Otros Costos Operativos</td>
+              <td className="dg-tbl-val">${$(totalOtros)}</td>
+            </tr>}
+            {totalPeajes > 0 && <tr>
+              <td><span style={{ marginRight: 6 }}>🚧</span> Peajes y Tasas Viales</td>
+              <td className="dg-tbl-val">${$(totalPeajes)}</td>
+            </tr>}
+            {(rc.costoAdicionalPeligrosa || 0) > 0 && <tr>
+              <td><span style={{ marginRight: 6 }}>⚠️</span> Recargo Carga Peligrosa</td>
+              <td className="dg-tbl-val">${$(rc.costoAdicionalPeligrosa)}</td>
+            </tr>}
+            <tr className="dg-tbl-sub">
+              <td>Costo Operativo Total</td>
+              <td className="dg-tbl-val">${$(totalOp)}</td>
+            </tr>
+            <tr>
+              <td><span style={{ marginRight: 6 }}>📈</span> Margen de Ganancia ({margenPct}%)</td>
+              <td className="dg-tbl-val" style={{ color: '#4b7a62' }}>+ ${$(ganancia)}</td>
+            </tr>
+            <tr className="dg-tbl-total">
+              <td>Precio Final de Venta (sin IVA)</td>
+              <td className="dg-tbl-val">${$(totalFinal)}</td>
+            </tr>
+            <tr>
+              <td><span style={{ marginRight: 6 }}>📌</span> IVA ({pctIVA}%)</td>
+              <td className="dg-tbl-val" style={{ color: '#94a3b8' }}>+ ${$(montoIVA)}</td>
+            </tr>
+            <tr className="dg-tbl-total">
+              <td><strong>Total con IVA</strong></td>
+              <td className="dg-tbl-val"><strong>${$(totalConIVA)}</strong></td>
+            </tr>
+          </tbody>
+        </table>
 
-const CapituloFinalConsolidado = ({ presupuesto }) => {
-    if (!presupuesto?.resumenCostos) { return null; }
-
-const { resumenCostos, frecuencia } = presupuesto;
-
-    // Se obtienen los kilómetros mensuales totales del cálculo del vehículo, que es la fuente correcta.
-    const kmsMensualesTotales = presupuesto.vehiculo?.calculo?.kmsMensuales || 0;
-
-    // Se calcula el costo por viaje.
-    const costoTotalPorViaje = resumenCostos.totalFinal / (((frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33) || 1);
-
-    //  Ahora se usa la variable correcta 'kmsMensualesTotales' para el cálculo.
-    const costoOpPorKm = kmsMensualesTotales > 0 ? (resumenCostos.totalOperativo / kmsMensualesTotales) : 0;
-
-    // El cálculo de otros costos no cambia.
-    const totalCostosAdminOtros = (resumenCostos.totalAdministrativo || 0) + (resumenCostos.otrosCostos || 0) + (resumenCostos.totalPeajes || 0);
-
-    return (
-        <div className="page">
-            <div className="header-table-placeholder"></div>
-            <div className="content">
-                <Title order={2} className="chapter-title">Capítulo 6: Propuesta Económica y Rentabilidad</Title>
-                <Text c="dimmed" mb="xl">
-                    Resumen consolidado de todos los costos operativos y definición de la propuesta económica final para la prestación del servicio.
-                </Text>
-
-                {/* ✅ CLASES DE IMPRESIÓN AÑADIDAS AQUÍ 👇 */}
-                <Grid gutter="xl" className="print-grid">
-                    <Grid.Col span={{ base: 12, md: 7 }} className="print-col-7">
-                        <Title order={4} className="section-subtitle">Construcción del Precio Final</Title>
-                        <Stack gap="sm" mt="md">
-                            <CostoBlock icon={<Truck size={20} />} label="Costo Total del Vehículo" value={resumenCostos.totalVehiculo} color="cyan" />
-                            <Center><ThemeIcon variant="light" radius="xl"><Plus size={12} /></ThemeIcon></Center>
-                            <CostoBlock icon={<User size={20} />} label="Costo Total del Recurso Humano" value={resumenCostos.totalRecurso} color="blue" />
-                            <Center><ThemeIcon variant="light" radius="xl"><Plus size={12} /></ThemeIcon></Center>
-                            <CostoBlock icon={<ShieldCheck size={20} />} label="Costos Admin. y Otros" value={totalCostosAdminOtros} color="indigo" />
-                            <Divider label={<Text fw={500}>Subtotal Operativo</Text>} labelPosition="center" />
-                            <Paper withBorder p="lg" radius="md" bg="red.0">
-                                <Group>
-                                    <ThemeIcon variant="light" size="lg" color="red"><TrendingUp size={22} style={{ transform: 'rotate(180deg)' }} /></ThemeIcon>
-                                    <div>
-                                        <Text fz="md" fw={600} c="red.8">Costo Operativo Total</Text>
-                                        <Text fz={22} fw={700} c="red.9" lh={1.1}>${(resumenCostos.totalOperativo || 0).toLocaleString('es-AR')}</Text>
-                                    </div>
-                                </Group>
-                            </Paper>
-                            <Center><ThemeIcon variant="light" color="teal" radius="xl"><Plus size={12} /></ThemeIcon></Center>
-                            <CostoBlock icon={<TrendingUp size={20} />} label={`Margen de Ganancia (${presupuesto.configuracion.porcentajeGanancia}%)`} value={resumenCostos.ganancia} color="teal" />
-                            <Divider />
-                            <Paper p="sm" radius="md" bg="teal.1">
-                                 <Group>
-                                    <ThemeIcon variant="light" size="sm" color="teal"><Target size={24}/></ThemeIcon>
-                                    <div>
-                                        <Title order={3} c="teal.5">Precio Final de Venta (s/IVA)</Title>
-                                        <Title order={1} className="final-price-value" style={{ fontSize: 24, color: 'var(--mantine-color-teal-9)' }}>
-                                            ${(resumenCostos.totalFinal || 0).toLocaleString('es-AR')}
-                                        </Title>
-                                    </div>
-                                </Group>
-                            </Paper>
-                        </Stack>
-                    </Grid.Col>
-                    <Grid.Col span={{ base: 12, md: 5 }} className="print-col-5">
-                        <Stack>
-                            <Title order={4} className="section-subtitle">Análisis Estratégico</Title>
-                            <KpiCard label="Costo Operativo / KM" value={`$${costoOpPorKm.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} color="red.8" />
-                            <KpiCard label="Precio de Venta / Viaje" value={`$${costoTotalPorViaje.toLocaleString('es-AR', {maximumFractionDigits: 0})}`} color="cyan.8" />
-                            <KpiCard label="Margen de Beneficio" value={presupuesto.configuracion.porcentajeGanancia} unit="%" color="teal.8" />
-                            <Paper withBorder p="sm" radius="md" mt="sm">
-                                <Title order={5} ta="center" mb="sm">Composición del Precio Final</Title>
-                                <ComposicionBarras costo={resumenCostos.totalOperativo} ganancia={resumenCostos.ganancia} total={resumenCostos.totalFinal} />
-                            </Paper>
-                            <Alert color="teal" title="Veredicto de Rentabilidad" icon={<Info />} radius="md" mt="sm">
-                                <Text size="sm">
-                                    Este servicio está proyectado para generar un margen bruto de <strong>${(resumenCostos.ganancia || 0).toLocaleString('es-AR')}</strong>, cubriendo la totalidad de los costos operativos directos e indirectos y alineándose con los objetivos de rentabilidad de la compañía.
-                                </Text>
-                            </Alert>
-                        </Stack>
-                    </Grid.Col>
-                </Grid>
-            </div>
-            <div className="footer-placeholder"></div>
+        {/* HERO TOTAL */}
+        <div className="dg-hero">
+          <div className="dg-hero-label">Cotización Final Mensual (sin IVA)</div>
+          <div className="dg-hero-val">${$(totalFinal)}</div>
+          <div className="dg-hero-label" style={{ fontSize: 9, marginTop: 4, opacity: .7 }}>Con IVA ({pctIVA}%): ${$(totalConIVA)}</div>
+          <div className="dg-hero-stats">
+            <div><div className="dg-hero-stat-val">${costoOpPorKm.toFixed(2)}</div><div className="dg-hero-stat-label">Costo Op. / Km</div></div>
+            <div><div className="dg-hero-stat-val">${costoPorViaje.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</div><div className="dg-hero-stat-label">Precio / Viaje</div></div>
+            <div><div className="dg-hero-stat-val">{margenPct}%</div><div className="dg-hero-stat-label">Margen Bruto</div></div>
+          </div>
         </div>
-    );
+
+        {/* KPI cards */}
+        <h3 className="dg-st">Indicadores Estratégicos</h3>
+        <div className="dg-kpi-row">
+          <div className="dg-kpi">
+            <div className="dg-kpi-label">Costo Operativo / KM</div>
+            <div className="dg-kpi-val" style={{ fontSize: 20 }}>${costoOpPorKm.toFixed(2)}</div>
+            <div className="dg-kpi-note">Total de costos por kilómetro</div>
+          </div>
+          <div className="dg-kpi">
+            <div className="dg-kpi-label">Precio de Venta / Viaje</div>
+            <div className="dg-kpi-val" style={{ color: 'var(--c2)', fontSize: 20 }}>${costoPorViaje.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</div>
+            <div className="dg-kpi-note">Ingreso por cada viaje realizado</div>
+          </div>
+          <div className="dg-kpi dg-kpi--accent">
+            <div className="dg-kpi-label">Margen de Beneficio</div>
+            <div className="dg-kpi-val" style={{ fontSize: 20 }}>{margenPct}%</div>
+            <div className="dg-kpi-note">Ganancia: ${$(ganancia)}</div>
+          </div>
+        </div>
+
+        {/* Composition */}
+        <h3 className="dg-st">Distribución del Precio Final</h3>
+        <div className="dg-comp-bar">
+          <div className="dg-comp-seg" style={{ width: `${pctCosto}%`, background: '#475569' }}>
+            <span>{pctCosto.toFixed(0)}%</span>
+          </div>
+          <div className="dg-comp-seg" style={{ width: `${pctGanancia}%`, background: '#6b9080' }}>
+            <span>{pctGanancia.toFixed(0)}%</span>
+          </div>
+        </div>
+        <div className="dg-comp-legend">
+          <span className="dg-comp-text"><span className="dg-comp-dot" style={{ background: '#475569' }} /> Costo Operativo ${$(totalOp)}</span>
+          <span className="dg-comp-text"><span className="dg-comp-dot" style={{ background: '#6b9080' }} /> Margen de Ganancia ${$(ganancia)}</span>
+        </div>
+
+        {/* Veredicto */}
+        <div className="dg-verdict" style={{ marginTop: 'auto' }}>
+          <div className="dg-verdict-title">✅ Análisis de Viabilidad</div>
+          <div className="dg-verdict-text">
+            El servicio genera un margen bruto de <strong>${$(ganancia)}</strong> ({margenPct}% sobre el costo operativo),
+            cubriendo la totalidad de los costos directos (vehículo + recurso humano) e indirectos (administrativos, peajes, otros).
+            El precio de venta de <strong>${$(totalFinal)}</strong> mensuales se encuentra alineado con los objetivos de
+            rentabilidad de la empresa. Este análisis contempla {$(kmsMens)} km mensuales de operación y ~{viajesProyectados.toFixed(0)} viajes proyectados.
+          </div>
+        </div>
+      </div>
+      <Foot p={7} />
+    </div>
+  );
 };
 
 export default CapituloFinalConsolidado;

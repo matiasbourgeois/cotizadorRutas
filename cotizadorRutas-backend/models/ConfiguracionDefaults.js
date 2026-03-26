@@ -125,6 +125,20 @@ export const DEFAULTS_CALCULOS = {
   costoAdicionalKmPeligrosa: 250,
   semanasPorMes: 4.33,
   diasLaboralesMes: 22,
+  porcentajeIVA: 21,
+};
+
+export const DEFAULTS_EMPRESA = {
+  nombre: 'Mi Empresa',
+  slogan: 'Transporte y Logística',
+  cuit: '',
+  telefono: '',
+  email: '',
+  direccion: '',
+  ciudad: '',
+  colorPrimario: '#3A56A5',
+  colorAcento: '#11B7CD',
+  logoUrl: '',
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -178,6 +192,19 @@ const calculosDefaultsSchema = new mongoose.Schema({
   diasLaboralesMes: Number,
 }, { _id: false });
 
+const empresaSchema = new mongoose.Schema({
+  nombre: { type: String, default: 'Mi Empresa' },
+  slogan: { type: String, default: 'Transporte y Logística' },
+  cuit: { type: String, default: '' },
+  telefono: { type: String, default: '' },
+  email: { type: String, default: '' },
+  direccion: { type: String, default: '' },
+  ciudad: { type: String, default: '' },
+  colorPrimario: { type: String, default: '#3A56A5' },
+  colorAcento: { type: String, default: '#11B7CD' },
+  logoUrl: { type: String, default: '' },
+}, { _id: false });
+
 // ═══════════════════════════════════════════════════════════════════
 // Main Schema — Una config por usuario
 // ═══════════════════════════════════════════════════════════════════
@@ -202,6 +229,10 @@ const configuracionDefaultsSchema = new mongoose.Schema({
   calculos: {
     type: calculosDefaultsSchema,
     default: () => ({ ...DEFAULTS_CALCULOS }),
+  },
+  empresa: {
+    type: empresaSchema,
+    default: () => ({ ...DEFAULTS_EMPRESA }),
   },
   actualizadoEn: {
     type: Date,

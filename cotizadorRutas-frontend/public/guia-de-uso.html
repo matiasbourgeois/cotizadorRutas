@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de Uso Oficial — Cotizador Logístico v2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════ */
+/* RESET & VARIABLES                                  */
+/* ═══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0e1525;
+  --bg-card: #1e293b;
+  --bg-card-hover: #253348;
+  --border: rgba(148,163,184,.12);
+  --cyan: #22d3ee;
+  --cyan-dim: rgba(34,211,238,.15);
+  --cyan-glow: rgba(34,211,238,.35);
+  --violet: #8b5cf6;
+  --amber: #f59e0b;
+  --emerald: #10b981;
+  --rose: #f43f5e;
+  --text: #e2e8f0;
+  --text-sec: #94a3b8;
+  --text-dim: #64748b;
+  --radius: 14px;
+  --max-w: 900px;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* PORTADA                                            */
+/* ═══════════════════════════════════════════════════ */
+.cover {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 30% 20%, rgba(34,211,238,.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 80%, rgba(139,92,246,.06) 0%, transparent 60%),
+              var(--bg);
+}
+.cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2322d3ee' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: .5;
+  pointer-events: none;
+}
+.cover-logo {
+  width: 110px; height: 110px;
+  filter: drop-shadow(0 0 30px var(--cyan-glow)) drop-shadow(0 0 60px rgba(34,211,238,.15));
+  animation: float 4s ease-in-out infinite;
+  margin-bottom: 28px;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.cover h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #fff 40%, var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.cover .subtitle {
+  font-size: 1.1rem;
+  color: var(--text-sec);
+  margin-top: 8px;
+  font-weight: 400;
+}
+.cover .version-badge {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 6px 20px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  font-size: .8rem;
+  color: var(--cyan);
+  font-weight: 600;
+  letter-spacing: .5px;
+}
+.cover-footer {
+  position: absolute;
+  bottom: 30px;
+  color: var(--text-dim);
+  font-size: .75rem;
+}
+.scroll-arrow {
+  position: absolute;
+  bottom: 60px;
+  animation: bounce 2s infinite;
+  color: var(--cyan);
+  opacity: .6;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* LAYOUT                                             */
+/* ═══════════════════════════════════════════════════ */
+.container { max-width: var(--max-w); margin: 0 auto; padding: 60px 24px; }
+
+/* ═══════════════════════════════════════════════════ */
+/* TABLE OF CONTENTS                                  */
+/* ═══════════════════════════════════════════════════ */
+.toc {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 40px;
+  margin-bottom: 60px;
+}
+.toc h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: var(--cyan);
+}
+.toc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 40px;
+}
+.toc a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: .88rem;
+  padding: 7px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: color .2s;
+  border-bottom: 1px solid var(--border);
+}
+.toc a:hover { color: var(--cyan); }
+.toc-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  background: var(--cyan-dim);
+  color: var(--cyan);
+  font-size: .7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* SECTIONS                                           */
+/* ═══════════════════════════════════════════════════ */
+.section { margin-bottom: 70px; }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border);
+}
+.section-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.section-icon--cyan { background: var(--cyan-dim); }
+.section-icon--violet { background: rgba(139,92,246,.15); }
+.section-icon--amber { background: rgba(245,158,11,.15); }
+.section-icon--emerald { background: rgba(16,185,129,.15); }
+.section-icon--rose { background: rgba(244,63,94,.15); }
+.section-num {
+  font-size: .65rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+.section h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -.3px;
+}
+.section h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 28px 0 12px;
+  color: var(--cyan);
+}
+.section p, .section li {
+  color: var(--text-sec);
+  font-size: .92rem;
+}
+.section ul, .section ol {
+  padding-left: 20px;
+  margin: 10px 0;
+}
+.section li { margin-bottom: 6px; }
+
+/* ═══════════════════════════════════════════════════ */
+/* CARDS                                              */
+/* ═══════════════════════════════════════════════════ */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin: 16px 0;
+}
+.card-title {
+  font-weight: 700;
+  font-size: .95rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card p { color: var(--text-sec); font-size: .88rem; }
+
+/* ═══════════════════════════════════════════════════ */
+/* STEP FLOW                                          */
+/* ═══════════════════════════════════════════════════ */
+.step-flow {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+.step-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.step-pill-num {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: var(--cyan);
+  color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .7rem;
+  font-weight: 800;
+}
+.step-arrow { color: var(--text-dim); font-size: .8rem; }
+
+/* ═══════════════════════════════════════════════════ */
+/* TIP AND WARNING BOXES                              */
+/* ═══════════════════════════════════════════════════ */
+.tip-box {
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 14px 0;
+  font-size: .88rem;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.tip-box--cyan {
+  background: rgba(34,211,238,.08);
+  border-left: 3px solid var(--cyan);
+  color: var(--text-sec);
+}
+.tip-box--amber {
+  background: rgba(245,158,11,.08);
+  border-left: 3px solid var(--amber);
+  color: var(--text-sec);
+}
+.tip-box--violet {
+  background: rgba(139,92,246,.08);
+  border-left: 3px solid var(--violet);
+  color: var(--text-sec);
+}
+.tip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+/* ═══════════════════════════════════════════════════ */
+/* KEY-VALUE TABLE                                    */
+/* ═══════════════════════════════════════════════════ */
+.kv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0;
+  font-size: .85rem;
+}
+.kv-table th, .kv-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.kv-table th {
+  color: var(--text-dim);
+  font-weight: 600;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.kv-table td { color: var(--text-sec); }
+.kv-table tr:last-child td { border-bottom: none; }
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: .72rem;
+  font-weight: 700;
+}
+.badge--cyan { background: var(--cyan-dim); color: var(--cyan); }
+.badge--violet { background: rgba(139,92,246,.15); color: var(--violet); }
+.badge--amber { background: rgba(245,158,11,.15); color: var(--amber); }
+.badge--emerald { background: rgba(16,185,129,.15); color: var(--emerald); }
+
+/* ═══════════════════════════════════════════════════ */
+/* FOOTER                                             */
+/* ═══════════════════════════════════════════════════ */
+.guide-footer {
+  text-align: center;
+  padding: 40px 20px;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: .8rem;
+}
+.guide-footer img { width: 32px; margin-bottom: 10px; filter: drop-shadow(0 0 10px var(--cyan-glow)); }
+
+/* ═══════════════════════════════════════════════════ */
+/* PRINT                                              */
+/* ═══════════════════════════════════════════════════ */
+@media print {
+  body { background: #fff; color: #1e293b; }
+  .cover { min-height: auto; page-break-after: always; padding: 80px 0; background: #fff; }
+  .cover h1 { -webkit-text-fill-color: #0e1525; color: #0e1525; }
+  .cover .subtitle, .cover-footer, .scroll-arrow { color: #64748b; }
+  .section { page-break-inside: avoid; }
+  .card, .toc, .tip-box { border-color: #e2e8f0; background: #f8fafc; }
+  .card p, .section p, .section li, .kv-table td, .tip-box { color: #334155; }
+  .section h2 { color: #0e1525; }
+}
+@media print { }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- PORTADA                                            -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="cover">
+  <img src="/favicon.png" alt="Cotizador Logístico" class="cover-logo">
+  <h1>Guía de Uso Oficial</h1>
+  <p class="subtitle">Cotizador Logístico — Manual Completo del Sistema</p>
+  <span class="version-badge"><script>document.write(new Date().getFullYear())</script></span>
+  <div class="scroll-arrow">▼</div>
+  <div class="cover-footer">Documento confidencial &nbsp;·&nbsp; Cotizador Logístico © <script>document.write(new Date().getFullYear())</script></div>
+</section>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- TABLA DE CONTENIDOS                                -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="toc">
+  <h2>📑 Tabla de Contenidos</h2>
+  <div class="toc-grid">
+    <a href="#auth"><span class="toc-num">01</span> Primeros Pasos</a>
+    <a href="#panel"><span class="toc-num">02</span> Panel Principal</a>
+    <a href="#step1"><span class="toc-num">03</span> Paso 1 — Definir Ruta</a>
+    <a href="#step2"><span class="toc-num">04</span> Paso 2 — Frecuencia</a>
+    <a href="#step3"><span class="toc-num">05</span> Paso 3 — Vehículo</a>
+    <a href="#step4"><span class="toc-num">06</span> Paso 4 — Recurso Humano</a>
+    <a href="#step5"><span class="toc-num">07</span> Paso 5 — Configuración Final</a>
+    <a href="#docs"><span class="toc-num">08</span> Documentos Generados</a>
+    <a href="#historial"><span class="toc-num">09</span> Historial</a>
+    <a href="#flota"><span class="toc-num">10</span> Gestión de Flota</a>
+    <a href="#rrhh"><span class="toc-num">11</span> Gestión de RRHH</a>
+    <a href="#config"><span class="toc-num">12</span> Configuración Global</a>
+    <a href="#bi"><span class="toc-num">13</span> Panel de Inteligencia de Negocio</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 01 — PRIMEROS PASOS                                -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="auth">
+  <div class="section-header">
+    <div class="section-icon section-icon--cyan">🔐</div>
+    <div>
+      <div class="section-num">Sección 01</div>
+      <h2>Primeros Pasos</h2>
+    </div>
+  </div>
+
+  <h3>Registro de Cuenta</h3>
+  <p>Para acceder al sistema necesitás crear una cuenta. Desde la pantalla de <strong>Registro</strong> completá los siguientes campos:</p>
+  <ul>
+    <li><strong>Nombre completo</strong> — Tu nombre y apellido.</li>
+    <li><strong>Correo electrónico</strong> — Se usa como identificador único y para la verificación de cuenta.</li>
+    <li><strong>Contraseña</strong> — Mínimo 8 caracteres, una mayúscula y un número. El indicador de fuerza te guía en tiempo real.</li>
+  </ul>
+  <p>Al registrarte, el sistema envía un <strong>email de verificación</strong>. Hacé clic en el link del correo para activar tu cuenta.</p>
+
+  <h3>Iniciar Sesión</h3>
+  <p>Desde la pantalla de <strong>Inicio de Sesión</strong>, ingresá tu correo electrónico y contraseña. Si la cuenta no está verificada, aparece un botón para reenviar el correo de verificación.</p>
+
+  <h3>Ingreso con Google</h3>
+  <p>Tanto en Inicio de Sesión como en Registro podés usar el botón <strong>"Continuar con Google"</strong>. El sistema crea automáticamente tu cuenta la primera vez. Si ya tenés una cuenta con correo y contraseña e intentás ingresar con Google usando el mismo correo, el sistema te avisará del conflicto.</p>
+
+  <h3>Recuperar Contraseña</h3>
+  <p>Desde Inicio de Sesión → <em>"¿Olvidaste tu contraseña?"</em>, ingresá tu correo electrónico. Recibirás un enlace para crear una nueva contraseña con las mismas validaciones de seguridad.</p>
+
+  <div class="tip-box tip-box--cyan">
+    <span class="tip-icon">💡</span>
+    <div>Tocando el logo <strong>"Cotizador Logístico"</strong> desde cualquier pantalla de autenticación, volvés a la Página de Inicio.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 02 — PANEL PRINCIPAL                               -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="panel">
+  <div class="section-header">
+    <div class="section-icon section-icon--emerald">🏠</div>
+    <div>
+      <div class="section-num">Sección 02</div>
+      <h2>Panel Principal</h2>
+    </div>
+  </div>
+
+  <p>Una vez que iniciaste sesión, accedés al panel principal. El sistema está organizado con:</p>
+  <ul>
+    <li><strong>Barra Superior</strong> — Logo (al tocarlo volvés al cotizador), tu nombre de usuario, botón para cambiar entre modo claro y oscuro, y botón de cerrar sesión.</li>
+    <li><strong>Menú Lateral</strong> — Navegación con 3 secciones: <em>Cotizador</em> (Nueva Cotización + Historial), <em>Gestión</em> (Vehículos + Recursos Humanos), <em>Panel de Inteligencia</em> y <em>Configuración</em>.</li>
+    <li><strong>Asistente Inteligente</strong> — Panel contextual en el menú lateral que muestra consejos relevantes según la sección donde estés, con efecto de escritura animado.</li>
+  </ul>
+
+  <div class="step-flow">
+    <div class="step-pill"><span class="step-pill-num">1</span> Ruta</div>
+    <span class="step-arrow">→</span>
+    <div class="step-pill"><span class="step-pill-num">2</span> Frecuencia</div>
+    <span class="step-arrow">→</span>
+    <div class="step-pill"><span class="step-pill-num">3</span> Vehículo</div>
+    <span class="step-arrow">→</span>
+    <div class="step-pill"><span class="step-pill-num">4</span> RRHH</div>
+    <span class="step-arrow">→</span>
+    <div class="step-pill"><span class="step-pill-num">5</span> Presupuesto</div>
+  </div>
+  <p>El cotizador sigue un flujo de <strong>5 pasos secuenciales</strong>. Una barra de progreso horizontal en la parte superior indica en qué paso estás. Cada paso se detalla a continuación.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 03 — PASO 1: RUTA                                  -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="step1">
+  <div class="section-header">
+    <div class="section-icon section-icon--cyan">📍</div>
+    <div>
+      <div class="section-num">Sección 03 — Cotizador</div>
+      <h2>Paso 1: Definir Ruta</h2>
+    </div>
+  </div>
+
+  <p>Este paso define el recorrido de la operación. La pantalla se divide en dos paneles:</p>
+
+  <div class="card">
+    <div class="card-title">🗂️ Panel Izquierdo — Panel de Ruta</div>
+    <ul>
+      <li><strong>Buscador de direcciones</strong> — Escribí una dirección y seleccioná el resultado. Se agrega como punto a la Hoja de Ruta.</li>
+      <li><strong>Hoja de Ruta (tabla)</strong> — Lista que podés reordenar arrastrando las filas. El último punto siempre es el destino final.</li>
+      <li><strong>Ida y Vuelta</strong> — Checkbox que aparece al tener ≥2 puntos. Duplica kilómetros y costos variables.</li>
+      <li><strong>Tipo de Carga</strong> — Selector con 3 opciones que impactan directamente en los costos.</li>
+    </ul>
+  </div>
+
+  <table class="kv-table">
+    <thead>
+      <tr><th>Tipo de Carga</th><th>Impacto en el Costo</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="badge badge--cyan">General</span></td><td>Sin recargos adicionales</td></tr>
+      <tr><td><span class="badge badge--amber">Refrigerada</span></td><td>+25% sobre el costo de combustible (equipo de frío)</td></tr>
+      <tr><td><span class="badge badge--violet">Peligrosa</span></td><td>+$250 por kilómetro (seguro y protocolo especial)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="card">
+    <div class="card-title">🗺️ Panel Derecho — Visualizador de Ruta</div>
+    <p>Mapa interactivo de Google Maps que muestra el recorrido en tiempo real. Al calcular la ruta, aparecen los indicadores de <strong>Distancia</strong> (km) y <strong>Duración</strong> (min) en la parte inferior.</p>
+  </div>
+
+  <div class="tip-box tip-box--amber">
+    <span class="tip-icon">⚠️</span>
+    <div>Necesitás al menos <strong>2 puntos</strong> y que la ruta esté calculada en el mapa para poder avanzar al Paso 2.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 04 — PASO 2: FRECUENCIA                            -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="step2">
+  <div class="section-header">
+    <div class="section-icon section-icon--violet">🔄</div>
+    <div>
+      <div class="section-num">Sección 04 — Cotizador</div>
+      <h2>Paso 2: Frecuencia del Servicio</h2>
+    </div>
+  </div>
+
+  <p>Definí si la operación es un viaje puntual o un servicio recurrente.</p>
+
+  <div class="card">
+    <div class="card-title">📦 Esporádico</div>
+    <p>Viaje(s) puntual(es). Definís la <strong>cantidad total de viajes</strong> que se van a realizar. Los costos fijos del vehículo se asignan completamente a esos viajes.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📅 Mensual</div>
+    <p>Operativa recurrente. Seleccionás los <strong>días de la semana</strong> (L-M-X-J-V-S-D) y las <strong>vueltas por día</strong>. El sistema multiplica por <strong>4.33 semanas/mes</strong> para estimar el total mensual. A mayor frecuencia, los costos fijos se prorratean entre más viajes, reduciendo el costo unitario.</p>
+  </div>
+
+  <p>También podés agregar <strong>Observaciones</strong> (horarios preferidos, restricciones, etc.).</p>
+  <p>A la derecha aparece el <strong>Informe de Misión</strong>, panel que acompaña los pasos 2 al 5 mostrando el resumen de costos actualizado en tiempo real.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 05 — PASO 3: VEHÍCULO                              -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="step3">
+  <div class="section-header">
+    <div class="section-icon section-icon--cyan">🚛</div>
+    <div>
+      <div class="section-num">Sección 05 — Cotizador</div>
+      <h2>Paso 3: Asignar Vehículo</h2>
+    </div>
+  </div>
+
+  <p>Elegí el vehículo que realizará la misión. La tabla muestra tu flota con paginación de 5 por página y buscador por marca, modelo o patente.</p>
+
+  <h3>Acciones por vehículo (menú ⋮)</h3>
+  <ul>
+    <li><strong>Seleccionar</strong> — Activa el vehículo para la cotización actual. Queda resaltado visualmente.</li>
+    <li><strong>Configurar</strong> — Abre un panel para ajustar los parámetros de costo específicos del vehículo: combustible, cubiertas, aceite, costos fijos, depreciación, etc.</li>
+    <li><strong>Eliminar</strong> — Con confirmación. Si estaba seleccionado, se deselecciona.</li>
+  </ul>
+
+  <p>Si no tenés vehículos cargados, usá el botón <strong>"+ Añadir Vehículo"</strong> para crear uno nuevo con los datos predeterminados del sistema.</p>
+
+  <table class="kv-table">
+    <thead>
+      <tr><th>Tipo</th><th>Ejemplos típicos</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="badge badge--cyan">Utilitario</span></td><td>Kangoo, Partner, Berlingo</td></tr>
+      <tr><td><span class="badge badge--amber">Mediano</span></td><td>Sprinter, Master, Daily</td></tr>
+      <tr><td><span class="badge badge--violet">Grande</span></td><td>Accelo, Worker</td></tr>
+      <tr><td><span class="badge badge--emerald">Camión</span></td><td>Atego, VM, Volvo FH</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 06 — PASO 4: RECURSO HUMANO                        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="step4">
+  <div class="section-header">
+    <div class="section-icon section-icon--emerald">👤</div>
+    <div>
+      <div class="section-num">Sección 06 — Cotizador</div>
+      <h2>Paso 4: Asignar Recurso Humano</h2>
+    </div>
+  </div>
+
+  <p>Asigná el colaborador que realizará la misión. La tabla funciona igual que la de vehículos: buscador, paginación y menú de acciones.</p>
+
+  <h3>Modalidades de contratación</h3>
+  <div class="card">
+    <div class="card-title"><span class="badge badge--cyan">Empleado</span></div>
+    <p>Relación de dependencia. El sistema calcula <strong>cargas sociales</strong> y <strong>aportes patronales</strong> sobre el sueldo bruto. Incluye adicionales por km remunerativos, viáticos, y costos de carga/descarga.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="badge badge--amber">Contratado</span></div>
+    <p>Autónomo o tercerizado. En lugar de cargas sociales, se aplica un <strong>porcentaje de gastos indirectos</strong> configurable. Los adicionales por km y viáticos se calculan de la misma manera.</p>
+  </div>
+
+  <div class="tip-box tip-box--cyan">
+    <span class="tip-icon">💡</span>
+    <div>Desde el menú (⋮) → <strong>"Configurar"</strong> podés personalizar sueldo, viáticos, adicionales por km y costos indirectos del colaborador seleccionado.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 07 — PASO 5: CONFIGURACIÓN FINAL                   -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="step5">
+  <div class="section-header">
+    <div class="section-icon section-icon--amber">🎯</div>
+    <div>
+      <div class="section-num">Sección 07 — Cotizador</div>
+      <h2>Paso 5: Configuración Final y Presupuesto</h2>
+    </div>
+  </div>
+
+  <p>Último paso del cotizador. Acá definís tu rentabilidad y generás el presupuesto final.</p>
+
+  <h3>Indicador Principal de Margen</h3>
+  <p>En la parte superior se muestra en grande el <strong>Margen Neto (%)</strong> y la <strong>Ganancia por viaje ($)</strong> sobre el precio de venta. Se actualiza en tiempo real.</p>
+
+  <h3>Panel de Precios</h3>
+  <div class="card">
+    <div class="card-title">📊 Controles deslizantes</div>
+    <ul>
+      <li><strong>Margen de Ganancia</strong> (0-50%) — Porcentaje de rentabilidad sobre el costo operativo. Muestra el equivalente en pesos debajo.</li>
+      <li><strong>Gastos Administrativos</strong> (0-25%) — Porcentaje de gastos de gestión y estructura.</li>
+    </ul>
+  </div>
+
+  <h3>Barra de Composición del Precio</h3>
+  <p>Gráfico horizontal que muestra visualmente cómo se compone el precio final con segmentos de color: Costo Base (gris), Ganancia (celeste), Administrativo (violeta) y Extras (ámbar). Cada segmento muestra su porcentaje.</p>
+
+  <h3>Campos Adicionales</h3>
+  <ul>
+    <li><strong>Peajes</strong> y <strong>Otros costos</strong> — Montos fijos extra.</li>
+    <li><strong>Datos del Cliente</strong> — Nombre o empresa que aparecerá en la propuesta.</li>
+    <li><strong>Términos</strong> — Condiciones de la oferta, vigencia, etc.</li>
+  </ul>
+
+  <h3>Acciones Finales</h3>
+  <ul>
+    <li><strong>"Finalizar y Ver Propuesta"</strong> — Guarda la cotización y abre la Propuesta Comercial en nueva pestaña.</li>
+    <li><strong>Menú ▼ → "Guardar y Descargar Desglose"</strong> — Guarda y abre el Desglose Interno.</li>
+  </ul>
+
+  <div class="tip-box tip-box--violet">
+    <span class="tip-icon">📌</span>
+    <div>Una vez guardada, los campos se bloquean pero aparecen botones para <strong>ver Propuesta</strong> y <strong>ver Desglose</strong> las veces que quieras.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 08 — DOCUMENTOS GENERADOS                          -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="docs">
+  <div class="section-header">
+    <div class="section-icon section-icon--violet">📄</div>
+    <div>
+      <div class="section-num">Sección 08</div>
+      <h2>Documentos Generados</h2>
+    </div>
+  </div>
+
+  <p>Al finalizar una cotización, el sistema genera <strong>dos documentos digitales</strong> listos para imprimir o descargar como PDF usando la función de impresión del navegador.</p>
+
+  <div class="card">
+    <div class="card-title">📋 Propuesta Comercial (3 páginas)</div>
+    <p>Documento orientado al <strong>cliente</strong>:</p>
+    <ul>
+      <li><strong>Página 1 — Portada</strong>: Imagen de fondo logístico, logo de la empresa, nombre del cliente, número de propuesta y fecha.</li>
+      <li><strong>Página 2 — Resumen Ejecutivo</strong>: Indicadores clave (distancia, duración, vehículo, frecuencia), precio de venta destacado, y tarjetas de "Garantía de Servicio" (seguimiento 24/7, carga asegurada, atención directa).</li>
+      <li><strong>Página 3 — Mapa + Itinerario</strong>: Mapa de la ruta, lista de paradas, código QR para abrir la ruta en Google Maps desde el celular, términos y área de firmas.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 Desglose Interno (7 capítulos)</div>
+    <p>Informe técnico de uso <strong>interno</strong>:</p>
+    <ul>
+      <li><strong>Panel Ejecutivo</strong> — Indicadores principales (Costo Operativo, Rentabilidad, Precio de Venta), análisis de Costos Fijos vs Variables con gráfico de barras, gráfico circular de estructura de costos, e indicadores de eficiencia (precio por km, precio por hora, viajes mensuales).</li>
+      <li><strong>Ruta y Frecuencia</strong> — Detalle de puntos, kilómetros, duración y tipo de servicio.</li>
+      <li><strong>Ficha del Vehículo</strong> — Datos completos del vehículo asignado.</li>
+      <li><strong>Costos del Vehículo</strong> — Desglose línea por línea: combustible, cubiertas, aceite, depreciación, costos fijos prorrateados.</li>
+      <li><strong>Ficha del Recurso Humano</strong> — Datos del colaborador.</li>
+      <li><strong>Costos del Recurso Humano</strong> — Sueldo prorrateado, adicionales, viáticos, cargas sociales y gastos indirectos.</li>
+      <li><strong>Consolidado Final</strong> — Tabla resumen del costo operativo, administrativo, ganancia y precio de venta.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 09 — HISTORIAL                                     -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="historial">
+  <div class="section-header">
+    <div class="section-icon section-icon--cyan">📚</div>
+    <div>
+      <div class="section-num">Sección 09</div>
+      <h2>Historial de Cotizaciones</h2>
+    </div>
+  </div>
+
+  <p>Desde el menú lateral → <em>Cotizador → Historial</em> accedés a la tabla de todas las cotizaciones guardadas.</p>
+
+  <h3>Información mostrada por fila</h3>
+  <ul>
+    <li><strong>Fecha</strong> — Fecha de creación.</li>
+    <li><strong>Cliente</strong> — Nombre del cliente cotizado.</li>
+    <li><strong>Vehículo</strong> — Marca, modelo y patente.</li>
+    <li><strong>Colaborador</strong> — Nombre del recurso humano asignado.</li>
+    <li><strong>Total</strong> — Precio de venta final.</li>
+  </ul>
+
+  <h3>Acciones (menú ⋮)</h3>
+  <ul>
+    <li><strong>Ver Propuesta</strong> — Abre la propuesta comercial en nueva pestaña.</li>
+    <li><strong>Ver Desglose</strong> — Abre el desglose interno en nueva pestaña.</li>
+    <li><strong>Eliminar</strong> — Con modal de confirmación. Acción irreversible.</li>
+  </ul>
+
+  <p>La tabla está <strong>paginada</strong> (7 registros por página) y tiene un <strong>buscador</strong> para filtrar por cliente.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 10 — GESTIÓN DE FLOTA                              -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="flota">
+  <div class="section-header">
+    <div class="section-icon section-icon--cyan">🚚</div>
+    <div>
+      <div class="section-num">Sección 10</div>
+      <h2>Gestión de Flota</h2>
+    </div>
+  </div>
+
+  <p>Desde <em>Gestión → Vehículos</em> administrás toda tu flota. Esta sección es independiente del cotizador y permite crear, editar y eliminar vehículos libremente.</p>
+
+  <h3>Crear Vehículo</h3>
+  <p>El botón <strong>"+ Nuevo Vehículo"</strong> abre un formulario con todos los campos. Al seleccionar el tipo (Utilitario/Mediano/Grande/Camión) se pre-cargan los <strong>valores predeterminados</strong> desde la Configuración Global, ahorrándote cargar todo manualmente.</p>
+
+  <h3>Campos principales</h3>
+  <ul>
+    <li><strong>Datos generales</strong> — Tipo, patente, marca, modelo, año, tipo combustible, rendimiento km/L.</li>
+    <li><strong>Capacidad</strong> — Peso (kg), volumen (m³), cantidad de cubiertas.</li>
+    <li><strong>Costos variables</strong> — Precio combustible/L, precio cubierta, precio cambio aceite, vida útil vehículo/cubiertas/aceite.</li>
+    <li><strong>Costos fijos</strong> — Mantenimiento preventivo, seguro, patente municipal, patente provincial (todos mensuales).</li>
+    <li><strong>Depreciación</strong> — Precio vehículo nuevo, valor residual (%). Solo aplica para vehículos de ≤10 años.</li>
+  </ul>
+
+  <div class="tip-box tip-box--cyan">
+    <span class="tip-icon">💡</span>
+    <div>Los vehículos creados aquí aparecen automáticamente en el <strong>Paso 3</strong> del cotizador para poder seleccionarlos.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 11 — GESTIÓN DE RRHH                               -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="rrhh">
+  <div class="section-header">
+    <div class="section-icon section-icon--emerald">👥</div>
+    <div>
+      <div class="section-num">Sección 11</div>
+      <h2>Gestión de Recursos Humanos</h2>
+    </div>
+  </div>
+
+  <p>Desde <em>Gestión → Recursos Humanos</em> administrás tu equipo de colaboradores con la misma mecánica que la flota.</p>
+
+  <h3>Campos principales</h3>
+  <ul>
+    <li><strong>Datos personales</strong> — Nombre, DNI, modalidad de contratación (Empleado/Contratado).</li>
+    <li><strong>Sueldo</strong> — Sueldo básico, adicional por actividad (%), adicional no remunerativo fijo.</li>
+    <li><strong>Adicionales por km</strong> — Remunerativo ($/km con mínimo), viático No Remunerativo ($/km con mínimo).</li>
+    <li><strong>Carga/descarga</strong> — Adicional por carga/descarga, cada cuántos km aplica.</li>
+    <li><strong>Jornada</strong> — Horas laborales mensuales, mínimo minutos facturables.</li>
+    <li><strong>Cargas sociales</strong> — Porcentaje de cargas (para Empleados) o porcentaje de gastos indirectos (para Contratados).</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 12 — CONFIGURACIÓN GLOBAL                          -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="config">
+  <div class="section-header">
+    <div class="section-icon section-icon--amber">⚙️</div>
+    <div>
+      <div class="section-num">Sección 12</div>
+      <h2>Configuración Global</h2>
+    </div>
+  </div>
+
+  <p>Los <strong>valores predeterminados</strong> del sistema. Al crear un vehículo o colaborador nuevo, se cargan automáticamente con estos datos. Los registros existentes no se modifican.</p>
+
+  <h3>Pestaña: Vehículos (4 sub-pestañas)</h3>
+  <p>Un formulario por tipo de vehículo (Utilitario, Mediano, Grande, Camión) con: combustible, capacidad, precios de referencia, costos fijos mensuales, desgaste y vida útil.</p>
+
+  <h3>Pestaña: Recursos Humanos (2 sub-pestañas)</h3>
+  <p>Un formulario por modalidad (Empleado, Contratado) con: sueldo base, adicionales por km, carga/descarga, jornada laboral, cargas sociales y gastos indirectos.</p>
+
+  <h3>Pestaña: Constantes de Cálculo</h3>
+  <p>Parámetros que afectan a <strong>todos</strong> los cálculos del sistema:</p>
+
+  <table class="kv-table">
+    <thead><tr><th>Constante</th><th>Valor por Defecto</th><th>Función</th></tr></thead>
+    <tbody>
+      <tr><td>Tiempo Carga/Descarga</td><td>30 min</td><td>Se suma a la duración del viaje para calcular ocupación del vehículo</td></tr>
+      <tr><td>Umbral Jornada Completa</td><td>180 min</td><td>Si la misión supera este valor, se asigna 100% del costo fijo diario</td></tr>
+      <tr><td>Jornada Completa</td><td>480 min (8h)</td><td>Denominador para prorratear costos fijos por proporción de uso</td></tr>
+      <tr><td>Factor GNC</td><td>1.15×</td><td>El GNC rinde 15% más que nafta por metro cúbico</td></tr>
+      <tr><td>Factor Carga Refrigerada</td><td>1.25×</td><td>Incremento 25% sobre combustible</td></tr>
+      <tr><td>Adicional km Peligrosa</td><td>$250/km</td><td>Costo extra por seguro y protocolo</td></tr>
+      <tr><td>Semanas por Mes</td><td>4.33</td><td>Multiplicador para frecuencia mensual</td></tr>
+      <tr><td>Días Laborales/Mes</td><td>22</td><td>Denominador para prorratear costos fijos diarios</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box tip-box--amber">
+    <span class="tip-icon">⚠️</span>
+    <div>Modificar las constantes de cálculo afecta a <strong>todas las cotizaciones futuras</strong>. Hacé cambios con precaución.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 13 — DASHBOARD BI                                  -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section" id="bi">
+  <div class="section-header">
+    <div class="section-icon section-icon--rose">📈</div>
+    <div>
+      <div class="section-num">Sección 13</div>
+      <h2>Panel de Inteligencia de Negocio</h2>
+    </div>
+  </div>
+
+  <p>Panel analítico que muestra indicadores calculados automáticamente a partir de todas tus cotizaciones guardadas.</p>
+
+  <h3>Tarjetas de Indicadores (8 métricas)</h3>
+  <table class="kv-table">
+    <thead><tr><th>Indicador</th><th>Qué mide</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Cotizaciones</strong></td><td>Total de presupuestos generados en el sistema</td></tr>
+      <tr><td><strong>Facturación Total</strong></td><td>Suma de todos los precios de venta (facturación acumulada)</td></tr>
+      <tr><td><strong>Margen Promedio</strong></td><td>Porcentaje de ganancia promedio sobre el precio de venta</td></tr>
+      <tr><td><strong>Costo/Km</strong></td><td>Costo operativo promedio por kilómetro cotizado</td></tr>
+      <tr><td><strong>Distancia Total</strong></td><td>Kilómetros totales cotizados</td></tr>
+      <tr><td><strong>Flota Activa</strong></td><td>Cantidad de vehículos registrados en el sistema</td></tr>
+      <tr><td><strong>Personal</strong></td><td>Cantidad de colaboradores registrados</td></tr>
+      <tr><td><strong>Frecuencia</strong></td><td>Porcentaje de cotizaciones mensuales vs esporádicas</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Gráficos</h3>
+  <div class="card">
+    <div class="card-title">📈 Facturación Mensual</div>
+    <p>Evolución de los últimos 6 meses con dos líneas: <strong>Facturación</strong> (ingreso total, celeste) y <strong>Ganancia</strong> (ganancia neta, verde). Permite ver la tendencia y la brecha entre ingreso y beneficio.</p>
+  </div>
+  <div class="card">
+    <div class="card-title">🍩 Distribución de Costos</div>
+    <p>Gráfico circular que muestra el peso relativo promedio de cada componente de costo: <strong>Vehículo</strong> (celeste), <strong>Recursos Humanos</strong> (ámbar), <strong>Administrativo</strong> (violeta), <strong>Peajes</strong> (verde), <strong>Otros</strong> (gris).</p>
+  </div>
+  <div class="card">
+    <div class="card-title">🚛 Cotizaciones por Tipo de Vehículo</div>
+    <p>Gráfico de barras horizontal que muestra qué tipo de vehículo cotizás más frecuentemente (Utilitario, Mediano, Grande, Camión).</p>
+  </div>
+  <div class="card">
+    <div class="card-title">🏆 Top Clientes + ⚡ Actividad Reciente</div>
+    <p><strong>Mejores Clientes</strong>: Ranking de clientes por facturación generada, con medallas dorada/plateada/bronce. <strong>Actividad Reciente</strong>: Últimas cotizaciones con cliente, vehículo, kilómetros y monto.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- FOOTER                                             -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="guide-footer">
+  <img src="/favicon.png" alt="" style="width:32px;">
+  <p>Cotizador Logístico — Guía de Uso Oficial</p>
+  <p>© <script>document.write(new Date().getFullYear())</script> — Sol del Amanecer SRL</p>
+</div>
+
+</div><!-- /.container -->
+</body>
+</html>

@@ -279,7 +279,7 @@
 .rp-summary {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   flex-shrink: 0;
 }
 
@@ -313,20 +313,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 7px 12px;
+  padding: 5px 10px;
   border-radius: 8px;
   border: 1px solid var(--app-border);
 }
 
-.rp-op-cost-label { font-size: 0.82rem; font-weight: 600; color: var(--app-text-muted); }
-.rp-op-cost-value { font-size: 1.1rem; font-weight: 800; color: var(--app-text); }
+.rp-op-cost-label { font-size: 0.72rem; font-weight: 600; color: var(--app-text-muted); }
+.rp-op-cost-value { font-size: 0.92rem; font-weight: 800; color: var(--app-text); }
 
-/* Price hero */
+/* Price card — same style as op-cost */
 .rp-price {
-  border-radius: 10px;
-  padding: 10px 14px;
-  background: linear-gradient(135deg, #1e293b, #334155);
-  border: 1px solid rgba(34,211,238,0.2);
+  border-radius: 8px;
+  padding: 5px 10px;
+  border: 1px solid var(--app-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -334,18 +333,12 @@
   overflow: hidden;
 }
 
-.rp-price::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(34,211,238,0.06), transparent 60%);
-  pointer-events: none;
-}
+.rp-price::before { display: none; }
 
-.rp-price-label { font-size: 0.85rem; font-weight: 700; color: #22d3ee; position: relative; z-index: 1; }
-.rp-price-sub { font-size: 0.65rem; color: rgba(255,255,255,0.35); position: relative; z-index: 1; }
+.rp-price-label { font-size: 0.75rem; font-weight: 700; color: #22d3ee; position: relative; z-index: 1; }
+.rp-price-sub { font-size: 0.6rem; color: var(--app-text-muted); position: relative; z-index: 1; }
 .rp-price-value {
-  font-size: 1.7rem;
+  font-size: 1.25rem;
   font-weight: 900;
   color: #22d3ee;
   position: relative;
@@ -371,10 +364,10 @@
   .rp-cost-row-val { font-size: 0.72rem; }
   .rp-progress { height: 5px; }
   .rp-progress-label { font-size: 0.6rem; }
-  .rp-op-cost { padding: 5px 10px; }
-  .rp-op-cost-label { font-size: 0.72rem; }
-  .rp-op-cost-value { font-size: 0.92rem; }
-  .rp-price { padding: 8px 12px; }
-  .rp-price-label { font-size: 0.75rem; }
-  .rp-price-value { font-size: 1.35rem; }
+  .rp-op-cost { padding: 4px 8px; }
+  .rp-op-cost-label { font-size: 0.65rem; }
+  .rp-op-cost-value { font-size: 0.82rem; }
+  .rp-price { padding: 5px 8px; }
+  .rp-price-label { font-size: 0.68rem; }
+  .rp-price-value { font-size: 1.1rem; }
 }

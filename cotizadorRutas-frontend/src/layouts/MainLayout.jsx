@@ -7,7 +7,7 @@ import {
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import {
   Sun, Moon, LogOut, Calculator, History, Truck, Users,
-  BarChart3, Settings, PlusCircle, Briefcase
+  BarChart3, Settings, PlusCircle, Briefcase, BookOpen
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCotizacion } from '../context/Cotizacion';
@@ -240,7 +240,7 @@ const MainLayout = () => {
         </AppShell.Section>
 
         {/* ─── Asistente IA: toma TODO el espacio restante ─── */}
-        {isCotizadorRoute && (
+        {consejos?.length > 0 && (
           <AppShell.Section grow>
             <Divider my={6} />
             <AsistenteContextual key={animationKey} consejos={consejos} />
@@ -249,8 +249,22 @@ const MainLayout = () => {
 
         {/* Footer */}
         <AppShell.Section>
-          <Divider mt={4} mb={4} />
-          <Text fz={10} c="dimmed" ta="center">v2.0</Text>
+          <Divider mt={4} mb={6} />
+          <Text fz={10} c="dimmed" ta="center" lh={1.2}>Cotizador Logístico {new Date().getFullYear()}</Text>
+          <Text
+            component="a"
+            href="/guia-de-uso.html"
+            target="_blank"
+            fz={11}
+            fw={600}
+            ta="center"
+            display="flex"
+            style={{ cursor: 'pointer', textDecoration: 'none', justifyContent: 'center', alignItems: 'center', gap: 4, marginTop: 3, marginBottom: 4 }}
+            c="cyan"
+          >
+            <BookOpen size={12} />
+            Guía de Uso Oficial
+          </Text>
         </AppShell.Section>
       </AppShell.Navbar>
 

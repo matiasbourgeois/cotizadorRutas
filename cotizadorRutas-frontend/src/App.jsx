@@ -30,12 +30,17 @@ import GestionVehiculos from "./pages/gestion/GestionVehiculos";
 import GestionRRHH from "./pages/gestion/GestionRRHH";
 import DashboardBI from "./pages/bi/DashboardBI";
 import ConfiguracionGlobal from "./pages/configuracion/ConfiguracionGlobal";
+import DocumentacionTecnica from "./pages/DocumentacionTecnica";
 
 export default function App() {
   return (
     <Routes>
       {/* Rutas públicas */}
       <Route path="/landing" element={<LandingPage />} />
+      <Route path="/p/:id" element={<PropuestaPage isPublic />} />
+      <Route path="/d/:id" element={<DesglosePage isPublic />} />
+      <Route path="/propuesta/:id" element={<PropuestaPage />} />
+      <Route path="/desglose/:id" element={<DesglosePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/registro" element={<RegistroPage />} />
       <Route path="/verificar/:token" element={<VerificarEmailPage />} />
@@ -67,9 +72,7 @@ export default function App() {
           {/* Historial */}
           <Route path="historial" element={<HistorialPage />} />
 
-          {/* Propuesta y Desglose */}
-          <Route path="propuesta/:id" element={<PropuestaPage />} />
-          <Route path="desglose/:id" element={<DesglosePage />} />
+
 
           {/* Gestión */}
           <Route path="gestion/vehiculos" element={<GestionVehiculos />} />
@@ -80,6 +83,9 @@ export default function App() {
 
           {/* Configuración */}
           <Route path="configuracion" element={<ConfiguracionGlobal />} />
+
+          {/* Documentación Técnica (privada) */}
+          <Route path="documentacion-tecnica" element={<DocumentacionTecnica />} />
         </Route>
       </Route>
     </Routes>

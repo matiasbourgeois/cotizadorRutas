@@ -2,7 +2,36 @@ import ConfiguracionDefaults, {
   DEFAULTS_VEHICULO,
   DEFAULTS_RRHH,
   DEFAULTS_CALCULOS,
+  DEFAULTS_EMPRESA,
 } from '../models/ConfiguracionDefaults.js';
+import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Multer config for logo uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '..', 'uploads', 'logos'));
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `logo-${req.usuario._id}${ext}`);
+  },
+});
+
+export const uploadLogo = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.png', '.jpg', '.jpeg', '.webp', '.svg'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) cb(null, true);
+    else cb(new Error('Formato de imagen no soportado'));
+  },
+});
 
 /**
  * GET /api/configuracion-defaults
@@ -73,6 +102,14 @@ export const actualizarConfiguracion = async (req, res) => {
       }
     }
 
+    // Merge parcial empresa
+    const empresa = req.body.empresa;
+    if (empresa) {
+      for (const [campo, valor] of Object.entries(empresa)) {
+        updateData[`empresa.${campo}`] = valor;
+      }
+    }
+
     const config = await ConfiguracionDefaults.findOneAndUpdate(
       { usuario: req.usuario._id },
       { $set: updateData },
@@ -107,6 +144,7 @@ export const resetearConfiguracion = async (req, res) => {
             contratado: { ...DEFAULTS_RRHH.contratado },
           },
           calculos: { ...DEFAULTS_CALCULOS },
+          empresa: { ...DEFAULTS_EMPRESA },
         },
       },
       { new: true, upsert: true }
@@ -150,4 +188,61 @@ export const obtenerDefaultsRRHH = async (usuarioId, tipo = 'empleado') => {
     console.error('Error leyendo defaults de RRHH:', e);
   }
   return { ...(DEFAULTS_RRHH[tipo] || DEFAULTS_RRHH.empleado) };
+};
+
+/**
+ * Helper: Obtiene las constantes de cálculo del usuario.
+ * Usado por presupuestoController para pasarlas a los motores.
+ */
+export const obtenerConstantesCalculo = async (usuarioId) => {
+  try {
+    const config = await ConfiguracionDefaults.findOne({ usuario: usuarioId });
+    if (config?.calculos) {
+      return config.calculos.toObject();
+    }
+  } catch (e) {
+    console.error('Error leyendo constantes de cálculo:', e);
+  }
+  return { ...DEFAULTS_CALCULOS };
+};
+
+/**
+ * Helper: Obtiene los datos de empresa del usuario.
+ * Usado por los PDFs (PropuestaPage, DesglosePage).
+ */
+export const obtenerDatosEmpresa = async (usuarioId) => {
+  try {
+    const config = await ConfiguracionDefaults.findOne({ usuario: usuarioId });
+    if (config?.empresa) {
+      return config.empresa.toObject();
+    }
+  } catch (e) {
+    console.error('Error leyendo datos de empresa:', e);
+  }
+  return { ...DEFAULTS_EMPRESA };
+};
+
+/**
+ * POST /api/configuracion-defaults/logo
+ * Sube una imagen de logo para la empresa del usuario.
+ */
+export const subirLogo = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No se recibió ningún archivo.' });
+    }
+
+    const logoUrl = `/uploads/logos/${req.file.filename}`;
+
+    await ConfiguracionDefaults.findOneAndUpdate(
+      { usuario: req.usuario._id },
+      { $set: { 'empresa.logoUrl': logoUrl } },
+      { upsert: true }
+    );
+
+    res.json({ logoUrl });
+  } catch (error) {
+    console.error('Error al subir logo:', error);
+    res.status(500).json({ error: 'Error al subir el logo', detalle: error.message });
+  }
 };

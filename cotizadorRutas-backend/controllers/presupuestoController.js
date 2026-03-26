@@ -2,6 +2,7 @@
 import Presupuesto from '../models/Presupuesto.js';
 import calcularResumenCostos from '../services/calculos/calcularResumenCostos.js';
 import { calcularFeriadosPorMes } from '../services/feriadosService.js';
+import { obtenerConstantesCalculo, obtenerDatosEmpresa } from './configuracionDefaultsController.js';
 
 
 export const calcularPresupuesto = async (req, res) => {
@@ -15,9 +16,12 @@ export const calcularPresupuesto = async (req, res) => {
       return res.status(400).json({ error: 'Faltan datos de ruta o frecuencia para el cálculo.' });
     }
 
-    // Calcular feriados si es frecuencia mensual
+    // Cargar constantes de cálculo del usuario
+    const constantesCalculo = await obtenerConstantesCalculo(req.usuario._id);
+
+    // Calcular feriados si es frecuencia mensual con 4+ días
     let feriadosPorMes = 0;
-    if (frecuencia?.tipo === 'mensual' && frecuencia.diasSeleccionados?.length >= 5) {
+    if (frecuencia?.tipo === 'mensual' && frecuencia.diasSeleccionados?.length >= 4) {
       feriadosPorMes = await calcularFeriadosPorMes(frecuencia.diasSeleccionados);
     }
 
@@ -29,7 +33,8 @@ export const calcularPresupuesto = async (req, res) => {
       frecuencia,
       configuracion,
       detallesCarga,
-      feriadosPorMes
+      feriadosPorMes,
+      constantesCalculo
     });
 
     res.status(200).json({
@@ -52,9 +57,12 @@ export const crearPresupuesto = async (req, res) => {
       return res.status(400).json({ error: 'Faltan datos clave para crear el presupuesto.' });
     }
 
-    // Calcular feriados si es frecuencia mensual
+    // Cargar constantes de cálculo del usuario
+    const constantesCalculo = await obtenerConstantesCalculo(req.usuario._id);
+
+    // Calcular feriados si es frecuencia mensual con 4+ días
     let feriadosPorMes = 0;
-    if (frecuencia?.tipo === 'mensual' && frecuencia.diasSeleccionados?.length >= 5) {
+    if (frecuencia?.tipo === 'mensual' && frecuencia.diasSeleccionados?.length >= 4) {
       feriadosPorMes = await calcularFeriadosPorMes(frecuencia.diasSeleccionados);
     }
 
@@ -66,8 +74,12 @@ export const crearPresupuesto = async (req, res) => {
       frecuencia,
       configuracion,
       detallesCarga,
-      feriadosPorMes
+      feriadosPorMes,
+      constantesCalculo
     });
+
+    // Cargar datos de empresa del usuario
+    const empresaDatos = await obtenerDatosEmpresa(req.usuario._id);
 
     const presupuestoParaGuardar = new Presupuesto({
       puntosEntrega,
@@ -81,6 +93,7 @@ export const crearPresupuesto = async (req, res) => {
       resumenCostos,
       cliente: configuracion.cliente,
       terminos: configuracion.terminos,
+      empresa: empresaDatos,
       usuario: req.usuario._id
     });
 
@@ -89,6 +102,82 @@ export const crearPresupuesto = async (req, res) => {
   } catch (error) {
     console.error('Error al crear presupuesto:', error);
     res.status(400).json({ error: 'Error al crear presupuesto', detalles: error.message });
+  }
+};
+
+// ── PÚBLICO: datos para compartir propuesta (sin auth) ──
+export const obtenerPresupuestoPublico = async (req, res) => {
+  try {
+    const presupuesto = await Presupuesto.findById(req.params.id);
+    if (!presupuesto) {
+      return res.status(404).json({ error: 'Propuesta no encontrada' });
+    }
+
+    // Devolvemos todo lo necesario para renderizar la propuesta
+    // Excluimos: cálculos internos detallados, configuración interna, usuario
+    const p = presupuesto.toObject();
+    res.json({
+      _id: p._id,
+      empresa: p.empresa,
+      cliente: p.cliente,
+      terminos: p.terminos,
+      puntosEntrega: p.puntosEntrega,
+      totalKilometros: p.totalKilometros,
+      duracionMin: p.duracionMin,
+      frecuencia: p.frecuencia,
+      detallesCarga: p.detallesCarga,
+      fechaCreacion: p.fechaCreacion,
+      resumenCostos: { totalFinal: p.resumenCostos?.totalFinal || 0 },
+      vehiculo: { datos: p.vehiculo?.datos }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener propuesta pública' });
+  }
+};
+
+// ── PÚBLICO: datos para compartir desglose (sin auth) ──
+// SEGURIDAD: filtramos datos sensibles (márgenes, ganancia, config interna)
+export const obtenerDesglosePublico = async (req, res) => {
+  try {
+    const presupuesto = await Presupuesto.findById(req.params.id);
+    if (!presupuesto) {
+      return res.status(404).json({ error: 'Desglose no encontrado' });
+    }
+    const p = presupuesto.toObject();
+
+    // Filtrar resumenCostos: solo mostrar totales, ocultar márgenes internos
+    const resumenSeguro = {
+      totalVehiculo: p.resumenCostos?.totalVehiculo || 0,
+      totalRecurso: p.resumenCostos?.totalRecurso || 0,
+      totalPeajes: p.resumenCostos?.totalPeajes || 0,
+      totalAdministrativo: p.resumenCostos?.totalAdministrativo || 0,
+      otrosCostos: p.resumenCostos?.otrosCostos || 0,
+      costoAdicionalPeligrosa: p.resumenCostos?.costoAdicionalPeligrosa || 0,
+      totalOperativo: p.resumenCostos?.totalOperativo || 0,
+      totalFinal: p.resumenCostos?.totalFinal || 0,
+      porcentajeIVA: p.resumenCostos?.porcentajeIVA || 21,
+      montoIVA: p.resumenCostos?.montoIVA || 0,
+      totalConIVA: p.resumenCostos?.totalConIVA || 0,
+      // ❌ NO incluimos: ganancia (monto ni %)
+    };
+
+    res.json({
+      _id: p._id,
+      empresa: p.empresa,
+      cliente: p.cliente,
+      puntosEntrega: p.puntosEntrega,
+      totalKilometros: p.totalKilometros,
+      duracionMin: p.duracionMin,
+      frecuencia: p.frecuencia,
+      detallesCarga: p.detallesCarga,
+      fechaCreacion: p.fechaCreacion,
+      vehiculo: p.vehiculo,
+      recursoHumano: p.recursoHumano,
+      resumenCostos: resumenSeguro,
+      // ❌ NO incluimos: configuracion (tiene % ganancia, % admin), usuario
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener desglose público' });
   }
 };
 
@@ -134,9 +223,18 @@ export const obtenerPresupuestoPorId = async (req, res) => {
 
 export const actualizarPresupuesto = async (req, res) => {
   try {
+    // Sanitizar: solo permitir campos editables
+    const camposPermitidos = ['cliente', 'terminos', 'configuracion', 'detallesCarga'];
+    const datosLimpios = {};
+    for (const campo of camposPermitidos) {
+      if (req.body[campo] !== undefined) {
+        datosLimpios[campo] = req.body[campo];
+      }
+    }
+
     const actualizado = await Presupuesto.findOneAndUpdate(
       { _id: req.params.id, usuario: req.usuario._id },
-      req.body,
+      datosLimpios,
       { new: true }
     );
     if (!actualizado) {

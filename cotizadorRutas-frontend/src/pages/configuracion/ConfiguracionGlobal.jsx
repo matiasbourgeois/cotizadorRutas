@@ -1,12 +1,13 @@
 import {
   Container, Title, Text, Paper, Group, Stack, NumberInput, Button,
-  ThemeIcon, Divider, Alert, Tabs, SimpleGrid, LoadingOverlay, Badge
+  ThemeIcon, Divider, Alert, Tabs, SimpleGrid, LoadingOverlay, Badge,
+  TextInput, ColorInput, FileButton, Image, Avatar
 } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import {
   Settings, Save, Fuel, Wrench, Disc, Info, Truck, Car, Users,
   Calculator, DollarSign, Shield, Clock, Gauge,
-  Weight, Box as BoxIcon, Zap
+  Weight, Box as BoxIcon, Zap, Building, Phone, Mail, MapPin, Palette, Upload
 } from 'lucide-react';
 import { notifications } from '@mantine/notifications';
 import clienteAxios from '../../api/clienteAxios';
@@ -196,6 +197,7 @@ const ConfiguracionGlobal = () => {
         vehiculos: config.vehiculos,
         recursosHumanos: config.recursosHumanos,
         calculos: config.calculos,
+        empresa: config.empresa,
       });
       setConfig(data);
       notifications.show({
@@ -236,6 +238,33 @@ const ConfiguracionGlobal = () => {
       ...prev,
       calculos: { ...prev.calculos, [campo]: val },
     }));
+  };
+
+  const setEmpresa = (campo, val) => {
+    setConfig(prev => ({
+      ...prev,
+      empresa: { ...prev.empresa, [campo]: val },
+    }));
+  };
+
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const handleLogoUpload = async (file) => {
+    if (!file) return;
+    setUploadingLogo(true);
+    try {
+      const formData = new FormData();
+      formData.append('logo', file);
+      const { data } = await clienteAxios.post('/configuracion-defaults/logo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setEmpresa('logoUrl', data.logoUrl);
+      notifications.show({ title: 'Logo actualizado ✅', message: 'Se guardó correctamente.', color: 'teal' });
+    } catch (error) {
+      notifications.show({ title: 'Error', message: 'No se pudo subir el logo.', color: 'red' });
+    } finally {
+      setUploadingLogo(false);
+    }
   };
 
   if (loading) {
@@ -288,6 +317,9 @@ const ConfiguracionGlobal = () => {
           </Tabs.Tab>
           <Tabs.Tab value="calculos" leftSection={<Calculator size={16} />}>
             Constantes de Cálculo
+          </Tabs.Tab>
+          <Tabs.Tab value="empresa" leftSection={<Building size={16} />}>
+            Mi Empresa
           </Tabs.Tab>
         </Tabs.List>
 
@@ -364,6 +396,104 @@ const ConfiguracionGlobal = () => {
                 <Campo label="Semanas por mes" value={config.calculos?.semanasPorMes} onChange={v => setCalculo('semanasPorMes', v)} decimalScale={2} step={0.01} />
                 <Campo label="Días laborales por mes" value={config.calculos?.diasLaboralesMes} onChange={v => setCalculo('diasLaboralesMes', v)} />
               </SimpleGrid>
+            </Seccion>
+          </Stack>
+        </Tabs.Panel>
+
+        {/* ════════ TAB MI EMPRESA ════════ */}
+        <Tabs.Panel value="empresa">
+          <Stack gap="md">
+            <Alert icon={<Info size={16} />} color="blue" variant="light" radius="md">
+              Estos datos se usan en los <b>PDFs de propuesta y desglose</b> que enviás a tus clientes.
+            </Alert>
+
+            <Seccion icon={Building} color="blue" titulo="Identidad">
+              <SimpleGrid cols={{ base: 1, sm: 2 }}>
+                <TextInput label="Nombre de la empresa" value={config.empresa?.nombre || ''} onChange={e => setEmpresa('nombre', e.target.value)} placeholder="Ej: Transporte Pepito SRL" />
+                <TextInput label="Slogan / Descripción" value={config.empresa?.slogan || ''} onChange={e => setEmpresa('slogan', e.target.value)} placeholder="Ej: Logística de confianza" />
+              </SimpleGrid>
+              <TextInput mt="sm" label="CUIT / RUT" value={config.empresa?.cuit || ''} onChange={e => setEmpresa('cuit', e.target.value)} placeholder="Ej: 30-12345678-9" />
+            </Seccion>
+
+            <Seccion icon={Phone} color="green" titulo="Contacto">
+              <SimpleGrid cols={{ base: 1, sm: 2 }}>
+                <TextInput label="Teléfono" value={config.empresa?.telefono || ''} onChange={e => setEmpresa('telefono', e.target.value)} placeholder="Ej: +54 9 351 123-4567" />
+                <TextInput label="Email" value={config.empresa?.email || ''} onChange={e => setEmpresa('email', e.target.value)} placeholder="Ej: info@miempresa.com" />
+              </SimpleGrid>
+              <SimpleGrid cols={{ base: 1, sm: 2 }} mt="sm">
+                <TextInput label="Dirección" value={config.empresa?.direccion || ''} onChange={e => setEmpresa('direccion', e.target.value)} placeholder="Ej: Av. Colón 1234" />
+                <TextInput label="Ciudad / Provincia" value={config.empresa?.ciudad || ''} onChange={e => setEmpresa('ciudad', e.target.value)} placeholder="Ej: Córdoba, Argentina" />
+              </SimpleGrid>
+            </Seccion>
+
+            <Seccion icon={Upload} color="orange" titulo="Logo de la Empresa">
+              <Group align="flex-end" gap="xl">
+                <div>
+                  {config.empresa?.logoUrl ? (
+                    <Image
+                      src={`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5010'}${config.empresa.logoUrl}`}
+                      alt="Logo"
+                      w={120}
+                      h={120}
+                      fit="contain"
+                      radius="md"
+                      style={{ border: '1px solid #dee2e6', padding: 8, background: '#fff' }}
+                    />
+                  ) : (
+                    <Avatar size={120} radius="md" color="gray">
+                      <Building size={40} />
+                    </Avatar>
+                  )}
+                </div>
+                <Stack gap="xs">
+                  <FileButton onChange={handleLogoUpload} accept="image/png,image/jpeg,image/webp,image/svg+xml">
+                    {(props) => (
+                      <Button {...props} variant="light" color="orange" leftSection={<Upload size={16} />} loading={uploadingLogo}>
+                        Subir Logo
+                      </Button>
+                    )}
+                  </FileButton>
+                  <Text size="xs" c="dimmed">PNG, JPG, WebP o SVG. Máx 2MB.</Text>
+                </Stack>
+              </Group>
+            </Seccion>
+
+            <Seccion icon={Palette} color="violet" titulo="Colores de Marca">
+              <Alert icon={<Info size={14} />} color="gray" variant="light" radius="md" mb="sm">
+                Estos colores se aplican a los <b>PDFs</b> generados (portada, títulos, acentos).
+              </Alert>
+              <SimpleGrid cols={{ base: 1, sm: 2 }}>
+                <ColorInput
+                  label="Color Primario (títulos, marca)"
+                  value={config.empresa?.colorPrimario || '#3A56A5'}
+                  onChange={val => setEmpresa('colorPrimario', val)}
+                  format="hex"
+                  swatches={['#3A56A5', '#1a1a2e', '#16213e', '#0f3460', '#533483', '#2c3e50', '#c0392b', '#27ae60']}
+                />
+                <ColorInput
+                  label="Color de Acento (botones, highlights)"
+                  value={config.empresa?.colorAcento || '#11B7CD'}
+                  onChange={val => setEmpresa('colorAcento', val)}
+                  format="hex"
+                  swatches={['#11B7CD', '#22d3ee', '#06b6d4', '#f59e0b', '#10b981', '#8b5cf6', '#ef4444', '#ec4899']}
+                />
+              </SimpleGrid>
+              {/* Vista previa */}
+              <Paper withBorder p="md" mt="md" radius="md">
+                <Text size="xs" c="dimmed" mb="xs">Vista previa</Text>
+                <Group gap="md">
+                  <Paper
+                    p="md" radius="md" style={{ backgroundColor: config.empresa?.colorPrimario || '#3A56A5', color: '#fff', minWidth: 140 }}
+                  >
+                    <Text size="sm" fw={700} ta="center">{config.empresa?.nombre || 'Mi Empresa'}</Text>
+                  </Paper>
+                  <Paper
+                    p="md" radius="md" style={{ backgroundColor: config.empresa?.colorAcento || '#11B7CD', color: '#fff', minWidth: 140 }}
+                  >
+                    <Text size="sm" fw={700} ta="center">Acento</Text>
+                  </Paper>
+                </Group>
+              </Paper>
             </Seccion>
           </Stack>
         </Tabs.Panel>

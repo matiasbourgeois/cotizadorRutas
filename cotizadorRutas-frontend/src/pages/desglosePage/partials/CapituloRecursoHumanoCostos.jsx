@@ -1,134 +1,100 @@
-// cotizadorRutas-frontend/src/pages/desglosePage/partials/CapituloRecursoHumanoCostos.jsx
+const $ = v => (v || 0).toLocaleString('es-AR');
 
-import { Paper, Title, Grid, Stack, Divider, Text, Group, Alert, RingProgress, Center, ThemeIcon, Badge } from '@mantine/core';
-import { Info, UserCheck, TrendingUp, Clock, Route } from 'lucide-react';
+const CapituloRecursoHumanoCostos = ({ data, Head, Foot }) => {
+  if (!data?.recursoHumano?.calculo?.detalle) return null;
 
-// Componente para una línea de costo
-const CostoLine = ({ label, value, isSubtotal = false }) => (
-    <Group justify="space-between" wrap="nowrap" mt={isSubtotal ? 'sm' : 'xs'}>
-        <Text size="sm" fw={isSubtotal ? 700 : 400}>{label}:</Text>
-        <Text size="sm" fw={isSubtotal ? 700 : 500}>
-            ${(value || 0).toLocaleString('es-AR')}
-        </Text>
-    </Group>
-);
+  const { calculo } = data.recursoHumano;
+  const { detalle, totalFinal } = calculo;
 
-// Componente para una métrica clave
-const KpiMetrica = ({ icon, value, label, unit }) => (
-    <Group>
-        <ThemeIcon variant="light" size={36} radius="md">{icon}</ThemeIcon>
-        <div>
-            <Text fw={700} fz="lg">{value} <Text span fz="sm" c="dimmed">{unit}</Text></Text>
-            <Text fz="xs" c="dimmed">{label}</Text>
+  const totalRem = (detalle.costoBaseRemunerativo || 0) + (detalle.adicionalKm || 0) + (detalle.adicionalPorCargaDescarga || 0);
+  const totalNoRem = (detalle.viaticoKm || 0) + (detalle.adicionalFijoNoRemunerativo || 0);
+  const totalInd = detalle.costoIndirecto || 0;
+
+  const costoPorKm = detalle.kmRealesTotales > 0 ? (totalFinal / detalle.kmRealesTotales) : 0;
+  const duracion = (data.duracionMin || 0) + 30;
+  const viajes = data.frecuencia.tipo === 'mensual'
+    ? ((data.frecuencia.diasSeleccionados?.length || 0) * (data.frecuencia.viajesPorDia || 1) * 4.33)
+    : (data.frecuencia.vueltasTotales || 1);
+  const hsMens = (duracion * viajes) / 60;
+  const costoPorHr = hsMens > 0 ? (totalFinal / hsMens) : 0;
+
+  const pctRem = totalFinal > 0 ? (totalRem / totalFinal * 100) : 0;
+  const pctNoRem = totalFinal > 0 ? (totalNoRem / totalFinal * 100) : 0;
+  const pctInd = totalFinal > 0 ? (totalInd / totalFinal * 100) : 0;
+
+  return (
+    <div className="dg-pg">
+      <Head />
+      <div className="dg-inner">
+        <h1 className="dg-chapter">Cap. 5: Costos del Recurso Humano</h1>
+        <p className="dg-chapter-sub">Cálculo detallado de los costos generados por el colaborador para este servicio, según la metodología aplicada por el sistema.</p>
+
+        {/* Info: Methodology */}
+        <div className="dg-info">
+          <div className="dg-info-title">Metodología de Cálculo Aplicada</div>
+          <div className="dg-info-text">
+            El sistema aplicó el modo <strong>{detalle.tipoDeCalculo}</strong>, determinado automáticamente
+            en función de la duración del servicio y la frecuencia programada. Este método define cómo se imputa
+            el costo base del colaborador (proporcional al tiempo, tarifa por jornada, etc.).
+          </div>
         </div>
-    </Group>
-);
 
+        {/* Cost cascade */}
+        <h3 className="dg-st">Desglose de Conceptos</h3>
+        <table className="dg-tbl">
+          <thead><tr><th>Concepto</th><th style={{ textAlign: 'right' }}>Monto Mensual</th></tr></thead>
+          <tbody>
+            <tr><td colSpan={2} style={{ height: 6 }}></td></tr>
+            <tr><td>Costo Base (Sueldo / Jornal)</td><td className="dg-tbl-val">${$(detalle.costoBaseRemunerativo)}</td></tr>
+            <tr><td>Adicional por KM (Remunerativo)</td><td className="dg-tbl-val">${$(detalle.adicionalKm)}</td></tr>
+            <tr><td>Viáticos por KM (No Remunerativo)</td><td className="dg-tbl-val">${$(detalle.viaticoKm)}</td></tr>
+            <tr><td>Adicional por Carga/Descarga</td><td className="dg-tbl-val">${$(detalle.adicionalPorCargaDescarga)}</td></tr>
+            <tr><td>Adicional Fijo (No Remunerativo)</td><td className="dg-tbl-val">${$(detalle.adicionalFijoNoRemunerativo)}</td></tr>
+            <tr><td colSpan={2} style={{ height: 6 }}></td></tr>
+            <tr><td>{detalle.costoIndirectoLabel || 'Cargas Sociales / Overhead'}</td><td className="dg-tbl-val">${$(detalle.costoIndirecto)}</td></tr>
+          </tbody>
+        </table>
 
-const CapituloRecursoHumanoCostos = ({ presupuesto }) => {
-    if (!presupuesto?.recursoHumano?.calculo?.detalle) { return null; }
-
-    const { calculo } = presupuesto.recursoHumano;
-    const { detalle, totalFinal } = calculo;
-
-    // --- Cálculos para el Gráfico y KPIs ---
-    const totalRemunerativo = (detalle.costoBaseRemunerativo || 0) + (detalle.adicionalKm || 0) + (detalle.adicionalPorCargaDescarga || 0);
-    const totalNoRemunerativo = (detalle.viaticoKm || 0) + (detalle.adicionalFijoNoRemunerativo || 0);
-    const totalIndirecto = detalle.costoIndirecto || 0;
-
-    const costoPorKm = detalle.kmRealesTotales > 0 ? (totalFinal / detalle.kmRealesTotales) : 0;
-    
-    const duracionTotalMisionMin = (presupuesto.duracionMin || 0) + 30;
-    const viajesProyectados = presupuesto.frecuencia.tipo === 'mensual'
-      ? ((presupuesto.frecuencia.diasSeleccionados?.length || 0) * (presupuesto.frecuencia.viajesPorDia || 1) * 4.33)
-      : (presupuesto.frecuencia.vueltasTotales || 1);
-  
-    const horasTotalesMensuales = (duracionTotalMisionMin * viajesProyectados) / 60;
-    const costoPorHora = horasTotalesMensuales > 0 ? (totalFinal / horasTotalesMensuales) : 0;
-
-    const seccionesGrafico = [
-        { value: totalFinal > 0 ? (totalRemunerativo / totalFinal) * 100 : 0, color: 'blue', tooltip: `Remunerativo: $${totalRemunerativo.toLocaleString('es-AR')}` },
-        { value: totalFinal > 0 ? (totalNoRemunerativo / totalFinal) * 100 : 0, color: 'teal', tooltip: `No Remunerativo: $${totalNoRemunerativo.toLocaleString('es-AR')}` },
-        { value: totalFinal > 0 ? (totalIndirecto / totalFinal) * 100 : 0, color: 'grape', tooltip: `Indirectos: $${totalIndirecto.toLocaleString('es-AR')}` },
-    ].filter(sec => sec.value > 0);
-
-    return (
-        <div className="page">
-            <div className="header-table-placeholder"></div>
-            <div className="content">
-                <Title order={2} className="chapter-title">Capítulo 5: Impacto Económico del Colaborador</Title>
-                <Text c="dimmed" mb="xl">
-                    Análisis detallado de los costos generados por el colaborador para esta operación específica, basado en la metodología de cálculo seleccionada.
-                </Text>
-
-                {/* ✅ CLASES DE IMPRESIÓN AÑADIDAS AQUÍ 👇 */}
-                <Grid gutter="xl" className="print-grid">
-                    <Grid.Col span={{ base: 12, md: 7 }} className="print-col-7">
-                        <Paper withBorder p="xl" radius="md">
-                            <Stack>
-                                <Alert color="blue" title="Metodología de Cálculo Aplicada" icon={<Info />} radius="md">
-                                    <Text size="sm">
-                                        El sistema aplicó el modo <strong>{detalle.tipoDeCalculo}</strong>, justificado por la duración y frecuencia del servicio.
-                                    </Text>
-                                </Alert>
-                                <Title order={4} className="section-subtitle" mt="md">Desglose de Conceptos</Title>
-                                <Text fw={600} fz="sm" c="dimmed">COSTOS POR TIEMPO Y PERFORMANCE</Text>
-                                <CostoLine label="Costo Base (Sueldo/Jornal)" value={detalle.costoBaseRemunerativo} />
-                                <CostoLine label="Adicional por KM (Remun.)" value={detalle.adicionalKm} />
-                                <CostoLine label="Viáticos por KM (No Remun.)" value={detalle.viaticoKm} />
-                                <CostoLine label="Adicional Carga/Descarga" value={detalle.adicionalPorCargaDescarga} />
-                                <CostoLine label="Adicional Fijo (No Remun.)" value={detalle.adicionalFijoNoRemunerativo} />
-                                <Divider/>
-                                <Title order={6} c="dimmed">COSTOS INDIRECTOS</Title>
-                                <Alert variant="light" color="grape" title={detalle.costoIndirectoLabel} icon={<UserCheck />} radius="md" p="sm">
-                                    <Text fz="xl" fw={700} ta="center">${(detalle.costoIndirecto || 0).toLocaleString('es-AR')}</Text>
-                                </Alert>
-                                <Divider my="sm" variant="dashed" />
-                                <Paper p="sm" radius="md" withBorder bg="gray.0">
-                                    <Group justify="space-between">
-                                        <Title order={3}>Total Costo RRHH</Title>
-                                        <Title order={3} c="blue.8">${totalFinal.toLocaleString('es-AR')}</Title>
-                                    </Group>
-                                </Paper>
-                            </Stack>
-                        </Paper>
-                    </Grid.Col>
-                    <Grid.Col span={{ base: 12, md: 5 }} className="print-col-5">
-                        <Stack>
-                            <Title order={4} className="section-subtitle">Análisis Visual</Title>
-                            <Paper withBorder p="lg" radius="md" ta="center">
-                                <Title order={6} c="dimmed">Composición del Costo Total</Title>
-                                <RingProgress
-                                    size={180}
-                                    thickness={18}
-                                    mx="auto"
-                                    mt="xl"
-                                    label={<Center><ThemeIcon variant="light" color="blue" size={80} radius={80}><TrendingUp size={40}/></ThemeIcon></Center>}
-                                    sections={seccionesGrafico}
-                                />
-                                <Stack mt="xl" gap={4}>
-                                   <Text span size="xs"><Badge color="blue" circle /> Remunerativo ({(totalRemunerativo/totalFinal*100).toFixed(1)}%)</Text>
-                                   <Text span size="xs"><Badge color="teal" circle /> No Remunerativo ({(totalNoRemunerativo/totalFinal*100).toFixed(1)}%)</Text>
-                                   <Text span size="xs"><Badge color="grape" circle /> Indirectos ({(totalIndirecto/totalFinal*100).toFixed(1)}%)</Text>
-                                </Stack>
-                            </Paper>
-                            <Title order={4} className="section-subtitle" mt="md">Métricas de Rendimiento</Title>
-                            <Paper withBorder p="lg" radius="md">
-                                <Stack>
-                                    <KpiMetrica icon={<Route size={22} />} value={`$${costoPorKm.toFixed(2)}`} label="Costo por Kilómetro Real" />
-                                    <Divider />
-                                    <KpiMetrica icon={<Clock size={22} />} value={`$${costoPorHora.toFixed(2)}`} label="Costo por Hora de Misión" />
-                                    <Divider />
-                                    <KpiMetrica icon={<Info size={22} />} value={detalle.kmParaPagar?.toLocaleString('es-AR')} label="KM Pagados (con mínimos)" unit="km" />
-                                </Stack>
-                            </Paper>
-                        </Stack>
-                    </Grid.Col>
-                </Grid>
-            </div>
-            <div className="footer-placeholder"></div>
+        {/* HERO TOTAL */}
+        <div className="dg-hero" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }}>
+          <div className="dg-hero-label">Costo Total del Recurso Humano</div>
+          <div className="dg-hero-val">${$(totalFinal)}</div>
+          <div className="dg-hero-stats">
+            <div><div className="dg-hero-stat-val">${costoPorKm.toFixed(2)}</div><div className="dg-hero-stat-label">Por km</div></div>
+            <div><div className="dg-hero-stat-val">${costoPorHr.toFixed(0)}</div><div className="dg-hero-stat-label">Por hora</div></div>
+            <div><div className="dg-hero-stat-val">{$(detalle.kmParaPagar)}</div><div className="dg-hero-stat-label">KMs pagados</div></div>
+          </div>
         </div>
-    );
+
+        {/* Composition */}
+        <h3 className="dg-st">Composición del Costo</h3>
+        <div className="dg-comp-bar">
+          {pctRem > 0 && <div className="dg-comp-seg" style={{ width: `${pctRem}%`, background: '#3b82f6' }}><span>{pctRem > 8 ? `${pctRem.toFixed(0)}%` : ''}</span></div>}
+          {pctNoRem > 0 && <div className="dg-comp-seg" style={{ width: `${pctNoRem}%`, background: '#14b8a6' }}><span>{pctNoRem > 8 ? `${pctNoRem.toFixed(0)}%` : ''}</span></div>}
+          {pctInd > 0 && <div className="dg-comp-seg" style={{ width: `${pctInd}%`, background: '#7c8db5' }}><span>{pctInd > 8 ? `${pctInd.toFixed(0)}%` : ''}</span></div>}
+        </div>
+        <div className="dg-comp-legend">
+          <span className="dg-comp-text"><span className="dg-comp-dot" style={{ background: '#3b82f6' }} /> Remunerativo ${$(totalRem)}</span>
+          <span className="dg-comp-text"><span className="dg-comp-dot" style={{ background: '#14b8a6' }} /> No Remunerativo ${$(totalNoRem)}</span>
+          <span className="dg-comp-text"><span className="dg-comp-dot" style={{ background: '#7c8db5' }} /> Indirectos ${$(totalInd)}</span>
+        </div>
+
+        {/* Additional info */}
+        <div className="dg-info" style={{ marginTop: 'auto' }}>
+          <div className="dg-info-title">Detalle del Cálculo</div>
+          <div className="dg-info-text">
+            Kilómetros reales del recorrido: <strong>{$(detalle.kmRealesTotales || 0)} km</strong>.
+            Kilómetros pagados (aplicando mínimos): <strong>{$(detalle.kmParaPagar || 0)} km</strong>.
+            {detalle.kmRealesTotales < (data.recursoHumano?.datos?.minKmRemunerativo || 350)
+              ? ' Los kilómetros reales están por debajo del mínimo establecido, por lo que se aplica el mínimo para el cálculo de adicionales.'
+              : ' Los kilómetros reales superan los mínimos, por lo que los adicionales se calculan sobre la distancia real.'
+            }
+          </div>
+        </div>
+      </div>
+      <Foot p={6} />
+    </div>
+  );
 };
 
 export default CapituloRecursoHumanoCostos;

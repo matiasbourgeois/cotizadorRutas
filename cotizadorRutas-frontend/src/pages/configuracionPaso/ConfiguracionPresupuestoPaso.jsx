@@ -81,18 +81,23 @@ const ConfiguracionPresupuestoPaso = () => {
   // Computed values
   const costoOp = resumenCostos?.totalOperativo || 0;
   const precioVenta = resumenCostos?.totalFinal || 0;
-  const gananciaAbs = precioVenta - costoOp;
-  const margenNeto = precioVenta > 0 ? ((gananciaAbs) / precioVenta * 100) : 0;
-  const gananciaSliderAbs = costoOp * form.values.porcentajeGanancia / 100;
-  const adminSliderAbs = costoOp * form.values.costoAdministrativo / 100;
-  const extras = (form.values.costoPeajes || 0) + (form.values.otrosCostos || 0);
+  const gananciaAbs = resumenCostos?.ganancia || 0;
+  const margenNeto = precioVenta > 0 ? (gananciaAbs / precioVenta * 100) : 0;
+  const pctIVA = resumenCostos?.porcentajeIVA || 21;
+  const montoIVA = resumenCostos?.montoIVA || Math.round(precioVenta * pctIVA / 100);
+  const totalConIVA = resumenCostos?.totalConIVA || (precioVenta + montoIVA);
 
-  // Waterfall segments
+  // Individual components from resumenCostos for accurate bar segments
+  const costoBase = (resumenCostos?.totalVehiculo || 0) + (resumenCostos?.totalRecurso || 0);
+  const adminAbs = resumenCostos?.totalAdministrativo || 0;
+  const extrasAbs = (resumenCostos?.totalPeajes || 0) + (resumenCostos?.otrosCostos || 0) + (resumenCostos?.costoAdicionalPeligrosa || 0);
+
+  // Waterfall segments — now correctly sum to 100%
   const total = precioVenta || 1;
-  const pctBase = (costoOp / total) * 100;
-  const pctGain = (gananciaSliderAbs / total) * 100;
-  const pctAdmin = (adminSliderAbs / total) * 100;
-  const pctExtra = (extras / total) * 100;
+  const pctBase = (costoBase / total) * 100;
+  const pctAdmin = (adminAbs / total) * 100;
+  const pctExtra = (extrasAbs / total) * 100;
+  const pctGain = (gananciaAbs / total) * 100;
 
   return (
     <div className="s5">
@@ -108,10 +113,15 @@ const ConfiguracionPresupuestoPaso = () => {
               <div className="s5-hero-pct">{margenNeto.toFixed(1)}%</div>
             </div>
           </div>
+          <div className="s5-hero-center">
+            <div className="s5-hero-money-label">Precio de Venta (sin IVA)</div>
+            <div className="s5-hero-money">${fmt(precioVenta)}</div>
+            <div className="s5-hero-money-sub">Ganancia: ${fmt(gananciaAbs)}</div>
+          </div>
           <div className="s5-hero-right">
-            <div className="s5-hero-money-label">Ganancia por viaje</div>
-            <div className="s5-hero-money">${fmt(gananciaAbs)}</div>
-            <div className="s5-hero-money-sub">sobre ${fmt(precioVenta)} de venta</div>
+            <div className="s5-hero-money-label">Precio con IVA</div>
+            <div className="s5-hero-money" style={{ color: '#10b981' }}>${fmt(totalConIVA)}</div>
+            <div className="s5-hero-money-sub">IVA ({pctIVA}%): ${fmt(montoIVA)}</div>
           </div>
         </div>
 
@@ -137,7 +147,7 @@ const ConfiguracionPresupuestoPaso = () => {
                 disabled={isFormDisabled}
                 styles={{ markLabel: { fontSize: '0.65rem' } }}
               />
-              <div className="s5-slider-amount">= <span>${fmt(gananciaSliderAbs)}</span> por viaje</div>
+              <div className="s5-slider-amount">= <span>${fmt(gananciaAbs)}</span> por viaje</div>
             </div>
 
             <div className="s5-divider" />
@@ -161,7 +171,7 @@ const ConfiguracionPresupuestoPaso = () => {
                 disabled={isFormDisabled}
                 styles={{ markLabel: { fontSize: '0.65rem' } }}
               />
-              <div className="s5-slider-amount">= <span>${fmt(adminSliderAbs)}</span> por viaje</div>
+              <div className="s5-slider-amount">= <span>${fmt(adminAbs)}</span> por viaje</div>
             </div>
           </div>
 
@@ -181,16 +191,16 @@ const ConfiguracionPresupuestoPaso = () => {
               </div>
               <div className="s5-waterfall-legend-item">
                 <div className="s5-waterfall-dot" style={{ background: '#22d3ee' }} />
-                Ganancia <span className="s5-waterfall-legend-val">${fmt(gananciaSliderAbs)}</span>
+                Ganancia <span className="s5-waterfall-legend-val">${fmt(gananciaAbs)}</span>
               </div>
               <div className="s5-waterfall-legend-item">
                 <div className="s5-waterfall-dot" style={{ background: '#8b5cf6' }} />
-                Admin <span className="s5-waterfall-legend-val">${fmt(adminSliderAbs)}</span>
+                Admin <span className="s5-waterfall-legend-val">${fmt(adminAbs)}</span>
               </div>
-              {extras > 0 && (
+              {extrasAbs > 0 && (
                 <div className="s5-waterfall-legend-item">
                   <div className="s5-waterfall-dot" style={{ background: '#f59e0b' }} />
-                  Extras <span className="s5-waterfall-legend-val">${fmt(extras)}</span>
+                  Extras <span className="s5-waterfall-legend-val">${fmt(extrasAbs)}</span>
                 </div>
               )}
             </div>

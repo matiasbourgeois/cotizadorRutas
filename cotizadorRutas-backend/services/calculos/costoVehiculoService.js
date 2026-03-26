@@ -2,17 +2,17 @@ export default function calcularCostoVehiculo(
   vehiculo,
   kmsPorViaje,
   cantidadViajesMensuales,
-  // Los siguientes dos parámetros son nuevos y clave para la lógica de tiempo
   duracionMin,
-  detallesCarga
+  detallesCarga,
+  C = {}
 ) {
   // =================================================================
   // == Etapa 1: Preparación y Cálculos Iniciales
   // =================================================================
 
-  const TIEMPO_CARGA_DESCARGA = 30;
-  const UMBRAL_JORNADA_COMPLETA = 180;
-  const JORNADA_COMPLETA_MINUTOS = 480; // 8 horas
+  const TIEMPO_CARGA_DESCARGA = C.tiempoCargaDescargaMin || 30;
+  const UMBRAL_JORNADA_COMPLETA = C.umbralJornadaCompletaMin || 180;
+  const JORNADA_COMPLETA_MINUTOS = C.jornadaCompletaMinutos || 480;
 
   // Calculamos el tiempo real de ocupación del vehículo.
   const tiempoTotalMisionVehiculo = duracionMin + TIEMPO_CARGA_DESCARGA;
@@ -48,7 +48,7 @@ export default function calcularCostoVehiculo(
 
 // 2.4 Costo de combustible (Lógica mejorada para GNC y carga refrigerada)
 let combustiblePorKm;
-const FACTOR_RENDIMIENTO_GNC = 1.15; // 1 m³ de GNC rinde un 15% más que 1L de nafta
+const FACTOR_RENDIMIENTO_GNC = C.factorRendimientoGNC || 1.15;
 const kmsPorLitroNafta = vehiculo.rendimientoKmLitro || 1;
 
 if (vehiculo.tieneGNC) {
@@ -60,8 +60,7 @@ if (vehiculo.tieneGNC) {
   // --- Lógica para Nafta/Gasoil ---
   let precioCombustibleEfectivo = vehiculo.precioLitroCombustible || 0;
   if (detallesCarga?.tipo === 'refrigerada') {
-    // El costo por carga refrigerada solo aplica a vehículos con combustible líquido
-    precioCombustibleEfectivo *= 1.25;
+    precioCombustibleEfectivo *= (C.factorCargaRefrigerada || 1.25);
   }
   combustiblePorKm = precioCombustibleEfectivo / kmsPorLitroNafta;
 }
@@ -80,7 +79,8 @@ const combustible = combustiblePorKm * kmsMensuales;
     (vehiculo.costoPatenteMunicipal || 0) +
     (vehiculo.costoPatenteProvincial || 0);
   
-  const costoFijoDiario = costosFijosMensualesTotales / 22;
+  const DIAS_LABORALES = C.diasLaboralesMes || 22;
+  const costoFijoDiario = costosFijosMensualesTotales / DIAS_LABORALES;
   let proporcionUsoDiario = 0;
 
   if (tiempoTotalMisionVehiculo < UMBRAL_JORNADA_COMPLETA) {

@@ -1,325 +1,327 @@
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import clienteAxios from '../../api/clienteAxios';
+import { Loader, Center, Text } from '@mantine/core';
 import {
-    Loader, Center, Text, Paper, Title, Button, Grid, Group,
-    Divider, ThemeIcon, Stack, SimpleGrid, Textarea
-} from '@mantine/core';
-import {
-    Printer, Calendar, MapPin, Truck, Clock, Target,
-    Satellite, ShieldCheck, MessageCircle
+  Printer, MapPin, Truck, Clock, CalendarDays, Route, Package,
+  Repeat, Satellite, ShieldCheck, Headset, FileText, Navigation, AlertTriangle
 } from 'lucide-react';
 import MapaRuta from '../../components/MapaRuta';
 import QRCode from 'qrcode';
+import ShareFAB from '../../components/ShareFAB';
 import './PropuestaPage.css';
 
-// Sub-componentes
-const KpiCard = ({ icon, label, value }) => (
-    <Paper withBorder p="md" radius="md" className="prop-kpi-card">
-        <Group wrap="nowrap">
-            <ThemeIcon color="cyan" variant="light" size={40} radius="md">{icon}</ThemeIcon>
-            <div>
-                <Text fz="xs" c="dimmed">{label}</Text>
-                <Text fz="md" fw={600}>{value}</Text>
-            </div>
-        </Group>
-    </Paper>
-);
+/* ═══════════════════════════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════════════════════════ */
+const $ = (n) => Math.round(n || 0).toLocaleString('es-AR');
 
-const BeneficioCard = ({ icon, label, description }) => (
-    <Paper p="md" radius="md" withBorder bg="gray.0">
-        <Stack align="center" gap="xs">
-            <ThemeIcon color="green" variant="light" size={42} radius="md">
-                {icon}
-            </ThemeIcon>
-            <Text fz="sm" fw={600} ta="center">{label}</Text>
-            <Text fz="xs" c="dimmed" ta="center">{description}</Text>
-        </Stack>
-    </Paper>
-);
-
-const PropuestaPage = () => {
-    const { id } = useParams();
-    const [presupuesto, setPresupuesto] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [qrCodeUrl, setQrCodeUrl] = useState('');
-
-    // Fondo portada: primario (Wikimedia, estable) + fallback (Unsplash)
-    const PORTADA_BG_PRIMARY =
-        'https://upload.wikimedia.org/wikipedia/commons/3/3a/Containerterminal_Tollerort_Hamburg_2013a.jpg';
-    const PORTADA_BG_FALLBACK =
-        'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1600&q=80';
-    const [portadaBg, setPortadaBg] = useState(PORTADA_BG_FALLBACK);
-
-    useEffect(() => {
-        const img = new Image();
-        img.onload = () => setPortadaBg(PORTADA_BG_PRIMARY);
-        img.onerror = () => setPortadaBg(PORTADA_BG_FALLBACK);
-        img.src = PORTADA_BG_PRIMARY;
-    }, []);
-
-    useEffect(() => {
-        const obtenerPresupuesto = async () => {
-            try {
-                const { data } = await clienteAxios.get(`/presupuestos/${id}`);
-                setPresupuesto(data);
-
-                if (data && data.puntosEntrega.length >= 2) {
-                    const puntos = data.puntosEntrega;
-                    const origin = `${puntos[0].lat},${puntos[0].lng}`;
-                    const destination = `${puntos[puntos.length - 1].lat},${puntos[puntos.length - 1].lng}`;
-                    const waypoints = puntos.slice(1, -1).map(p => `${p.lat},${p.lng}`).join('|');
-                    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypoints ? `&waypoints=${waypoints}` : ''}`;
-
-                    QRCode.toDataURL(googleMapsUrl, { width: 180, margin: 2, errorCorrectionLevel: 'H' })
-                        .then(url => setQrCodeUrl(url))
-                        .catch(err => console.error('Error al generar QR:', err));
-                }
-            } catch (error) {
-                console.error('Error al obtener el presupuesto:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        obtenerPresupuesto();
-    }, [id]);
-
-    const formatDuration = (totalMinutes) => {
-        if (!totalMinutes) return 'N/A';
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-        let result = '';
-        if (hours > 0) result += `${hours}h `;
-        if (minutes > 0 || hours === 0) result += `${minutes}m`;
-        return result.trim();
-    };
-
-    const Header = () => (
-        <table className="header-table">
-            <tbody>
-                <tr>
-                    <td className="header-info-cell">
-                        <h3>Sol del Amanecer SRL</h3>
-                        <p>Transporte y Logística de Confianza</p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    );
-
-    const Footer = ({ pageNumber, totalPages }) => (
-        <div className="footer">
-            <Text size="xs" c="dimmed">
-                Propuesta Confidencial | Página {pageNumber} de {totalPages}
-            </Text>
-        </div>
-    );
-
-    if (loading) return <Center h="100vh"><Loader color="cyan" /></Center>;
-    if (!presupuesto) return <Center h="100vh"><Text>Propuesta no encontrada.</Text></Center>;
-
-    const MAX_PRINT_ITINERARY = 3;
-
-    return (
-        <div className="propuesta-background">
-            <div className="prop-print-button-container">
-                <Button leftSection={<Printer size={18} />} onClick={() => window.print()} size="lg" radius="xl">
-                    Imprimir o Guardar PDF
-                </Button>
-            </div>
-
-            <div className="prop-page-container">
-
-                {/* PÁGINA 1: Portada */}
-                <div
-                    className="prop-page prop-page-portada"
-                    style={{ '--portada-bg': `url('${portadaBg}')` }}
-                >
-
-                    <div className="portada-overlay" />
-                    <div className="portada-content">
-                        <img src="/icons/logosol2.png" alt="Logo" className="portada-logo" />
-                        <h1>Propuesta de Servicio Logístico</h1>
-                        <div className="linea-decorativa" />
-                        <p>Preparado para:</p>
-                        <h2>{presupuesto.cliente || 'No especificado'}</h2>
-                    </div>
-                    <div className="portada-footer">
-                        <p><strong>Propuesta N°:</strong> {presupuesto._id}</p>
-                        <p><strong>Fecha de Emisión:</strong> {new Date(presupuesto.fechaCreacion).toLocaleDateString('es-AR')}</p>
-                    </div>
-                </div>
-
-                {/* PÁGINA 2: Resumen Ejecutivo */}
-                <div className="prop-page">
-                    <Header />
-                    <div className="content">
-                        <Grid gutter="xl" className="prop-grid-resumen">
-                            {/* COLUMNA IZQUIERDA */}
-                            <Grid.Col span={7} className="prop-col-7">
-                                <Title order={2} className="section-title">Resumen de la Operación</Title>
-                                <SimpleGrid cols={2} spacing="md">
-                                    <KpiCard icon={<MapPin size={22} />} label="Distancia por Viaje" value={`${presupuesto.totalKilometros.toFixed(1)} km`} />
-                                    <KpiCard icon={<Clock size={22} />} label="Duración Estimada" value={formatDuration(presupuesto.duracionMin)} />
-                                    <KpiCard icon={<Truck size={22} />} label="Vehículo Dedicado" value={`${presupuesto.vehiculo.datos.marca} ${presupuesto.vehiculo.datos.modelo}`} />
-                                    <KpiCard icon={<Calendar size={22} />} label="Frecuencia del Servicio" value={presupuesto.frecuencia.tipo} />
-                                </SimpleGrid>
-
-                                <Paper p="lg" radius="md" mt="xl" withBorder>
-                                    <Title order={4} className="section-subtitle" mt={0} mb="md">
-                                        Nuestra Garantía de Servicio
-                                    </Title>
-                                    <SimpleGrid cols={3}>
-                                        <BeneficioCard icon={<Satellite size={24} />} label="Seguimiento 24/7" description="Visibilidad total de su carga." />
-                                        <BeneficioCard icon={<ShieldCheck size={24} />} label="Carga Asegurada" description="Protección completa ante imprevistos." />
-                                        <BeneficioCard icon={<MessageCircle size={24} />} label="Atención Directa" description="Comunicación fluida y sin intermediarios." />
-                                    </SimpleGrid>
-                                </Paper>
-                            </Grid.Col>
-
-                            {/* COLUMNA DERECHA (Precio) */}
-                            <Grid.Col span={5} className="prop-col-5">
-                                <Paper withBorder p="xl" radius="md" shadow="md" className="prop-price-card">
-                                    <Stack align="center" gap="xs">
-                                        <ThemeIcon color="cyan" size={50} radius="xl"><Target size={28} /></ThemeIcon>
-                                        <Text c="dimmed" tt="uppercase" size="sm" fw={700} mt="md">
-                                            Inversión del Servicio
-                                        </Text>
-                                        {/* Tamaño responsive para que nunca desborde */}
-                                        <Title
-                                            order={1}
-                                            className="price-value"
-                                            style={{ fontSize: 'clamp(28px, 4.2vw, 44px)' }}
-                                        >
-                                            ${Math.round(presupuesto.resumenCostos.totalFinal).toLocaleString('es-AR')}
-                                        </Title>
-                                        <Text size="sm" c="dimmed" ta="center">
-                                            (Valor mensual expresado en Pesos Argentinos, no incluye IVA)
-                                        </Text>
-                                    </Stack>
-                                </Paper>
-                            </Grid.Col>
-                        </Grid>
-                    </div>
-                    <Footer pageNumber={2} totalPages={3} />
-                </div>
-
-                {/* PÁGINA 3: Operación e Itinerario */}
-                <div className="prop-page">
-                    <Header />
-                    <div className="content">
-                        <Grid gutter="xl" className="prop-grid-cierre">
-                            <Grid.Col span={6} className="prop-col-6">
-                                <Title order={2} className="section-title">Mapa de la Operación</Title>
-                                <Paper withBorder radius="md" p={4} shadow="sm" className="prop-map-container">
-                                    <MapaRuta puntos={presupuesto.puntosEntrega} onRutaCalculada={() => { }} />
-                                </Paper>
-                            </Grid.Col>
-
-                            <Grid.Col span={6} className="prop-col-6">
-                                <Title order={2} className="section-title">Itinerario de Entrega</Title>
-
-                                <div className="itinerary-wrapper" style={{ marginTop: '1rem' }}>
-                                    {/* PANTALLA: lista completa con scroll */}
-                                    <div className="itinerary-scroll screen-only">
-                                        {presupuesto.puntosEntrega.map((punto, idx) => {
-                                            const [titulo, direccion] = String(punto?.nombre ?? '').split('–');
-                                            return (
-                                                <div key={`it-screen-${idx}`} className="itinerary-node">
-                                                    <div className="itinerary-icon">
-                                                        <span className="itinerary-index">{idx + 1}</span>
-                                                    </div>
-                                                    <div className="itinerary-details">
-                                                        <Text fw={600} size="md" className="itinerary-point-name">
-                                                            {(titulo || '').trim()}
-                                                        </Text>
-                                                        <Text c="dimmed" size="sm" className="itinerary-point-address">
-                                                            {(direccion || '').trim()}
-                                                        </Text>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-
-                                    {/* IMPRESIÓN: solo primeras N paradas */}
-                                    <div className="print-only">
-                                        {(presupuesto.puntosEntrega || [])
-                                            .slice(0, MAX_PRINT_ITINERARY)
-                                            .map((punto, idx) => {
-                                                const [titulo, direccion] = String(punto?.nombre ?? '').split('–');
-                                                return (
-                                                    <div key={`it-print-${idx}`} className="itinerary-node">
-                                                        <div className="itinerary-icon">
-                                                            <span className="itinerary-index">{idx + 1}</span>
-                                                        </div>
-                                                        <div className="itinerary-details">
-                                                            <Text fw={600} size="sm" className="itinerary-point-name">
-                                                                {(titulo || '').trim()}
-                                                            </Text>
-                                                            <Text c="dimmed" size="sm" className="itinerary-point-address">
-                                                                {(direccion || '').trim()}
-                                                            </Text>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-
-                                        {/* Si hay más paradas que las que imprimimos, mostramos aviso */}
-                                        {presupuesto.puntosEntrega.length > MAX_PRINT_ITINERARY && (
-                                            <Text size="sm" c="dimmed">
-                                                …y {presupuesto.puntosEntrega.length - MAX_PRINT_ITINERARY} puntos más.
-                                                Escaneá el QR para ver el itinerario completo en Google Maps.
-                                            </Text>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {qrCodeUrl && (
-                                    <Paper p="md" radius="md" className="qr-paper-final">
-                                        <Group>
-                                            <img src={qrCodeUrl} alt="Código QR para Google Maps" className="qr-code-image-final" />
-                                            <div style={{ flex: 1 }}>
-                                                <Text size="sm" fw={500}>Ver Ruta en tu Móvil</Text>
-                                                <Text size="xs" c="dimmed">Escaneá para abrir la ruta en Google Maps.</Text>
-                                            </div>
-                                        </Group>
-                                    </Paper>
-                                )}
-                            </Grid.Col>
-
-                        </Grid>
-
-                        <h3 className="section-subtitle">Términos y Próximos Pasos</h3>
-                        <Textarea
-                            readOnly
-                            variant="unstyled"
-                            value={presupuesto.terminos || 'Validez de la oferta: 15 días.'}
-                            autosize
-                            className="terms-textarea"
-                        />
-
-                        <Grid mt="xl" className="signature-area">
-                            <Grid.Col span={6}>
-                                <div className="signature-box">
-                                    <p className="signature-line" />
-                                    <p className="signature-title">Firma por Sol del Amanecer SRL</p>
-                                </div>
-                            </Grid.Col>
-                            <Grid.Col span={6}>
-                                <div className="signature-box">
-                                    <p className="signature-line" />
-                                    <p className="signature-title">Firma y Aclaración del Cliente</p>
-                                </div>
-                            </Grid.Col>
-                        </Grid>
-                    </div>
-                    <Footer pageNumber={3} totalPages={3} />
-                </div>
-            </div>
-        </div>
-    );
+const dur = (min) => {
+  if (!min) return 'N/A';
+  const h = Math.floor(min / 60), m = min % 60;
+  return h > 0 ? `${h}h ${m > 0 ? m + 'm' : ''}`.trim() : `${m}m`;
 };
 
-export default PropuestaPage;
+const DIAS = { lunes:'Lun', martes:'Mar', miercoles:'Mié', jueves:'Jue', viernes:'Vie', sabado:'Sáb', domingo:'Dom' };
+
+const freq = (f) => {
+  if (!f) return 'No especificada';
+  if (f.tipo === 'mensual') {
+    const d = (f.diasSeleccionados||[]).map(x => DIAS[x]||x).join(' · ');
+    const v = f.viajesPorDia > 1 ? ` (×${f.viajesPorDia}/día)` : '';
+    return `Mensual${v}`;
+  }
+  const n = f.vueltasTotales || 1;
+  return `Esporádico — ${n} ${n===1?'viaje':'viajes'}`;
+};
+
+const freqDias = (f) => {
+  if (!f || f.tipo !== 'mensual') return '';
+  return (f.diasSeleccionados||[]).map(x => DIAS[x]||x).join(' · ');
+};
+
+const carga = (d) => {
+  if (!d) return 'General';
+  const t = {general:'General', refrigerada:'Refrigerada', peligrosa:'Peligrosa'}[d.tipo] || 'General';
+  const p = d.pesoKg ? ` · ${$(d.pesoKg)} kg` : '';
+  return t + p;
+};
+
+const propId = (id, f) => `PROP-${new Date(f).getFullYear()}-${(id||'').slice(-4).toUpperCase()}`;
+
+const plusDays = (f, n=15) => { const d = new Date(f); d.setDate(d.getDate()+n); return d.toLocaleDateString('es-AR'); };
+
+const isRT = (pts) => {
+  if (!pts || pts.length < 2) return false;
+  const a = pts[0], b = pts.at(-1);
+  if (!a?.lat || !b?.lat) return false;
+  return Math.hypot(a.lat-b.lat, a.lng-b.lng) < 0.01;
+};
+
+const ruta = (pts) => {
+  if (!pts || pts.length < 2) return 'Ruta no definida';
+  const n = (p) => (p?.nombre||'').split('–')[0].trim() || '—';
+  return `${n(pts[0])}  →  ${n(pts.at(-1))}`;
+};
+
+const splitName = (p) => {
+  const [a,b] = String(p?.nombre??'').split('–');
+  return { name: (a||'').trim(), addr: (b||'').trim() };
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPONENT
+   ═══════════════════════════════════════════════════════════════ */
+export default function PropuestaPage({ isPublic = false }) {
+  const { id } = useParams();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [qr, setQr] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        let p;
+        if (isPublic) {
+          const BE = import.meta.env.VITE_API_URL || 'http://localhost:5010';
+          const res = await fetch(`${BE}/api/presupuestos/public/${id}`);
+          if (!res.ok) throw new Error('No encontrado');
+          p = await res.json();
+        } else {
+          const { data: d } = await clienteAxios.get(`/presupuestos/${id}`);
+          p = d;
+        }
+        setData(p);
+        if (p?.puntosEntrega?.length >= 2) {
+          const pts = p.puntosEntrega;
+          const o = `${pts[0].lat},${pts[0].lng}`;
+          const d = `${pts.at(-1).lat},${pts.at(-1).lng}`;
+          const w = pts.slice(1,-1).map(x=>`${x.lat},${x.lng}`).join('|');
+          const url = `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}${w?`&waypoints=${w}`:''}`;
+          QRCode.toDataURL(url, { width: 200, margin: 2, errorCorrectionLevel: 'H' })
+            .then(u => setQr(u)).catch(() => {});
+        }
+      } catch(e) { console.error(e); }
+      finally { setLoading(false); }
+    })();
+  }, [id, isPublic]);
+
+  if (loading) return <Center h="100vh"><Loader color="cyan" /></Center>;
+  if (!data) return <Center h="100vh"><Text>Propuesta no encontrada.</Text></Center>;
+
+  // ── Data ────────────────────────────────────────
+  const e = data.empresa || {};
+  const BE = import.meta.env.VITE_API_URL || 'http://localhost:5010';
+  const logo = e.logoUrl ? `${BE}${e.logoUrl}` : '';
+  const num = propId(data._id, data.fechaCreacion);
+  const emis = new Date(data.fechaCreacion).toLocaleDateString('es-AR');
+  const valid = plusDays(data.fechaCreacion);
+  const validDate = new Date(data.fechaCreacion); validDate.setDate(validDate.getDate() + 15);
+  const isExpired = new Date() > validDate;
+  const round = isRT(data.puntosEntrega);
+  const monthly = data.frecuencia?.tipo === 'mensual';
+  const total = data.resumenCostos?.totalFinal || 0;
+  const stops = data.puntosEntrega?.length || 0;
+  const km = data.totalKilometros || 0;
+
+  const perTrip = monthly
+    ? Math.round(total / ((data.frecuencia?.diasSeleccionados?.length||1) * 4.33 * (data.frecuencia?.viajesPorDia||1)))
+    : Math.round(total / (data.frecuencia?.vueltasTotales||1));
+  const perKm = km > 0 ? Math.round(perTrip / km) : 0;
+
+  // Service cards data
+  const cards = [
+    { ico: <Route size={16} />,        lbl: 'Recorrido',         val: ruta(data.puntosEntrega) },
+    { ico: <Repeat size={16} />,       lbl: 'Modalidad',         val: round ? 'Ida y Vuelta' : 'Solo Ida' },
+    { ico: <MapPin size={16} />,       lbl: 'Distancia',         val: `${km.toFixed(1)} km` },
+    { ico: <Clock size={16} />,        lbl: 'Duración estimada', val: dur(data.duracionMin) },
+    { ico: <Navigation size={16} />,   lbl: 'Paradas',           val: `${stops} puntos de entrega` },
+    { ico: <Truck size={16} />,        lbl: 'Vehículo',          val: `${data.vehiculo?.datos?.marca||''} ${data.vehiculo?.datos?.modelo||''}`.trim() || '—' },
+    { ico: <Package size={16} />,      lbl: 'Tipo de carga',     val: carga(data.detallesCarga) },
+    { ico: <CalendarDays size={16} />, lbl: 'Frecuencia',        val: freq(data.frecuencia) },
+  ];
+  const dias = freqDias(data.frecuencia);
+  if (dias) cards.push({ ico: <CalendarDays size={16} />, lbl: 'Días operativos', val: dias });
+
+  // ── Sub-components ──────────────────────────────
+  const Head = () => (
+    <div className="pg-head">
+      <div className="pg-head-brand">
+        {logo && <img src={logo} alt="" className="pg-head-logo" onError={e => e.target.style.display = 'none'} />}
+        <div>
+          <div className="pg-head-name">{e.nombre || 'Mi Empresa'}</div>
+          {e.slogan && <div className="pg-head-sub">{e.slogan}</div>}
+        </div>
+      </div>
+      <div className="pg-head-badge">{num}</div>
+    </div>
+  );
+
+  const Foot = ({ p, t }) => (
+    <div className="pg-foot">
+      <span>{e.nombre||'Mi Empresa'}{e.telefono ? ` · ${e.telefono}` : ''}{e.email ? ` · ${e.email}` : ''}</span>
+      <span>Página {p} de {t}</span>
+    </div>
+  );
+
+  // ═══════════════════════════════════════════════
+  return (
+    <div className="prop-root" style={{ '--c1': e.colorPrimario || '#1e3a5f', '--c2': e.colorAcento || '#0891b2' }}>
+      <div className="prop-btn-area">
+        <button className="prop-print-btn" onClick={() => window.print()}>
+          <Printer size={18} />
+          Imprimir / Guardar PDF
+        </button>
+      </div>
+
+      <ShareFAB shareUrl={`/p/${id}`} cliente={data.cliente} empresa={e.nombre} />
+
+      {/* ━━━━━━━━━━━ EXPIRED BANNER ━━━━━━━━━━━ */}
+      {isExpired && (
+        <div className="expired-banner">
+          <div className="expired-banner-inner">
+            <div className="expired-banner-icon"><AlertTriangle size={22} /></div>
+            <div className="expired-banner-text">
+              <div className="expired-banner-title">Esta propuesta ha vencido</div>
+              <div className="expired-banner-sub">La cotización {num} venció el <strong>{valid}</strong>. Los precios pueden haber cambiado.{e.telefono ? ` Contacte a ${e.nombre || 'la empresa'} al ${e.telefono}` : ''}{e.email ? ` o a ${e.email}` : ''} para solicitar una cotización actualizada.</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ━━━━━━━━━━━ PAGE 1 · COVER ━━━━━━━━━━━ */}
+      <div className="pg pg-cover">
+        <div className="cover-accent-top" />
+        <div className="cover-accent-left" />
+        <div className="cover-main">
+          {logo && <img src={logo} alt="Logo" className="cover-logo" onError={e => e.target.style.display = 'none'} />}
+          <div className="cover-divider" />
+          <h1 className="cover-h1">Propuesta de<br />Servicio Logístico</h1>
+          <div className="cover-divider" />
+          <p className="cover-prep">Preparado para</p>
+          <p className="cover-client-name">{data.cliente || 'Cliente no especificado'}</p>
+        </div>
+        <div className="cover-footer">
+          <div>
+            <div><strong>{num}</strong></div>
+            <div>Emisión: {emis}</div>
+            <div>Válida hasta: <strong>{valid}</strong></div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div><strong>{e.nombre || ''}</strong></div>
+            {e.cuit && <div>CUIT {e.cuit}</div>}
+            {e.direccion && <div>{e.direccion}</div>}
+            {e.ciudad && <div>{e.ciudad}</div>}
+            {e.telefono && <div>Tel: {e.telefono}</div>}
+            {e.email && <div>{e.email}</div>}
+          </div>
+        </div>
+      </div>
+
+      {/* ━━━━━━━━━━━ PAGE 2 · DETALLE + COTIZACIÓN ━━━━━━━━━━━ */}
+      <div className="pg">
+        <Head />
+        <div className="pg-inner">
+          <h2 className="st">Detalle del Servicio</h2>
+
+          <div className="svc-grid">
+            {cards.map((c, i) => (
+              <div className="svc-card" key={i}>
+                <div className="svc-card-icon">{c.ico}</div>
+                <div>
+                  <div className="svc-card-label">{c.lbl}</div>
+                  <div className="svc-card-value">{c.val}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="price-hero">
+            <div className="price-hero-label">{monthly ? 'Cotización Mensual' : 'Cotización del Servicio'}</div>
+            <div className="price-hero-amount">${$(total)}</div>
+            <div className="price-hero-note">Pesos Argentinos · Sin IVA</div>
+            <div className="price-stats">
+              <div><div className="price-stat-val">${$(perTrip)}</div><div className="price-stat-label">Por viaje</div></div>
+              <div><div className="price-stat-val">${$(perKm)}</div><div className="price-stat-label">Por km</div></div>
+              <div><div className="price-stat-val">{stops}</div><div className="price-stat-label">Paradas</div></div>
+              <div><div className="price-stat-val">{km.toFixed(0)} km</div><div className="price-stat-label">Recorrido</div></div>
+            </div>
+          </div>
+
+          <div className="benefits">
+            <div className="benefit"><span className="benefit-dot"><Satellite size={13} /></span>Seguimiento GPS 24/7</div>
+            <div className="benefit"><span className="benefit-dot"><ShieldCheck size={13} /></span>Carga Asegurada</div>
+            <div className="benefit"><span className="benefit-dot"><Headset size={13} /></span>Atención Directa</div>
+          </div>
+
+          <div className="validity">
+            Esta cotización tiene validez hasta el <strong>{valid}</strong> · {num}
+          </div>
+        </div>
+        <Foot p={2} t={3} />
+      </div>
+
+      {/* ━━━━━━━━━━━ PAGE 3 · MAPA + ITINERARIO + CONDICIONES ━━━━━━━━━━━ */}
+      <div className="pg">
+        <Head />
+        <div className="pg-inner">
+          <h2 className="st">Recorrido de la Operación</h2>
+          <div className="map-wrap">
+            <MapaRuta puntos={data.puntosEntrega} onRutaCalculada={() => {}} />
+          </div>
+
+          <h2 className="st">Itinerario de Entrega</h2>
+          <div className="route-list">
+            {data.puntosEntrega.map((pt, i) => {
+              const { name, addr } = splitName(pt);
+              const first = i === 0;
+              const last  = i === stops - 1;
+              const cls = first ? ' route-item--origin' : last ? ' route-item--dest' : '';
+              return (
+                <div className={`route-item${cls}`} key={i}>
+                  <div className="route-item-num">{i + 1}</div>
+                  <div className="route-item-info">
+                    <div className="route-item-name">{name || '—'}</div>
+                    {addr && <div className="route-item-addr">{addr}</div>}
+                  </div>
+                  {first && <div className="route-item-tag">Origen</div>}
+                  {last  && <div className="route-item-tag">Destino</div>}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="info-strip">
+            {qr && (
+              <div className="qr-card">
+                <img src={qr} alt="QR" />
+                <div>
+                  <div className="qr-card-title">Ver recorrido en tu móvil</div>
+                  <div className="qr-card-sub">Escaneá para abrir en Google Maps</div>
+                </div>
+              </div>
+            )}
+            <div className="stats-card">
+              <div className="stat-item"><div className="stat-val">{km.toFixed(0)} km</div><div className="stat-lbl">Distancia</div></div>
+              <div className="stat-div" />
+              <div className="stat-item"><div className="stat-val">{dur(data.duracionMin)}</div><div className="stat-lbl">Duración</div></div>
+              <div className="stat-div" />
+              <div className="stat-item"><div className="stat-val">{stops}</div><div className="stat-lbl">Paradas</div></div>
+            </div>
+          </div>
+
+          <div className="terms-card">
+            <h4><FileText size={12} />Condiciones Generales</h4>
+            <p>{data.terminos || 'Validez de la cotización: 15 días corridos desde la fecha de emisión.\nLos valores expresados no incluyen IVA.\nCondiciones de pago a convenir entre las partes.'}</p>
+          </div>
+
+          <div className="sigs-row">
+            <div className="sig-block"><hr className="sig-line" /><div className="sig-label">Firma por {e.nombre || 'La Empresa'}</div></div>
+            <div className="sig-block"><hr className="sig-line" /><div className="sig-label">Firma y Aclaración del Cliente</div></div>
+          </div>
+        </div>
+        <Foot p={3} t={3} />
+      </div>
+    </div>
+  );
+}

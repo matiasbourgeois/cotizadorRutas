@@ -3,23 +3,24 @@ export default function calcularCostoTotalRecurso(
   recurso,
   kmsPorViaje,
   duracionMin,
-  frecuencia
+  frecuencia,
+  C = {}
 ) {
   // =================================================================
   // == Etapa 1: Preparación y Cálculos Iniciales
   // =================================================================
-  // Aquí definimos todas las constantes y variables base que usaremos.
 
-  const TIEMPO_CARGA_DESCARGA = 30;
-  const UMBRAL_JORNADA_COMPLETA = 180;
-  const JORNADA_COMPLETA_MINUTOS = 480; // 8 horas
+  const TIEMPO_CARGA_DESCARGA = C.tiempoCargaDescargaMin || 30;
+  const UMBRAL_JORNADA_COMPLETA = C.umbralJornadaCompletaMin || 180;
+  const JORNADA_COMPLETA_MINUTOS = C.jornadaCompletaMinutos || 480;
+  const DIAS_LABORALES = C.diasLaboralesMes || 22;
+  const SEMANAS_MES = C.semanasPorMes || 4.33;
 
   // Se calcula un "Sueldo Ajustado" que ya incluye el Adicional por Actividad.
-  // Este es el verdadero sueldo base para nuestros cálculos de tiempo.
   const sueldoAjustado = recurso.sueldoBasico * (1 + (recurso.adicionalActividadPorc || 0) / 100);
 
   const valorHora = sueldoAjustado / (recurso.horasLaboralesMensuales || 192);
-  const valorJornada = sueldoAjustado / 22;
+  const valorJornada = sueldoAjustado / DIAS_LABORALES;
 
   // Se calcula el tiempo total de una misión y la frecuencia del servicio.
   const tiempoTotalMision = duracionMin + TIEMPO_CARGA_DESCARGA;
@@ -27,7 +28,7 @@ export default function calcularCostoTotalRecurso(
   const tiempoDiarioTotal = tiempoTotalMision * viajesPorDia;
   const esServicioMensual = frecuencia.tipo === 'mensual';
   const cantidadViajesAlMes = esServicioMensual
-    ? (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * 4.33
+    ? (frecuencia.diasSeleccionados?.length || 0) * (frecuencia.viajesPorDia || 1) * SEMANAS_MES
     : (frecuencia.vueltasTotales || 1);
   const kmRealesTotales = kmsPorViaje * cantidadViajesAlMes;
 
@@ -50,7 +51,7 @@ export default function calcularCostoTotalRecurso(
     const costoViajeIndividual = valorHora * (tiempoAFacturar / 60);
 
     // El Adicional Fijo se prorratea según el tiempo facturado.
-    const valorDiarioAdicional = (recurso.adicionalNoRemunerativoFijo || 0) / 22;
+    const valorDiarioAdicional = (recurso.adicionalNoRemunerativoFijo || 0) / DIAS_LABORALES;
     const adicionalProrrateadoPorViaje = valorDiarioAdicional * (tiempoAFacturar / JORNADA_COMPLETA_MINUTOS);
 
     costoBaseRemunerativo = esServicioMensual ? costoViajeIndividual * cantidadViajesAlMes : costoViajeIndividual;
@@ -63,7 +64,7 @@ export default function calcularCostoTotalRecurso(
 
     // Calculamos el número real de días de trabajo en el mes.
     const diasDeTrabajoAlMes = esServicioMensual
-      ? (frecuencia.diasSeleccionados?.length || 0) * 4.33
+      ? (frecuencia.diasSeleccionados?.length || 0) * SEMANAS_MES
       : (frecuencia.vueltasTotales || 1); // Para esporádico, cada vuelta es un "día".
 
     // Calculamos las horas extra totales del mes.
@@ -74,7 +75,7 @@ export default function calcularCostoTotalRecurso(
     costoBaseRemunerativo = (valorJornada * diasDeTrabajoAlMes) + costoExtraTotalMes;
 
     // El adicional fijo se calcula sobre los días trabajados.
-    const adicionalDiario = (recurso.adicionalNoRemunerativoFijo || 0) / 22;
+    const adicionalDiario = (recurso.adicionalNoRemunerativoFijo || 0) / DIAS_LABORALES;
     adicionalFijoNoRemunerativo = adicionalDiario * diasDeTrabajoAlMes;
   }
 

@@ -77,6 +77,12 @@
   line-height: 1;
 }
 
+.s5-hero-center {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
 .s5-hero-right {
   text-align: right;
   position: relative;
@@ -84,8 +90,10 @@
 }
 
 .s5-hero-money-label {
-  font-size: 0.78rem;
-  color: rgba(255,255,255,0.35);
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .s5-hero-money {
@@ -97,9 +105,9 @@
 }
 
 .s5-hero-money-sub {
-  font-size: 0.72rem;
-  color: rgba(255,255,255,0.25);
-  margin-top: 1px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.45);
+  margin-top: 3px;
 }
 
 /* ═══ PRICING CONSOLE — unified panel ═══ */

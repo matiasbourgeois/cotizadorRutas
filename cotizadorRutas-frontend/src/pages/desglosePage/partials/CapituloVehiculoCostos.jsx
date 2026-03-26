@@ -1,144 +1,105 @@
-// cotizadorRutas-frontend/src/pages/desglosePage/partials/CapituloVehiculoCostos.jsx
+const $ = v => (v || 0).toLocaleString('es-AR');
 
-import { Paper, Title, Text, Group, Divider, Alert, Stack, Grid, RingProgress, Center, ThemeIcon, Badge } from '@mantine/core';
-import { Info, Fuel, TrendingDown, Clock, Route, Hourglass } from 'lucide-react';
+const CapituloVehiculoCostos = ({ data, Head, Foot }) => {
+  if (!data?.vehiculo?.calculo?.detalle) return null;
 
-// Componente para una línea de costo en la cascada
-const CostoLine = ({ label, value, isSubtotal = false }) => (
-    <Group justify="space-between" wrap="nowrap" mt={isSubtotal ? 'sm' : 'xs'}>
-        <Text size="sm" fw={isSubtotal ? 700 : 400}>{label}:</Text>
-        <Text size="sm" fw={isSubtotal ? 700 : 500}>
-            ${(value || 0).toLocaleString('es-AR')}
-        </Text>
-    </Group>
-);
-
-// Componente para una métrica clave en la columna derecha
-const KpiMetrica = ({ icon, value, label, unit }) => (
-    <Group>
-        <ThemeIcon variant="light" size={36} radius="md">{icon}</ThemeIcon>
-        <div>
-            <Text fw={700} fz="lg">{value} <Text span fz="sm" c="dimmed">{unit}</Text></Text>
-            <Text fz="xs" c="dimmed">{label}</Text>
-        </div>
-    </Group>
-)
-
-const CapituloVehiculoCostos = ({ presupuesto }) => {
-  if (!presupuesto?.vehiculo?.calculo?.detalle) return null;
-
-  const { calculo } = presupuesto.vehiculo;
+  const { calculo } = data.vehiculo;
   const { detalle, totalFinal, kmsMensuales, proporcionUso } = calculo;
-  
-  const totalVariables = (detalle.combustible || 0) + (detalle.cubiertas || 0) + (detalle.aceite || 0) + (detalle.depreciacion || 0);
+
+  const totalVars = (detalle.combustible || 0) + (detalle.cubiertas || 0) + (detalle.aceite || 0) + (detalle.depreciacion || 0);
   const totalFijos = detalle.costosFijosProrrateados || 0;
+  const pctVars = totalFinal > 0 ? (totalVars / totalFinal * 100) : 0;
+  const pctFijos = totalFinal > 0 ? (totalFijos / totalFinal * 100) : 0;
 
   const costoPorKm = kmsMensuales > 0 ? (totalFinal / kmsMensuales) : 0;
-  
-  const duracionTotalMisionMin = (presupuesto.duracionMin || 0) + 30; // 30 min de carga/descarga
-  const viajesProyectados = presupuesto.frecuencia.tipo === 'mensual'
-    ? ((presupuesto.frecuencia.diasSeleccionados?.length || 0) * (presupuesto.frecuencia.viajesPorDia || 1) * 4.33)
-    : (presupuesto.frecuencia.vueltasTotales || 1);
-
-  const horasTotalesMensuales = (duracionTotalMisionMin * viajesProyectados) / 60;
-  const costoPorHora = horasTotalesMensuales > 0 ? (totalFinal / horasTotalesMensuales) : 0;
-
-
-  const seccionesGrafico = [
-    { value: totalFinal > 0 ? (totalVariables / totalFinal) * 100 : 0, color: 'orange', tooltip: `Variables: $${totalVariables.toLocaleString()}` },
-    { value: totalFinal > 0 ? (totalFijos / totalFinal) * 100 : 0, color: 'grape', tooltip: `Fijos: $${totalFijos.toLocaleString()}` },
-  ].filter(sec => sec.value > 0);
-
+  const duracion = (data.duracionMin || 0) + 30;
+  const viajes = data.frecuencia.tipo === 'mensual'
+    ? ((data.frecuencia.diasSeleccionados?.length || 0) * (data.frecuencia.viajesPorDia || 1) * 4.33)
+    : (data.frecuencia.vueltasTotales || 1);
+  const hsMens = (duracion * viajes) / 60;
+  const costoPorHr = hsMens > 0 ? (totalFinal / hsMens) : 0;
 
   return (
-    <div className="page">
-      <div className="header-table-placeholder"></div>
-      <div className="content">
-        <Title order={2} className="chapter-title">Capítulo 3: Análisis de Costos del Vehículo</Title>
-        <Text c="dimmed" mb="xl">
-          Desglose de los costos operativos, fijos y variables, generados por el activo en el contexto de esta misión específica.
-        </Text>
+    <div className="dg-pg">
+      <Head />
+      <div className="dg-inner">
+        <h1 className="dg-chapter">Cap. 3: Costos Operativos del Vehículo</h1>
+        <p className="dg-chapter-sub">Desglose de costos variables (por uso) y fijos (por tiempo) generados por el activo para este servicio.</p>
 
-        {/* ✅ CLASES DE IMPRESIÓN AÑADIDAS AQUÍ 👇 */}
-        <Grid gutter="xl" className="print-grid">
-            {/* --- COLUMNA IZQUIERDA: DESGLOSE DE COSTOS --- */}
-            <Grid.Col span={{ base: 12, md: 7 }} className="print-col-7">
-                <Paper withBorder p="xl" radius="md">
-                    <Stack>
-                        {/* SECCIÓN VARIABLES */}
-                        <Title order={4} className="section-subtitle">Costos Variables (Por Uso)</Title>
-                        <Text size="xs" c="dimmed" mt={-10} mb="xs">Generados por cada kilómetro recorrido en la misión.</Text>
-                        <CostoLine label="Combustible / GNC" value={detalle.combustible} />
-                        <CostoLine label="Desgaste de Cubiertas" value={detalle.cubiertas} />
-                        <CostoLine label="Cambio de Aceite y Filtros" value={detalle.aceite} />
-                        <CostoLine label="Depreciación del Vehículo" value={detalle.depreciacion} />
-                        <Divider/>
-                        <CostoLine label="Subtotal Variables" value={totalVariables} isSubtotal />
+        {/* Variables */}
+        <h3 className="dg-st">Costos Variables (Por Uso)</h3>
+        <table className="dg-tbl">
+          <thead><tr><th>Concepto</th><th style={{ textAlign: 'right' }}>Monto Mensual</th></tr></thead>
+          <tbody>
+            <tr><td>Combustible / GNC</td><td className="dg-tbl-val">${$(detalle.combustible)}</td></tr>
+            <tr><td>Desgaste de Cubiertas</td><td className="dg-tbl-val">${$(detalle.cubiertas)}</td></tr>
+            <tr><td>Cambio de Aceite y Filtros</td><td className="dg-tbl-val">${$(detalle.aceite)}</td></tr>
+            <tr><td>Depreciación del Vehículo</td><td className="dg-tbl-val">${$(detalle.depreciacion)}</td></tr>
+            <tr className="dg-tbl-sub"><td>Subtotal Variables</td><td className="dg-tbl-val">${$(totalVars)}</td></tr>
+          </tbody>
+        </table>
 
-                        <Divider/>
+        {/* Info: Methodology */}
+        <div className="dg-info">
+          <div className="dg-info-title">Metodología de Asignación de Costos Fijos</div>
+          <div className="dg-info-text">
+            Los gastos fijos mensuales del vehículo se asignan proporcionalmente según el <strong>tiempo de ocupación</strong> del servicio.
+            El sistema calculó una proporción de uso del <strong>{(proporcionUso * 100).toFixed(1)}%</strong> sobre la jornada completa,
+            lo que determina el monto de costos fijos imputables a esta operación.
+          </div>
+        </div>
 
-                        {/* SECCIÓN FIJOS */}
-                        <Title order={4} className="section-subtitle">Costos Fijos (Asignados)</Title>
-                        <Alert color="blue" title="Metodología de Asignación" icon={<Info />} radius="md" mt="sm" p="sm">
-                            <Text size="xs">
-                                Se asigna una porción de los gastos fijos mensuales del vehículo en función del **tiempo de ocupación** de la misión.
-                                El sistema determinó una proporción de uso diario del <strong>{(proporcionUso * 100).toFixed(1)}%</strong>.
-                            </Text>
-                        </Alert>
-                        <CostoLine label="Costos Fijos Asignados" value={totalFijos} />
-                        <Divider/>
-                        <CostoLine label="Subtotal Fijos" value={totalFijos} isSubtotal />
+        {/* Fijos */}
+        <h3 className="dg-st">Costos Fijos (Asignados por Proporción)</h3>
+        <table className="dg-tbl">
+          <thead><tr><th>Concepto</th><th style={{ textAlign: 'right' }}>Monto Mensual</th></tr></thead>
+          <tbody>
+            <tr><td>Seguros, Patentes, Mantenimiento (prorrateo al {(proporcionUso * 100).toFixed(1)}%)</td><td className="dg-tbl-val">${$(totalFijos)}</td></tr>
+            <tr className="dg-tbl-sub"><td>Subtotal Fijos</td><td className="dg-tbl-val">${$(totalFijos)}</td></tr>
+          </tbody>
+        </table>
 
-                         <Divider variant="dashed" />
+        {/* HERO TOTAL */}
+        <div className="dg-hero">
+          <div className="dg-hero-label">Costo Total del Vehículo</div>
+          <div className="dg-hero-val">${$(totalFinal)}</div>
+          <div className="dg-hero-stats">
+            <div><div className="dg-hero-stat-val">${costoPorKm.toFixed(2)}</div><div className="dg-hero-stat-label">Por km</div></div>
+            <div><div className="dg-hero-stat-val">${costoPorHr.toFixed(0)}</div><div className="dg-hero-stat-label">Por hora</div></div>
+            <div><div className="dg-hero-stat-val">{$(kmsMensuales)}</div><div className="dg-hero-stat-label">KMs / Mes</div></div>
+            <div><div className="dg-hero-stat-val">{hsMens.toFixed(1)}</div><div className="dg-hero-stat-label">Hs / Mes</div></div>
+          </div>
+        </div>
 
-                        {/* TOTAL FINAL */}
-                        <Paper p="lg" radius="md" withBorder bg="gray.0">
-                            <Group justify="space-between">
-                                <Title order={3}>Total Costo Vehículo</Title>
-                                <Title order={3} c="cyan.8">${totalFinal.toLocaleString('es-AR')}</Title>
-                            </Group>
-                        </Paper>
-                    </Stack>
-                </Paper>
-            </Grid.Col>
-            
-            {/* --- COLUMNA DERECHA: ANÁLISIS VISUAL Y KPIs --- */}
-            <Grid.Col span={{ base: 12, md: 5 }} className="print-col-5">
-                <Stack>
-                    <Title order={4} className="section-subtitle">Análisis Visual</Title>
-                    <Paper withBorder p="lg" radius="md">
-                        <Title order={6} ta="center" c="dimmed">Composición del Costo Total</Title>
-                         <RingProgress
-                            size={180}
-                            thickness={18}
-                            mx="auto"
-                            mt="xl"
-                            label={<Center><ThemeIcon variant="light" size={80} radius={80}><TrendingDown size={40}/></ThemeIcon></Center>}
-                            sections={seccionesGrafico}
-                        />
-                         <Group justify="center" mt="xl">
-                           <Text span size="sm"><Badge color="orange" /> Variables ({(totalVariables / totalFinal * 100).toFixed(1)}%)</Text>
-                           <Text span size="sm"><Badge color="grape" /> Fijos ({(totalFijos / totalFinal * 100).toFixed(1)}%)</Text>
-                        </Group>
-                    </Paper>
+        {/* Composition */}
+        <h3 className="dg-st">Composición Variables vs. Fijos</h3>
+        <div className="dg-comp-bar">
+          <div className="dg-comp-seg" style={{ width: `${pctVars}%`, background: '#c29352' }}>
+            <span>{pctVars.toFixed(0)}%</span>
+          </div>
+          <div className="dg-comp-seg" style={{ width: `${pctFijos}%`, background: '#7c8db5' }}>
+            <span>{pctFijos.toFixed(0)}%</span>
+          </div>
+        </div>
+        <div className="dg-comp-legend">
+          <span className="dg-comp-text"><span className="dg-comp-dot" style={{ background: '#c29352' }} /> Variables ${$(totalVars)}</span>
+          <span className="dg-comp-text"><span className="dg-comp-dot" style={{ background: '#7c8db5' }} /> Fijos ${$(totalFijos)}</span>
+        </div>
 
-                    <Title order={4} className="section-subtitle" mt="md">Métricas de Rendimiento</Title>
-                     <Paper withBorder p="lg" radius="md">
-                        <Stack>
-                            <KpiMetrica icon={<Route size={22} />} value={`$${costoPorKm.toFixed(2)}`} label="Costo por Kilómetro" />
-                            <Divider />
-                            <KpiMetrica icon={<Hourglass size={22} />} value={`$${costoPorHora.toFixed(2)}`} label="Costo por Hora de Operación" />
-                            <Divider />
-                            <KpiMetrica icon={<Fuel size={22} />} value={kmsMensuales.toLocaleString('es-AR')} label="Kilómetros Totales" unit="km/mes"/>
-                            <Divider />
-                             <KpiMetrica icon={<Clock size={22} />} value={horasTotalesMensuales.toFixed(1)} label="Horas de Misión Totales" unit="hs/mes"/>
-                        </Stack>
-                    </Paper>
-                </Stack>
-            </Grid.Col>
-        </Grid>
+        {/* Interpretation at bottom */}
+        <div className="dg-info" style={{ marginTop: 'auto' }}>
+          <div className="dg-info-title">Interpretación del Análisis</div>
+          <div className="dg-info-text">
+            El costo del vehículo se compone de <strong>{pctVars.toFixed(0)}% de costos variables</strong> y <strong>{pctFijos.toFixed(0)}% de costos fijos</strong>.
+            El combustible se calcula sobre {$(kmsMensuales)} km recorridos al mes a un rendimiento de {data.vehiculo?.datos?.rendimientoKmLitro} km/litro
+            y precio de ${$(data.vehiculo?.datos?.precioLitroCombustible)}/litro.
+            La depreciación se calcula en base al valor a depreciar de ${$(((data.vehiculo?.datos?.precioVehiculoNuevo || 0) * (1 - (data.vehiculo?.datos?.valorResidualPorcentaje || 0) / 100)))} distribuido
+            linealmente sobre la vida útil de {$(data.vehiculo?.datos?.kmsVidaUtilVehiculo)} km.
+            Las cubiertas ({data.vehiculo?.datos?.cantidadCubiertas} unidades) se distribuyen sobre {$(data.vehiculo?.datos?.kmsVidaUtilCubiertas)} km de vida útil cada una.
+          </div>
+        </div>
       </div>
-      <div className="footer-placeholder"></div>
+      <Foot p={4} />
     </div>
   );
 };

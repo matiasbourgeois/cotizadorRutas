@@ -168,7 +168,11 @@ const ResumenPaso = () => {
       <div className="rp-spacer" />
 
       {/* ─── Bottom summary — Step 5 only ─── */}
-      {esPasoFinal && resumenCostos && (
+      {esPasoFinal && resumenCostos && (() => {
+        const pctIVA = resumenCostos.porcentajeIVA || 21;
+        const montoIVA = resumenCostos.montoIVA || Math.round(totalFinal * pctIVA / 100);
+        const totalConIVA = resumenCostos.totalConIVA || (totalFinal + montoIVA);
+        return (
         <div className="rp-summary">
           <div className="rp-progress">
             <div className="rp-progress-seg rp-progress-seg--vehicle" style={{ width: `${pctV}%` }} />
@@ -184,15 +188,23 @@ const ResumenPaso = () => {
             <span className="rp-op-cost-label">Costo Operativo</span>
             <span className="rp-op-cost-value">{fmt(totalOperativo)}</span>
           </div>
+          <div className="rp-op-cost">
+            <span className="rp-op-cost-label">Precio Venta (s/IVA)</span>
+            <span className="rp-op-cost-value" style={{ color: '#22d3ee' }}>{fmt(totalFinal)}</span>
+          </div>
+          <div className="rp-op-cost">
+            <span className="rp-op-cost-label">IVA ({pctIVA}%)</span>
+            <span className="rp-op-cost-value">{fmt(montoIVA)}</span>
+          </div>
           <div className="rp-price">
             <div>
-              <div className="rp-price-label">Precio Venta</div>
-              <div className="rp-price-sub">sin IVA</div>
+              <div className="rp-price-label">Total con IVA</div>
             </div>
-            <div className="rp-price-value">{fmt(totalFinal)}</div>
+            <div className="rp-price-value" style={{ color: '#10b981' }}>{fmt(totalConIVA)}</div>
           </div>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 };

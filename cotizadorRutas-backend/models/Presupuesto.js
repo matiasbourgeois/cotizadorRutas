@@ -21,6 +21,7 @@ const PresupuestoSchema = new mongoose.Schema({
   resumenCostos: { type: Object },
   cliente: { type: String, trim: true },
   terminos: { type: String, trim: true },
+  empresa: { type: Object, default: {} },
 
   fechaCreacion: { type: Date, default: Date.now },
   usuario: {

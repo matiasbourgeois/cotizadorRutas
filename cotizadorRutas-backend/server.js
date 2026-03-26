@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import rateLimit from "express-rate-limit";
 import conectarDB from "./config/db.js";
 
 // Rutas
@@ -15,6 +18,9 @@ import biRoutes from "./routes/biRoutes.js";
 
 dotenv.config();
 conectarDB();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -44,11 +50,31 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
+// ─── Rate Limiting ───────────────────────────────────────────────────────
+const publicLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas solicitudes, intentá de nuevo en 15 minutos.' }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiados intentos de inicio de sesión. Esperá 15 minutos.' }
+});
+
+// Servir archivos estáticos (logos, uploads)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.get("/api/test-server", (req, res) => {
   res.send("El servidor principal está funcionando!");
 });
 // Rutas API
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/rutas", rutasRoutes);
 app.use("/api/presupuestos", presupuestoRoutes);
 app.use("/api/vehiculos", vehiculosRoutes); 
