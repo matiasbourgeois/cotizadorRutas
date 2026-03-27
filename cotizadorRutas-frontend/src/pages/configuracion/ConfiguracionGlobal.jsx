@@ -431,7 +431,7 @@ const ConfiguracionGlobal = () => {
                 <div>
                   {config.empresa?.logoUrl ? (
                     <Image
-                      src={`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5010'}${config.empresa.logoUrl}`}
+                      src={`${import.meta.env.VITE_API_URL || 'http://localhost:5010'}${config.empresa.logoUrl}`}
                       alt="Logo"
                       w={120}
                       h={120}
