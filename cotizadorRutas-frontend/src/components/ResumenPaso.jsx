@@ -154,7 +154,6 @@ const ResumenPaso = () => {
                     <RowItem label="Adicional por Km" valor={detalleRecurso?.detalle?.adicionalKm} />
                     <RowItem label="Carga / Descarga" valor={detalleRecurso?.detalle?.adicionalPorCargaDescarga} />
                     <RowItem label="Viáticos por Km" valor={detalleRecurso?.detalle?.viaticoKm} />
-                    <RowItem label="Adicional Fijo NR" valor={detalleRecurso?.detalle?.adicionalFijoNoRemunerativo} />
                     <RowItem label={detalleRecurso?.detalle?.costoIndirectoLabel || 'Costos Indirectos'} valor={detalleRecurso?.detalle?.costoIndirecto} />
                   </motion.div>
                 )}

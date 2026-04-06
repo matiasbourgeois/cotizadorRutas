@@ -79,7 +79,8 @@ export default function calcularResumenCostos({
     totalFinal,
     porcentajeIVA,
     montoIVA,
-    totalConIVA
+    totalConIVA,
+    cantidadViajesMensuales,
   };
 
   return { resumenCostos, calculoVehiculo, calculoRecurso };

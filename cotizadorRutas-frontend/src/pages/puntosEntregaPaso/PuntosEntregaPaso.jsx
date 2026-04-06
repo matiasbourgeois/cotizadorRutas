@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import clienteAxios from "../../api/clienteAxios";
 import { useCotizacion } from "../../context/Cotizacion";
 import { Select, Checkbox } from "@mantine/core";
-import { Navigation, MapPinOff, MapPin, Package, Eye, Clock, ArrowRight } from "lucide-react";
+import { MapPinOff, MapPin, Package, Eye, Clock, ArrowRight } from "lucide-react";
 import { notifications } from '@mantine/notifications';
 import '../../styles/CotizadorSteps.css';
 
@@ -14,8 +14,8 @@ export default function PuntosEntregaPaso() {
   const navigate = useNavigate();
 
   const {
-    puntosEntrega, directionsResult, detallesCarga,
-    setPuntosEntrega, setDetallesCarga, setDirectionsResult
+    puntosEntrega, directionsResult, detallesCarga, opcionesRuta,
+    setPuntosEntrega, setDetallesCarga, setDirectionsResult, setOpcionesRuta
   } = useCotizacion();
 
   const puntos = puntosEntrega?.puntos || [];
@@ -27,7 +27,8 @@ export default function PuntosEntregaPaso() {
   );
 
   const [isSaving, setIsSaving] = useState(false);
-  const [idaVuelta, setIdaVuelta] = useState(false);
+  const idaVuelta = opcionesRuta?.idaVuelta || false;
+  const optimizar = opcionesRuta?.optimizar || false;
 
   const puntosConRegreso = useMemo(() => {
     if (idaVuelta && puntos.length >= 2) {
@@ -36,12 +37,6 @@ export default function PuntosEntregaPaso() {
     }
     return puntos;
   }, [idaVuelta, puntos]);
-
-  const mapaKey = useMemo(() => {
-    return (puntosConRegreso || [])
-      .map((p, i) => String(p.id ?? p._id ?? p.nombre ?? (p.isReturn ? "return" : i)))
-      .join("|");
-  }, [puntosConRegreso]);
 
   const limpiarRutaGuardada = () => { setDatosRuta(null); setDirectionsResult(null); };
   const agregarPunto = (punto) => {
@@ -63,7 +58,15 @@ export default function PuntosEntregaPaso() {
   const handleRutaCalculada = (datos) => {
     setDatosRuta(datos.resumen);
     setDirectionsResult(datos.directions);
-    setPuntosEntrega({ puntos: puntos, ...datos.resumen });
+
+    let puntosFinales = puntos;
+    if (datos.waypointOrder && datos.waypointOrder.length > 0 && optimizar) {
+      const origen = puntos[0];
+      const todosLosOtros = puntos.slice(1);
+      const reordenados = datos.waypointOrder.map(i => todosLosOtros[i]);
+      puntosFinales = [origen, ...reordenados];
+    }
+    setPuntosEntrega({ ...puntosEntrega, puntos: puntosFinales, ...datos.resumen });
   };
   const handleCargaChange = (value) => { setDetallesCarga({ ...detallesCarga, tipo: value }); };
   const handleSiguiente = async () => {
@@ -81,7 +84,6 @@ export default function PuntosEntregaPaso() {
       const payload = { puntos: ordenados, distanciaKm: datosRuta.distanciaKm, duracionMin: datosRuta.duracionMin };
       const res = await clienteAxios.post('/rutas', payload);
       setPuntosEntrega({ ...puntosEntrega, ...payload, rutaId: res.data._id });
-      setDirectionsResult(directionsResult);
       navigate(`/cotizador/frecuencia/${res.data._id}`);
     } catch (err) {
       console.error("Error al guardar ruta:", err);
@@ -107,18 +109,29 @@ export default function PuntosEntregaPaso() {
           <BuscadorDireccion onAgregar={agregarPunto} />
 
           {puntos.length >= 2 && (
-            <Checkbox
-              size="xs"
-              label="Ida y vuelta (regreso al origen)"
-              checked={idaVuelta}
-              onChange={(e) => { setIdaVuelta(e.currentTarget.checked); limpiarRutaGuardada(); }}
-              color="cyan"
-            />
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <Checkbox
+                size="xs"
+                label="Ida y vuelta (regreso al origen)"
+                checked={idaVuelta}
+                onChange={(e) => { setOpcionesRuta({ idaVuelta: e.currentTarget.checked }); limpiarRutaGuardada(); }}
+                color="cyan"
+              />
+              {puntos.length >= 3 && (
+                <Checkbox
+                  size="xs"
+                  label="Optimizar recorrido"
+                  checked={optimizar}
+                  onChange={(e) => { setOpcionesRuta({ optimizar: e.currentTarget.checked }); limpiarRutaGuardada(); }}
+                  color="teal"
+                />
+              )}
+            </div>
           )}
 
           <div className="step-section-label"><span>Hoja de Ruta</span></div>
 
-          <div style={{ flex: 1, minHeight: 0, overflow: 'auto', borderRadius: 10, border: '1px solid var(--app-border)' }}>
+          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', borderRadius: 10, border: '1px solid var(--app-border)' }}>
             <TablaPuntos puntos={puntosConRegreso} onReordenar={handleReordenarPuntos} onEliminar={handleEliminarPunto} />
           </div>
 
@@ -165,10 +178,11 @@ export default function PuntosEntregaPaso() {
           <div style={{ flex: 1, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--app-border)', minHeight: 0 }}>
             {puntosConRegreso.length > 0 ? (
               <MapaRuta
-                key={mapaKey}
                 puntos={puntosConRegreso}
                 initialDirections={directionsResult}
                 onRutaCalculada={handleRutaCalculada}
+                optimizar={optimizar}
+                idaVuelta={idaVuelta}
               />
             ) : (
               <div className="step-empty" style={{ height: '100%', background: 'var(--app-surface-hover)' }}>

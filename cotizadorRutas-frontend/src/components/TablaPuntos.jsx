@@ -1,11 +1,9 @@
-import { useRef, useLayoutEffect, useState } from "react";
+import React, { useRef, useLayoutEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Trash2, GripVertical } from "lucide-react";
 import { Table, ActionIcon, Text, Center, Stack, Paper } from "@mantine/core";
 
-const ROW_HEIGHT = 56;            // alto aprox por fila
-const MAX_VISIBLE_ROWS = 3;       // 3 filas visibles
-const MAX_HEIGHT = ROW_HEIGHT * MAX_VISIBLE_ROWS; // 168px aprox
+
 
 const TablaPuntos = ({ puntos, onReordenar, onEliminar }) => {
   // medir ancho real del contenedor para el clon del drag
@@ -45,7 +43,7 @@ const TablaPuntos = ({ puntos, onReordenar, onEliminar }) => {
         bg={isDragging ? "var(--mantine-color-cyan-light)" : esRegreso ? "var(--mantine-color-blue-light)" : undefined}
         style={{
           ...(provided?.draggableProps?.style || {}),
-          height: ROW_HEIGHT,
+          height: 56,
         }}
       >
         <Table.Td
@@ -80,9 +78,10 @@ const TablaPuntos = ({ puntos, onReordenar, onEliminar }) => {
     <div
       ref={containerRef}
       style={{
-        maxHeight: puntos.length > 3 ? MAX_HEIGHT : "unset",
-        overflowY: puntos.length > 3 ? "auto" : "visible",
+        flex: 1,
+        overflowY: "auto",
         minWidth: 300,
+        minHeight: 0,
         position: "relative",
       }}
     >
@@ -143,8 +142,9 @@ const TablaPuntos = ({ puntos, onReordenar, onEliminar }) => {
                   puntos.map((p, index) => {
                     const esRegreso = p?.isReturn === true;
                     return esRegreso ? (
-                      // Fila de regreso: SIN <Draggable>, no arrastrable ni eliminable
-                      renderRow(p, index, null, false)
+                      <React.Fragment key={`return-${index}`}>
+                        {renderRow(p, index, null, false)}
+                      </React.Fragment>
                     ) : (
                       <Draggable key={`${p?.nombre ?? "p"}-${index}`} draggableId={`punto-${index}`} index={index}>
                         {(dragProvided, snapshot) =>
