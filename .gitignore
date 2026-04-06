@@ -67,3 +67,10 @@ logs
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+
+# ==================================
+#     Carpetas Excluidas del Repo
+# ==================================
+# Presentación de defensa TFG (no es parte del SaaS)
+presentacion-defensa/
