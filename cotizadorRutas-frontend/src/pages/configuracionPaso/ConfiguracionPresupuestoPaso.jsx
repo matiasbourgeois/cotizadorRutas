@@ -87,9 +87,15 @@ const ConfiguracionPresupuestoPaso = () => {
   const montoIVA = resumenCostos?.montoIVA || Math.round(precioVenta * pctIVA / 100);
   const totalConIVA = resumenCostos?.totalConIVA || (precioVenta + montoIVA);
 
+  // Per-trip calculation
+  const cantViajes = resumenCostos?.cantidadViajesMensuales || 1;
+  const esMensual = frecuencia?.tipo === 'mensual';
+  const gananciaPorViaje = cantViajes > 0 ? Math.round(gananciaAbs / cantViajes) : 0;
+
   // Individual components from resumenCostos for accurate bar segments
   const costoBase = (resumenCostos?.totalVehiculo || 0) + (resumenCostos?.totalRecurso || 0);
   const adminAbs = resumenCostos?.totalAdministrativo || 0;
+  const adminPorViaje = cantViajes > 0 ? Math.round(adminAbs / cantViajes) : 0;
   const extrasAbs = (resumenCostos?.totalPeajes || 0) + (resumenCostos?.otrosCostos || 0) + (resumenCostos?.costoAdicionalPeligrosa || 0);
 
   // Waterfall segments — now correctly sum to 100%
@@ -147,7 +153,10 @@ const ConfiguracionPresupuestoPaso = () => {
                 disabled={isFormDisabled}
                 styles={{ markLabel: { fontSize: '0.65rem' } }}
               />
-              <div className="s5-slider-amount">= <span>${fmt(gananciaAbs)}</span> por viaje</div>
+              <div className="s5-slider-amount">
+                = <span>${fmt(gananciaPorViaje)}</span> por viaje
+                {esMensual && <> · <span>${fmt(gananciaAbs)}</span> mensual</>}
+              </div>
             </div>
 
             <div className="s5-divider" />
@@ -171,7 +180,10 @@ const ConfiguracionPresupuestoPaso = () => {
                 disabled={isFormDisabled}
                 styles={{ markLabel: { fontSize: '0.65rem' } }}
               />
-              <div className="s5-slider-amount">= <span>${fmt(adminAbs)}</span> por viaje</div>
+              <div className="s5-slider-amount">
+                = <span>${fmt(adminPorViaje)}</span> por viaje
+                {esMensual && <> · <span>${fmt(adminAbs)}</span> mensual</>}
+              </div>
             </div>
           </div>
 

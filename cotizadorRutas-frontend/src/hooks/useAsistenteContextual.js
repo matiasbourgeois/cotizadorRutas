@@ -2,8 +2,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCotizacion } from '../context/Cotizacion';
+import clienteAxios from '../api/clienteAxios';
 
-const getConsejosContextuales = (pathname, cotizacion) => {
+const getConsejosContextuales = (pathname, cotizacion, configGlobal) => {
+    const costoPeligrosa = configGlobal?.calculos?.costoAdicionalKmPeligrosa || 250;
     switch (true) {
         // =============================================
         // PASO 1 — Definir Ruta
@@ -31,9 +33,9 @@ const getConsejosContextuales = (pathname, cotizacion) => {
             if (tipoCarga === 'refrigerada') {
                 tips.push({ tipo: 'info', texto: 'Carga Refrigerada seleccionada: se aplica un recargo del 25% sobre el costo de combustible para compensar el equipo de frío.' });
             } else if (tipoCarga === 'peligrosa') {
-                tips.push({ tipo: 'info', texto: 'Carga Peligrosa seleccionada: se suma un costo adicional de $250 por kilómetro por seguro y protocolo especial.' });
+                tips.push({ tipo: 'info', texto: `Carga Peligrosa seleccionada: se suma un costo adicional de $${costoPeligrosa.toLocaleString('es-AR')} por kilómetro por seguro y protocolo especial.` });
             } else {
-                tips.push({ tipo: 'info', texto: 'Recordá seleccionar el Tipo de Carga. La carga refrigerada (+25% combustible) y peligrosa (+$250/km) impactan directamente en el costo.' });
+                tips.push({ tipo: 'info', texto: `Recordá seleccionar el Tipo de Carga. La carga refrigerada (+25% combustible) y peligrosa (+$${costoPeligrosa.toLocaleString('es-AR')}/km) impactan directamente en el costo.` });
             }
 
             return tips;
@@ -154,19 +156,27 @@ const getConsejosContextuales = (pathname, cotizacion) => {
 
 export const useAsistenteContextual = () => {
   const [consejos, setConsejos] = useState([]);
+  const [configGlobal, setConfigGlobal] = useState(null);
   const cotizacion = useCotizacion();
   const location = useLocation();
 
   const prevKeyRef = useRef("");
 
+  // Fetch configuración global una sola vez
   useEffect(() => {
-    const tips = getConsejosContextuales(location.pathname, cotizacion);
+    clienteAxios.get('/configuracion-defaults')
+      .then(({ data }) => setConfigGlobal(data))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const tips = getConsejosContextuales(location.pathname, cotizacion, configGlobal);
     const key = (tips || []).map(t => t?.texto ?? "").join("||");
     if (key !== prevKeyRef.current) {
       prevKeyRef.current = key;
       setConsejos(tips);
     }
-  }, [location.pathname, cotizacion]);
+  }, [location.pathname, cotizacion, configGlobal]);
 
   return { consejos };
 };

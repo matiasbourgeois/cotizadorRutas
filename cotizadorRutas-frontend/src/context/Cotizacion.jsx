@@ -8,6 +8,7 @@ export const useCotizacion = () => useContext(CotizacionContext);
 const initialState = {
   puntosEntrega: null,
   directionsResult: null,
+  opcionesRuta: { idaVuelta: false, optimizar: false },
   frecuencia: null,
   vehiculo: null,
   recursoHumano: null,
@@ -38,6 +39,9 @@ export const CotizacionProvider = ({ children }) => {
   const setDirectionsResult = (directions) => {
     setCotizacion(prev => ({ ...prev, directionsResult: directions }));
   };
+  const setOpcionesRuta = (opciones) => {
+    setCotizacion(prev => ({ ...prev, opcionesRuta: { ...prev.opcionesRuta, ...opciones } }));
+  };
   const setResumenCostos = (resumen) => {
     setCotizacion(prev => ({ ...prev, resumenCostos: resumen }));
   };
@@ -63,6 +67,7 @@ export const CotizacionProvider = ({ children }) => {
         setRecursoHumano,
         setDetallesCarga,
         setDirectionsResult,
+        setOpcionesRuta,
         setResumenCostos,
         setDetalleVehiculo, 
         setDetalleRecurso,
