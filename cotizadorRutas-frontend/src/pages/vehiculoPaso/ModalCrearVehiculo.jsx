@@ -40,8 +40,8 @@ const ModalCrearVehiculo = ({ show, onClose, onVehiculoCreado }) => {
       form.reset();
       onClose();
     } catch (error) {
-      console.error("Error al crear vehículo:", error);
-      notifications.show({ title: 'Error', message: 'No se pudo crear el vehículo. Verifique los datos.', color: 'red' });
+      const msg = error?.response?.data?.mensaje || 'No se pudo crear el vehículo. Verifique los datos.';
+      notifications.show({ title: 'Error', message: msg, color: 'red' });
     } finally {
       setIsSaving(false);
     }
