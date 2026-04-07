@@ -150,11 +150,26 @@ const ResumenPaso = () => {
                 {openCard === 'recurso' && (
                   <motion.div key="rrhh-det" className="rp-cost-detail" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.15 }}>
                     <div className="rp-divider" style={{ margin: '6px 0 4px' }} />
-                    <RowItem label="Sueldo Base" valor={detalleRecurso?.detalle?.costoBaseRemunerativo} />
-                    <RowItem label="Adicional por Km" valor={detalleRecurso?.detalle?.adicionalKm} />
-                    <RowItem label="Carga / Descarga" valor={detalleRecurso?.detalle?.adicionalPorCargaDescarga} />
-                    <RowItem label="Viáticos por Km" valor={detalleRecurso?.detalle?.viaticoKm} />
-                    <RowItem label={detalleRecurso?.detalle?.costoIndirectoLabel || 'Costos Indirectos'} valor={detalleRecurso?.detalle?.costoIndirecto} />
+                    {recursoHumano?.tipoContratacion === 'contratado' ? (
+                      <>
+                        <RowItem label="Ref. empleado CCT" valor={detalleRecurso?.detalle?.costoEmpleadoEquivalente} />
+                        <div className="rp-cost-row">
+                          <span className="rp-cost-row-label">Factor aplicado</span>
+                          <span className="rp-cost-row-val">{(detalleRecurso?.detalle?.factorAplicado * 100 || 75).toFixed(0)}%</span>
+                        </div>
+                        <div className="rp-divider" style={{ margin: '4px 0' }} />
+                        <RowItem label="Costo del contratado" valor={detalleRecurso?.totalFinal} />
+                      </>
+                    ) : (
+                      <>
+                        <RowItem label="Jornada" valor={detalleRecurso?.detalle?.costoBaseRemunerativo} />
+                        <RowItem label={`Costo por Km (${detalleRecurso?.detalle?.kmParaPagar || 0} km)`} valor={detalleRecurso?.detalle?.adicionalKmTotal} />
+                        {(detalleRecurso?.detalle?.adicionalesCCT || 0) > 0 && (
+                          <RowItem label="Adicionales CCT" valor={detalleRecurso?.detalle?.adicionalesCCT} />
+                        )}
+                        <RowItem label={detalleRecurso?.detalle?.costoIndirectoLabel || 'Cargas Sociales'} valor={detalleRecurso?.detalle?.costoIndirecto} />
+                      </>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

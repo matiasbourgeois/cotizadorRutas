@@ -6,7 +6,7 @@ const CapituloRecursoHumanoCostos = ({ data, Head, Foot }) => {
   const { calculo } = data.recursoHumano;
   const { detalle, totalFinal } = calculo;
 
-  const totalRem = (detalle.costoBaseRemunerativo || 0) + (detalle.adicionalKm || 0) + (detalle.adicionalPorCargaDescarga || 0);
+  const totalRem = (detalle.costoBaseRemunerativo || 0) + (detalle.adicionalKm || 0) + (detalle.adicionalPorCargaDescarga || 0) + (detalle.costoHorasExtra || 0);
   const totalNoRem = (detalle.viaticoKm || 0) + (detalle.adicionalFijoNoRemunerativo || 0);
   const totalInd = detalle.costoIndirecto || 0;
 
@@ -46,6 +46,7 @@ const CapituloRecursoHumanoCostos = ({ data, Head, Foot }) => {
           <tbody>
             <tr><td colSpan={2} style={{ height: 6 }}></td></tr>
             <tr><td>Costo Base (Sueldo / Jornal)</td><td className="dg-tbl-val">${$(detalle.costoBaseRemunerativo)}</td></tr>
+            {(detalle.costoHorasExtra || 0) > 0 && <tr><td>Horas Extra (1.5x) — {detalle.horasExtraPorViaje}hs/viaje</td><td className="dg-tbl-val">${$(detalle.costoHorasExtra)}</td></tr>}
             <tr><td>Adicional por KM (Remunerativo)</td><td className="dg-tbl-val">${$(detalle.adicionalKm)}</td></tr>
             <tr><td>Viáticos por KM (No Remunerativo)</td><td className="dg-tbl-val">${$(detalle.viaticoKm)}</td></tr>
             <tr><td>Adicional por Carga/Descarga</td><td className="dg-tbl-val">${$(detalle.adicionalPorCargaDescarga)}</td></tr>
@@ -85,7 +86,7 @@ const CapituloRecursoHumanoCostos = ({ data, Head, Foot }) => {
           <div className="dg-info-text">
             Kilómetros reales del recorrido: <strong>{$(detalle.kmRealesTotales || 0)} km</strong>.
             Kilómetros pagados (aplicando mínimos): <strong>{$(detalle.kmParaPagar || 0)} km</strong>.
-            {detalle.kmRealesTotales < (data.recursoHumano?.datos?.minKmRemunerativo || 350)
+            {(detalle.kmRealesTotales || 0) < (detalle.kmParaPagar || 0)
               ? ' Los kilómetros reales están por debajo del mínimo establecido, por lo que se aplica el mínimo para el cálculo de adicionales.'
               : ' Los kilómetros reales superan los mínimos, por lo que los adicionales se calculan sobre la distancia real.'
             }

@@ -52,8 +52,14 @@ export const obtenerConfiguracion = async (req, res) => {
       delete oldData._id;
       config.recursosHumanos = {
         empleado: { ...oldData },
-        contratado: { ...DEFAULTS_RRHH.contratado, ...oldData, porcentajeCargasSociales: 0, adicionalActividadPorc: 0, adicionalNoRemunerativoFijo: 0, sueldoBasico: 600000 },
+        contratado: { factorSobreEmpleado: 75 },
       };
+      await config.save();
+    }
+
+    // Auto-migrate legacy contratados sin factorSobreEmpleado
+    if (config.recursosHumanos?.contratado && !config.recursosHumanos.contratado.factorSobreEmpleado) {
+      config.recursosHumanos.contratado = { factorSobreEmpleado: 75 };
       await config.save();
     }
 

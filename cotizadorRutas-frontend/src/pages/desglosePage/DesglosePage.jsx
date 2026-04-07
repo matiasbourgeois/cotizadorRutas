@@ -145,11 +145,11 @@ const DesglosePage = ({ isPublic = false }) => {
               <div className="dg-kpi-val">${$(totalOp)}</div>
               <div className="dg-kpi-note">Costos mensuales proyectados</div>
             </div>
-            <div className="dg-kpi dg-kpi--accent">
+            {!isPublic && <div className="dg-kpi dg-kpi--accent">
               <div className="dg-kpi-label">Rentabilidad</div>
               <div className="dg-kpi-val">{rentPct}%</div>
               <div className="dg-kpi-note">Margen Bruto: ${$(ganancia)}</div>
-            </div>
+            </div>}
             <div className="dg-kpi dg-kpi--dark">
               <div className="dg-kpi-label">Precio de Venta (s/IVA)</div>
               <div className="dg-kpi-val">${$(totalFinal)}</div>
@@ -173,7 +173,7 @@ const DesglosePage = ({ isPublic = false }) => {
               {(rc.otrosCostos || 0) > 0 && <tr><td>🛡️ Otros Costos</td><td className="dg-tbl-val">${$(rc.otrosCostos)}</td><td className="dg-tbl-val">{(totalOp > 0 ? (rc.otrosCostos / totalOp * 100) : 0).toFixed(1)}%</td></tr>}
               {(rc.totalPeajes || 0) > 0 && <tr><td>🚧 Peajes y Tasas</td><td className="dg-tbl-val">${$(rc.totalPeajes)}</td><td className="dg-tbl-val">{(totalOp > 0 ? (rc.totalPeajes / totalOp * 100) : 0).toFixed(1)}%</td></tr>}
               <tr className="dg-tbl-sub"><td>Costo Operativo</td><td className="dg-tbl-val">${$(totalOp)}</td><td className="dg-tbl-val">100%</td></tr>
-              <tr><td>📈 Margen de Ganancia ({data.configuracion?.porcentajeGanancia || 0}%)</td><td className="dg-tbl-val" style={{ color: '#4b7a62' }}>+ ${$(ganancia)}</td><td className="dg-tbl-val"></td></tr>
+              {!isPublic && <tr><td>📈 Margen de Ganancia ({data.configuracion?.porcentajeGanancia || 0}%)</td><td className="dg-tbl-val" style={{ color: '#4b7a62' }}>+ ${$(ganancia)}</td><td className="dg-tbl-val"></td></tr>}
               <tr className="dg-tbl-total"><td>Precio Final de Venta (s/IVA)</td><td className="dg-tbl-val">${$(totalFinal)}</td><td className="dg-tbl-val"></td></tr>
               <tr><td>📌 IVA ({pctIVA}%)</td><td className="dg-tbl-val" style={{ color: '#94a3b8' }}>+ ${$(montoIVA)}</td><td className="dg-tbl-val"></td></tr>
               <tr className="dg-tbl-total"><td><strong>Total con IVA</strong></td><td className="dg-tbl-val"><strong>${$(totalConIVA)}</strong></td><td className="dg-tbl-val"></td></tr>
@@ -282,7 +282,7 @@ const DesglosePage = ({ isPublic = false }) => {
       <CapituloVehiculoCostos data={data} empresa={e} Head={Head} Foot={Foot} />
       <CapituloRecursoHumanoFicha data={data} empresa={e} Head={Head} Foot={Foot} />
       <CapituloRecursoHumanoCostos data={data} empresa={e} Head={Head} Foot={Foot} />
-      <CapituloFinalConsolidado data={data} empresa={e} Head={Head} Foot={Foot} />
+      <CapituloFinalConsolidado data={data} empresa={e} Head={Head} Foot={Foot} isPublic={isPublic} />
     </div>
   );
 };

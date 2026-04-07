@@ -1,6 +1,6 @@
 const $ = v => (v || 0).toLocaleString('es-AR');
 
-const CapituloFinalConsolidado = ({ data, Head, Foot }) => {
+const CapituloFinalConsolidado = ({ data, Head, Foot, isPublic = false }) => {
   if (!data?.resumenCostos) return null;
 
   const rc = data.resumenCostos;
@@ -18,6 +18,7 @@ const CapituloFinalConsolidado = ({ data, Head, Foot }) => {
   const pctIVA = rc.porcentajeIVA || 21;
 
   const costoOpPorKm = kmsMens > 0 ? (totalOp / kmsMens) : 0;
+  const precioPorKm = kmsMens > 0 ? (totalFinal / kmsMens) : 0;
   const viajesProyectados = freq.tipo === 'mensual'
     ? ((freq.diasSeleccionados?.length || 0) * (freq.viajesPorDia || 1) * 4.33)
     : (freq.vueltasTotales || 1);
@@ -67,10 +68,10 @@ const CapituloFinalConsolidado = ({ data, Head, Foot }) => {
               <td>Costo Operativo Total</td>
               <td className="dg-tbl-val">${$(totalOp)}</td>
             </tr>
-            <tr>
+            {!isPublic && <tr>
               <td><span style={{ marginRight: 6 }}>📈</span> Margen de Ganancia ({margenPct}%)</td>
               <td className="dg-tbl-val" style={{ color: '#4b7a62' }}>+ ${$(ganancia)}</td>
-            </tr>
+            </tr>}
             <tr className="dg-tbl-total">
               <td>Precio Final de Venta (sin IVA)</td>
               <td className="dg-tbl-val">${$(totalFinal)}</td>
@@ -88,11 +89,11 @@ const CapituloFinalConsolidado = ({ data, Head, Foot }) => {
 
         {/* HERO TOTAL */}
         <div className="dg-hero">
-          <div className="dg-hero-label">Cotización Final Mensual (sin IVA)</div>
+          <div className="dg-hero-label">{freq.tipo === 'mensual' ? 'Cotización Final Mensual' : 'Cotización Final del Servicio'} (sin IVA)</div>
           <div className="dg-hero-val">${$(totalFinal)}</div>
           <div className="dg-hero-label" style={{ fontSize: 9, marginTop: 4, opacity: .7 }}>Con IVA ({pctIVA}%): ${$(totalConIVA)}</div>
           <div className="dg-hero-stats">
-            <div><div className="dg-hero-stat-val">${costoOpPorKm.toFixed(2)}</div><div className="dg-hero-stat-label">Costo Op. / Km</div></div>
+            <div><div className="dg-hero-stat-val">${precioPorKm.toFixed(0)}</div><div className="dg-hero-stat-label">Precio / Km</div></div>
             <div><div className="dg-hero-stat-val">${costoPorViaje.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</div><div className="dg-hero-stat-label">Precio / Viaje</div></div>
             <div><div className="dg-hero-stat-val">{margenPct}%</div><div className="dg-hero-stat-label">Margen Bruto</div></div>
           </div>
@@ -102,23 +103,23 @@ const CapituloFinalConsolidado = ({ data, Head, Foot }) => {
         <h3 className="dg-st">Indicadores Estratégicos</h3>
         <div className="dg-kpi-row">
           <div className="dg-kpi">
-            <div className="dg-kpi-label">Costo Operativo / KM</div>
-            <div className="dg-kpi-val" style={{ fontSize: 20 }}>${costoOpPorKm.toFixed(2)}</div>
-            <div className="dg-kpi-note">Total de costos por kilómetro</div>
+            <div className="dg-kpi-label">Precio de Venta / KM</div>
+            <div className="dg-kpi-val" style={{ fontSize: 20 }}>${precioPorKm.toFixed(0)}</div>
+            <div className="dg-kpi-note">Precio sin IVA por kilómetro</div>
           </div>
           <div className="dg-kpi">
             <div className="dg-kpi-label">Precio de Venta / Viaje</div>
             <div className="dg-kpi-val" style={{ color: 'var(--c2)', fontSize: 20 }}>${costoPorViaje.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</div>
-            <div className="dg-kpi-note">Ingreso por cada viaje realizado</div>
+            <div className="dg-kpi-note">Precio de venta por viaje sin IVA</div>
           </div>
-          <div className="dg-kpi dg-kpi--accent">
+          {!isPublic && <div className="dg-kpi dg-kpi--accent">
             <div className="dg-kpi-label">Margen de Beneficio</div>
             <div className="dg-kpi-val" style={{ fontSize: 20 }}>{margenPct}%</div>
             <div className="dg-kpi-note">Ganancia: ${$(ganancia)}</div>
-          </div>
+          </div>}
         </div>
 
-        {/* Composition */}
+        {!isPublic && <>
         <h3 className="dg-st">Distribución del Precio Final</h3>
         <div className="dg-comp-bar">
           <div className="dg-comp-seg" style={{ width: `${pctCosto}%`, background: '#475569' }}>
@@ -132,6 +133,7 @@ const CapituloFinalConsolidado = ({ data, Head, Foot }) => {
           <span className="dg-comp-text"><span className="dg-comp-dot" style={{ background: '#475569' }} /> Costo Operativo ${$(totalOp)}</span>
           <span className="dg-comp-text"><span className="dg-comp-dot" style={{ background: '#6b9080' }} /> Margen de Ganancia ${$(ganancia)}</span>
         </div>
+        </>}
 
         {/* Veredicto */}
         <div className="dg-verdict" style={{ marginTop: 'auto' }}>
@@ -139,8 +141,8 @@ const CapituloFinalConsolidado = ({ data, Head, Foot }) => {
           <div className="dg-verdict-text">
             El servicio genera un margen bruto de <strong>${$(ganancia)}</strong> ({margenPct}% sobre el costo operativo),
             cubriendo la totalidad de los costos directos (vehículo + recurso humano) e indirectos (administrativos, peajes, otros).
-            El precio de venta de <strong>${$(totalFinal)}</strong> mensuales se encuentra alineado con los objetivos de
-            rentabilidad de la empresa. Este análisis contempla {$(kmsMens)} km mensuales de operación y ~{viajesProyectados.toFixed(0)} viajes proyectados.
+            El precio de venta de <strong>${$(totalFinal)}</strong> {freq.tipo === 'mensual' ? 'mensuales' : 'por el servicio'} se encuentra alineado con los objetivos de
+            rentabilidad de la empresa. Este análisis contempla {$(kmsMens)} km {freq.tipo === 'mensual' ? 'mensuales' : 'totales'} de operación y ~{viajesProyectados.toFixed(0)} viajes proyectados.
           </div>
         </div>
       </div>

@@ -18,19 +18,17 @@ const emptyForm = {
   cuil: '',
   telefono: '',
   email: '',
-  sueldoBasico: 723858,
+  // Empleado (CCT 40/89)
+  sueldoBasico: 917462,
   adicionalActividadPorc: 15,
-  adicionalCargaDescargaCadaXkm: 30160.77,
+  adicionalCargaDescargaCadaXkm: 38228,
   kmPorUnidadDeCarga: 1000,
-  adicionalKmRemunerativo: 57.90,
-  minKmRemunerativo: 350,
-  viaticoPorKmNoRemunerativo: 57.90,
-  minKmNoRemunerativo: 350,
-  adicionalNoRemunerativoFijo: 50000,
-  horasLaboralesMensuales: 192,
-  minimoMinutosFacturables: 120,
-  porcentajeCargasSociales: 30,
-  porcentajeOverheadContratado: 10,
+  adicionalKmRemunerativo: 73.40,
+  viaticoPorKmNoRemunerativo: 73.40,
+  adicionalNoRemunerativoFijo: 53000,
+  porcentajeCargasSociales: 35,
+  // Contratado (factor)
+  factorSobreEmpleado: 75,
   observaciones: '',
 };
 
@@ -93,19 +91,15 @@ const GestionRRHH = () => {
       cuil: r.cuil || '',
       telefono: r.telefono || '',
       email: r.email || '',
-      sueldoBasico: r.sueldoBasico ?? 723858,
+      sueldoBasico: r.sueldoBasico ?? 917462,
       adicionalActividadPorc: r.adicionalActividadPorc ?? 15,
-      adicionalCargaDescargaCadaXkm: r.adicionalCargaDescargaCadaXkm ?? 30160.77,
+      adicionalCargaDescargaCadaXkm: r.adicionalCargaDescargaCadaXkm ?? 38228,
       kmPorUnidadDeCarga: r.kmPorUnidadDeCarga ?? 1000,
-      adicionalKmRemunerativo: r.adicionalKmRemunerativo ?? 57.90,
-      minKmRemunerativo: r.minKmRemunerativo ?? 350,
-      viaticoPorKmNoRemunerativo: r.viaticoPorKmNoRemunerativo ?? 57.90,
-      minKmNoRemunerativo: r.minKmNoRemunerativo ?? 350,
-      adicionalNoRemunerativoFijo: r.adicionalNoRemunerativoFijo ?? 50000,
-      horasLaboralesMensuales: r.horasLaboralesMensuales ?? 192,
-      minimoMinutosFacturables: r.minimoMinutosFacturables ?? 120,
-      porcentajeCargasSociales: r.porcentajeCargasSociales ?? 30,
-      porcentajeOverheadContratado: r.porcentajeOverheadContratado ?? 10,
+      adicionalKmRemunerativo: r.adicionalKmRemunerativo ?? 73.40,
+      viaticoPorKmNoRemunerativo: r.viaticoPorKmNoRemunerativo ?? 73.40,
+      adicionalNoRemunerativoFijo: r.adicionalNoRemunerativoFijo ?? 53000,
+      porcentajeCargasSociales: r.porcentajeCargasSociales ?? 35,
+      factorSobreEmpleado: r.factorSobreEmpleado ?? 75,
       observaciones: r.observaciones || '',
     });
     openModal();
@@ -134,7 +128,11 @@ const GestionRRHH = () => {
     const errors = {};
     if (!form.nombre || form.nombre.trim().length < 3) errors.nombre = 'El nombre es obligatorio (mín. 3 caracteres)';
     if (!form.tipoContratacion) errors.tipoContratacion = 'Seleccioná un tipo de contratación';
-    if (!form.sueldoBasico || form.sueldoBasico <= 0) errors.sueldoBasico = 'El sueldo básico debe ser mayor a 0';
+    if (form.tipoContratacion === 'empleado') {
+      if (!form.sueldoBasico || form.sueldoBasico <= 0) errors.sueldoBasico = 'El sueldo básico debe ser mayor a 0';
+    } else {
+      if (!form.factorSobreEmpleado || form.factorSobreEmpleado <= 0 || form.factorSobreEmpleado > 100) errors.factorSobreEmpleado = 'El factor debe estar entre 1 y 100';
+    }
     if (form.email && !/^\S+@\S+$/.test(form.email)) errors.email = 'El formato del email no es válido';
     if (form.dni && !/^\d{7,8}$/.test(form.dni)) errors.dni = 'El DNI debe tener 7 u 8 números, sin puntos';
     return errors;
@@ -237,8 +235,8 @@ const GestionRRHH = () => {
                 <Table.Tr>
                   <Table.Th>Personal</Table.Th>
                   <Table.Th>Tipo</Table.Th>
-                  <Table.Th>Sueldo Básico</Table.Th>
-                  <Table.Th>Adic. Actividad</Table.Th>
+                  <Table.Th>Base Económica</Table.Th>
+                  <Table.Th>Detalle</Table.Th>
                   <Table.Th ta="right">Acciones</Table.Th>
                 </Table.Tr>
               </Table.Thead>
@@ -256,8 +254,8 @@ const GestionRRHH = () => {
                         {r.tipoContratacion}
                       </Badge>
                     </Table.Td>
-                    <Table.Td><Text fw={500}>{fmt(r.sueldoBasico)}</Text></Table.Td>
-                    <Table.Td>{r.adicionalActividadPorc}%</Table.Td>
+                    <Table.Td><Text fw={500}>{r.tipoContratacion === 'contratado' ? `${r.factorSobreEmpleado || 75}% del empleado` : fmt(r.sueldoBasico)}</Text></Table.Td>
+                    <Table.Td>{r.tipoContratacion === 'contratado' ? `Factor ${r.factorSobreEmpleado || 75}%` : `${r.adicionalActividadPorc}%`}</Table.Td>
                     <Table.Td>
                       <Group justify="flex-end">
                         <Menu shadow="md" width={200}>
@@ -303,24 +301,41 @@ const GestionRRHH = () => {
             <TextInput label="Email" value={form.email} onChange={e => updateField('email', e.target.value)} error={fieldErrors.email} />
           </Group>
 
-          <Text fw={600} size="sm" mt="sm" c="var(--app-brand-primary)">Remuneración</Text>
+          <Text fw={600} size="sm" mt="sm" c="var(--app-brand-primary)">
+            {form.tipoContratacion === 'contratado' ? 'Costo del Servicio' : 'Remuneración (CCT 40/89)'}
+          </Text>
 
-          <Group grow>
-            <NumberInput label="Sueldo Básico ($)" value={form.sueldoBasico} onChange={v => updateField('sueldoBasico', v)} prefix="$" error={fieldErrors.sueldoBasico} />
-            <NumberInput label="Adic. Actividad (%)" value={form.adicionalActividadPorc} onChange={v => updateField('adicionalActividadPorc', v)} suffix="%" />
-          </Group>
-          <Group grow>
-            <NumberInput label="Adic. km remunerativo ($/km)" value={form.adicionalKmRemunerativo} onChange={v => updateField('adicionalKmRemunerativo', v)} prefix="$" decimalScale={2} />
-            <NumberInput label="Mín. km remunerativo" value={form.minKmRemunerativo} onChange={v => updateField('minKmRemunerativo', v)} />
-          </Group>
-          <Group grow>
-            <NumberInput label="Viático por km ($)" value={form.viaticoPorKmNoRemunerativo} onChange={v => updateField('viaticoPorKmNoRemunerativo', v)} prefix="$" decimalScale={2} />
-            <NumberInput label="Mín. km viático" value={form.minKmNoRemunerativo} onChange={v => updateField('minKmNoRemunerativo', v)} />
-          </Group>
-          <Group grow>
-            <NumberInput label="Adic. fijo no remun. ($)" value={form.adicionalNoRemunerativoFijo} onChange={v => updateField('adicionalNoRemunerativoFijo', v)} prefix="$" />
-            <NumberInput label="Cargas Sociales (%)" value={form.porcentajeCargasSociales} onChange={v => updateField('porcentajeCargasSociales', v)} suffix="%" />
-          </Group>
+          {form.tipoContratacion === 'contratado' ? (
+            /* ═══ Campo CONTRATADO — Factor sobre empleado ═══ */
+            <>
+              <NumberInput
+                label="Factor sobre empleado (%)"
+                value={form.factorSobreEmpleado}
+                onChange={v => updateField('factorSobreEmpleado', v)}
+                suffix="%"
+                min={1}
+                max={100}
+                error={fieldErrors.factorSobreEmpleado}
+                description="Porcentaje del costo de un empleado CCT equivalente."
+              />
+            </>
+          ) : (
+            /* ═══ Campos EMPLEADO (CCT) ═══ */
+            <>
+              <Group grow>
+                <NumberInput label="Sueldo Básico ($)" value={form.sueldoBasico} onChange={v => updateField('sueldoBasico', v)} prefix="$" error={fieldErrors.sueldoBasico} />
+                <NumberInput label="Adic. Actividad (%)" value={form.adicionalActividadPorc} onChange={v => updateField('adicionalActividadPorc', v)} suffix="%" />
+              </Group>
+              <Group grow>
+                <NumberInput label="Adic. km remunerativo ($/km)" value={form.adicionalKmRemunerativo} onChange={v => updateField('adicionalKmRemunerativo', v)} prefix="$" decimalScale={2} />
+                <NumberInput label="Viático por km ($)" value={form.viaticoPorKmNoRemunerativo} onChange={v => updateField('viaticoPorKmNoRemunerativo', v)} prefix="$" decimalScale={2} />
+              </Group>
+              <Group grow>
+                <NumberInput label="Adic. fijo no remun. ($)" value={form.adicionalNoRemunerativoFijo} onChange={v => updateField('adicionalNoRemunerativoFijo', v)} prefix="$" />
+                <NumberInput label="Cargas Sociales (%)" value={form.porcentajeCargasSociales} onChange={v => updateField('porcentajeCargasSociales', v)} suffix="%" />
+              </Group>
+            </>
+          )}
 
           <Button fullWidth color="teal" mt="md" onClick={handleSave} loading={saving}>
             {editingId ? 'Guardar Cambios' : 'Crear Recurso'}

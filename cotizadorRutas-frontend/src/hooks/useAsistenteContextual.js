@@ -95,7 +95,7 @@ const getConsejosContextuales = (pathname, cotizacion, configGlobal) => {
             if (!recurso) {
                 return [
                     { tipo: 'guia', texto: 'Asigná un colaborador a esta misión. La modalidad de contratación (Empleado o Contratado) define el cálculo de costos.' },
-                    { tipo: 'info', texto: '"Empleado" incluye cargas sociales y aportes patronales; "Contratado" aplica un porcentaje de overhead operativo.' }
+                    { tipo: 'info', texto: '"Empleado" usa el CCT 40/89 (sueldo, adicionales, cargas sociales). "Contratado" aplica un factor sobre el costo del empleado equivalente (default 75%).' }
                 ];
             }
 
@@ -145,7 +145,7 @@ const getConsejosContextuales = (pathname, cotizacion, configGlobal) => {
 
         case pathname === '/configuracion':
             return [
-                { tipo: 'guia', texto: 'Acá definís los valores predeterminados que se aplican al crear vehículos y personal nuevos. Tiene 3 pestañas: Vehículos (4 tipos), RRHH (Empleado/Contratado) y Constantes de Cálculo.' },
+                { tipo: 'guia', texto: 'Acá definís los valores predeterminados que se aplican al crear vehículos y personal nuevos. RRHH tiene 2 tabs: "Empleado (CCT)" con valores del convenio 40/89, y "Contratado" con el factor sobre el empleado (default 75%).' },
                 { tipo: 'info', texto: 'Los cambios solo afectan a los registros futuros. Los vehículos y colaboradores ya existentes conservan sus valores actuales sin modificarse.' }
             ];
 

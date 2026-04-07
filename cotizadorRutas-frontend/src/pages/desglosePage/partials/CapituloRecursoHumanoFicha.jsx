@@ -40,10 +40,9 @@ const CapituloRecursoHumanoFicha = ({ data, Head, Foot }) => {
         <table className="dg-tbl">
           <thead><tr><th>Concepto</th><th style={{ textAlign: 'right' }}>Valor</th></tr></thead>
           <tbody>
-            <tr><td>Sueldo Básico (según Convenio Colectivo)</td><td className="dg-tbl-val">${$(d.sueldoBasico)}</td></tr>
-            <tr><td>Adicional por Actividad</td><td className="dg-tbl-val">{d.adicionalActividadPorc || 0}%</td></tr>
+            <tr><td>Sueldo Básico (CCT 40/89)</td><td className="dg-tbl-val">${$(d.sueldoBasico)}</td></tr>
+            <tr><td>Adicional por Actividad (CCT 40/89)</td><td className="dg-tbl-val">{d.adicionalActividadPorc || 0}%</td></tr>
             <tr><td>Adicional Fijo No Remunerativo</td><td className="dg-tbl-val">${$(d.adicionalNoRemunerativoFijo)}</td></tr>
-            <tr><td>Horas Laborales de Referencia</td><td className="dg-tbl-val">{d.horasLaboralesMensuales || 192} hs/mes</td></tr>
           </tbody>
         </table>
 
@@ -66,8 +65,6 @@ const CapituloRecursoHumanoFicha = ({ data, Head, Foot }) => {
               <thead><tr><th>Concepto</th><th style={{ textAlign: 'right' }}>Valor</th></tr></thead>
               <tbody>
                 <tr><td>Mínimo de Minutos Facturables</td><td className="dg-tbl-val">{d.minimoMinutosFacturables || 120} min</td></tr>
-                <tr><td>Mínimo KM para Adicional Rem.</td><td className="dg-tbl-val">{d.minKmRemunerativo || 350} km</td></tr>
-                <tr><td>Mínimo KM para Viáticos</td><td className="dg-tbl-val">{d.minKmNoRemunerativo || 350} km</td></tr>
               </tbody>
             </table>
           </div>
@@ -80,7 +77,7 @@ const CapituloRecursoHumanoFicha = ({ data, Head, Foot }) => {
           <tbody>
             {d.tipoContratacion === 'empleado'
               ? <tr><td>Cargas Sociales sobre Conceptos Remunerativos (Aportes Patronales, ART, etc.)</td><td className="dg-tbl-val">{d.porcentajeCargasSociales}%</td></tr>
-              : <tr><td>Overhead sobre Honorarios Brutos (Facturación, Coordinación)</td><td className="dg-tbl-val">{d.porcentajeOverheadContratado}%</td></tr>
+              : <tr><td>Factor sobre Empleado CCT</td><td className="dg-tbl-val">{d.factorSobreEmpleado || 75}%</td></tr>
             }
           </tbody>
         </table>
@@ -102,12 +99,11 @@ const CapituloRecursoHumanoFicha = ({ data, Head, Foot }) => {
         <div className="dg-info" style={{ marginTop: 'auto' }}>
           <div className="dg-info-title">Notas sobre la Compensación</div>
           <div className="dg-info-text">
-            Los adicionales por kilómetro (remunerativos y viáticos) se aplican únicamente cuando el recorrido supera los mínimos
-            establecidos ({d.minKmRemunerativo || 350} km y {d.minKmNoRemunerativo || 350} km respectivamente).
+            Los adicionales por kilómetro (remunerativos y viáticos) se calculan sobre los kilómetros efectivamente recorridos.
             El adicional por carga/descarga se calcula cada {d.kmPorUnidadDeCarga} km recorridos.
             {d.tipoContratacion === 'empleado'
               ? ` Las cargas sociales del ${d.porcentajeCargasSociales}% se aplican sobre el total de conceptos remunerativos.`
-              : ` El overhead del ${d.porcentajeOverheadContratado}% se aplica sobre el total de honorarios brutos.`
+              : ` El contratado cobra el ${d.factorSobreEmpleado || 75}% del costo de un empleado CCT equivalente.`
             }
           </div>
         </div>

@@ -84,35 +84,25 @@ export const DEFAULTS_VEHICULO = {
 };
 
 export const DEFAULTS_RRHH = {
+  // ═══ EMPLEADO — CCT 40/89, Escala Marzo 2026 (Conductor 1ra Categoría) ═══
   empleado: {
-    sueldoBasico: 723858,
-    adicionalActividadPorc: 15,
-    adicionalCargaDescargaCadaXkm: 30160.77,
+    sueldoBasico: 917462,                  // CCT Marzo 2026: Conductor 1ra
+    adicionalActividadPorc: 15,             // ITEM 3.1.3 (configurable por rama)
+    adicionalCargaDescargaCadaXkm: 38228,   // ITEM 4.2.6: Control de descarga = 1 jornal ($38.227,60)
     kmPorUnidadDeCarga: 1000,
-    adicionalKmRemunerativo: 57.90,
-    minKmRemunerativo: 350,
-    viaticoPorKmNoRemunerativo: 57.90,
-    minKmNoRemunerativo: 350,
-    adicionalNoRemunerativoFijo: 50000,
-    horasLaboralesMensuales: 192,
+    adicionalKmRemunerativo: 73.40,         // ITEM 4.2.3: Horas extras por km recorrido
+    viaticoPorKmNoRemunerativo: 73.40,      // ITEM 4.2.4: Viático por km recorrido
+    adicionalNoRemunerativoFijo: 53000,      // Suma no remunerativa Marzo 2026
     minimoMinutosFacturables: 120,
-    porcentajeCargasSociales: 30,
-    porcentajeOverheadContratado: 0,
+    porcentajeCargasSociales: 35,
   },
+
+  // ═══ CONTRATADO — Factor sobre empleado ═══
+  // El costo del contratado se calcula como un % del costo del empleado equivalente.
+  // 75% = el contratado cuesta 25% menos que un empleado (basado en: contribuciones
+  // patronales 24%, SAC 8.33%, vacaciones 4%, ART 3.5%, monotributo Cat G, IIBB 3%).
   contratado: {
-    sueldoBasico: 600000,
-    adicionalActividadPorc: 0,
-    adicionalCargaDescargaCadaXkm: 30160.77,
-    kmPorUnidadDeCarga: 1000,
-    adicionalKmRemunerativo: 57.90,
-    minKmRemunerativo: 350,
-    viaticoPorKmNoRemunerativo: 57.90,
-    minKmNoRemunerativo: 350,
-    adicionalNoRemunerativoFijo: 0,
-    horasLaboralesMensuales: 192,
-    minimoMinutosFacturables: 120,
-    porcentajeCargasSociales: 0,
-    porcentajeOverheadContratado: 10,
+    factorSobreEmpleado: 75,                // % del costo del empleado CCT equivalente
   },
 };
 
@@ -120,9 +110,10 @@ export const DEFAULTS_CALCULOS = {
   tiempoCargaDescargaMin: 30,
   umbralJornadaCompletaMin: 180,
   jornadaCompletaMinutos: 480,
+  divisorJornalCCT: 24,              // CCT 40/89: sueldo mensual ÷ 24 = jornal diario
   factorRendimientoGNC: 1.15,
   factorCargaRefrigerada: 1.25,
-  costoAdicionalKmPeligrosa: 250,
+  costoAdicionalKmPeligrosa: 350,
   semanasPorMes: 4.33,
   diasLaboralesMes: 22,
   porcentajeIVA: 21,
@@ -166,30 +157,32 @@ const vehiculoDefaultsSchema = new mongoose.Schema({
 }, { _id: false });
 
 const rrhhDefaultsSchema = new mongoose.Schema({
+  // ── Campos empleado (CCT 40/89) ──
   sueldoBasico: Number,
   adicionalActividadPorc: Number,
   adicionalCargaDescargaCadaXkm: Number,
   kmPorUnidadDeCarga: Number,
   adicionalKmRemunerativo: Number,
-  minKmRemunerativo: Number,
   viaticoPorKmNoRemunerativo: Number,
-  minKmNoRemunerativo: Number,
   adicionalNoRemunerativoFijo: Number,
-  horasLaboralesMensuales: Number,
   minimoMinutosFacturables: Number,
   porcentajeCargasSociales: Number,
-  porcentajeOverheadContratado: Number,
+
+  // ── Campos contratado (factor sobre empleado) ──
+  factorSobreEmpleado: Number,
 }, { _id: false });
 
 const calculosDefaultsSchema = new mongoose.Schema({
   tiempoCargaDescargaMin: Number,
   umbralJornadaCompletaMin: Number,
   jornadaCompletaMinutos: Number,
+  divisorJornalCCT: Number,
   factorRendimientoGNC: Number,
   factorCargaRefrigerada: Number,
   costoAdicionalKmPeligrosa: Number,
   semanasPorMes: Number,
   diasLaboralesMes: Number,
+  porcentajeIVA: Number,
 }, { _id: false });
 
 const empresaSchema = new mongoose.Schema({

@@ -9,31 +9,23 @@ const recursoHumanoSchema = new mongoose.Schema({
   telefono: String,
   email: String,
 
-  // Sueldo base y adicionales comunes
-  sueldoBasico: { type: Number, default: 723858 },
+  // ── Campos para EMPLEADO (CCT 40/89) ──
+  sueldoBasico: { type: Number, default: 917462 },
   adicionalActividadPorc: { type: Number, default: 15 },
-  adicionalCargaDescargaCadaXkm: { type: Number, default: 30160.77 },
+  adicionalCargaDescargaCadaXkm: { type: Number, default: 38228 },
   kmPorUnidadDeCarga: { type: Number, default: 1000 },
 
-  // Común a empleados y contratados
-  adicionalKmRemunerativo: { type: Number, default: 57.90 },
-  minKmRemunerativo: { type: Number, default: 350 },
-  viaticoPorKmNoRemunerativo: { type: Number, default: 57.90 },
-  minKmNoRemunerativo: { type: Number, default: 350 },
-  adicionalNoRemunerativoFijo: { type: Number, default: 50000 },
+  adicionalKmRemunerativo: { type: Number, default: 73.40 },
+  viaticoPorKmNoRemunerativo: { type: Number, default: 73.40 },
+  adicionalNoRemunerativoFijo: { type: Number, default: 53000 },
 
-  horasLaboralesMensuales: { 
-    type: Number, 
-    default: 192 
-  },
-  minimoMinutosFacturables: { 
-    type: Number, 
-    default: 120 
-  },
+  minimoMinutosFacturables: { type: Number, default: 120 },
 
-  // Costos adicionales según tipo de contratación
-  porcentajeCargasSociales: { type: Number, default: 30 },
-  porcentajeOverheadContratado: { type: Number, default: 10 },
+  // Costos indirectos
+  porcentajeCargasSociales: { type: Number, default: 35 },
+
+  // ── Campo para CONTRATADO (factor sobre empleado) ──
+  factorSobreEmpleado: { type: Number, default: 75 },
 
   observaciones: String,
 
