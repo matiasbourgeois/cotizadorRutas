@@ -176,7 +176,7 @@ const GestionVehiculos = () => {
       closeModal();
       fetchVehiculos();
     } catch (err) {
-      notifications.show({ title: 'Error', message: err.response?.data?.msg || 'Error al guardar', color: 'red' });
+      notifications.show({ title: 'Error', message: err.response?.data?.mensaje || err.response?.data?.msg || 'Error al guardar', color: 'red' });
     } finally {
       setSaving(false);
     }
