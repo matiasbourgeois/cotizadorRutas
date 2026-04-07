@@ -10,7 +10,6 @@ const VehiculoSchema = new mongoose.Schema({
   patente: {
     type: String,
     required: true,
-    unique: true,
     uppercase: true,
     trim: true
   },
@@ -139,6 +138,10 @@ const VehiculoSchema = new mongoose.Schema({
 VehiculoSchema.pre('findOneAndUpdate', function () {
   this.set({ actualizadoEn: new Date() });
 });
+
+// Unicidad compuesta: una patente puede existir en distintos usuarios
+// pero NO puede repetirse dentro del mismo usuario
+VehiculoSchema.index({ patente: 1, usuario: 1 }, { unique: true });
 
 const Vehiculo = mongoose.model('Vehiculo', VehiculoSchema);
 export default Vehiculo;

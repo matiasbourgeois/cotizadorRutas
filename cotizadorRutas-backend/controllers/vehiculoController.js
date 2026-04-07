@@ -12,6 +12,11 @@ export const crearVehiculo = async (req, res) => {
     await nuevoVehiculo.save();
     res.status(201).json(nuevoVehiculo);
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({
+        mensaje: `Ya tenés un vehículo registrado con la patente "${req.body.patente}".`,
+      });
+    }
     console.error("Error al crear vehículo:", error);
     res.status(500).json({
       mensaje: 'Error interno al intentar crear el vehículo.',
