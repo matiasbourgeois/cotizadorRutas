@@ -504,7 +504,7 @@ body {
     <tbody>
       <tr><td><span class="badge badge--cyan">General</span></td><td>Sin recargos adicionales</td></tr>
       <tr><td><span class="badge badge--amber">Refrigerada</span></td><td>+25% sobre el costo de combustible (equipo de frío)</td></tr>
-      <tr><td><span class="badge badge--violet">Peligrosa</span></td><td>+$250 por kilómetro (seguro y protocolo especial)</td></tr>
+      <tr><td><span class="badge badge--violet">Peligrosa</span></td><td>Recargo adicional por km configurable (seguro y protocolo especial)</td></tr>
     </tbody>
   </table>
 
@@ -540,7 +540,7 @@ body {
 
   <div class="card">
     <div class="card-title">📅 Mensual</div>
-    <p>Operativa recurrente. Seleccionás los <strong>días de la semana</strong> (L-M-X-J-V-S-D) y las <strong>vueltas por día</strong>. El sistema multiplica por <strong>4.33 semanas/mes</strong> para estimar el total mensual. A mayor frecuencia, los costos fijos se prorratean entre más viajes, reduciendo el costo unitario.</p>
+    <p>Operativa recurrente. Seleccionás los <strong>días de la semana</strong> (L-M-X-J-V-S-D) y las <strong>vueltas por día</strong>. El sistema multiplica por <strong>4.33 semanas/mes</strong> para estimar el total mensual. Al seleccionar 5 o más días, el sistema descuenta automáticamente los <strong>feriados nacionales</strong> que coincidan con días operativos. A mayor frecuencia, los costos fijos se prorratean entre más viajes, reduciendo el costo unitario.</p>
   </div>
 
   <p>También podés agregar <strong>Observaciones</strong> (horarios preferidos, restricciones, etc.).</p>
@@ -694,9 +694,26 @@ body {
       <li><strong>Ficha del Vehículo</strong> — Datos completos del vehículo asignado.</li>
       <li><strong>Costos del Vehículo</strong> — Desglose línea por línea: combustible, cubiertas, aceite, depreciación, costos fijos prorrateados.</li>
       <li><strong>Ficha del Recurso Humano</strong> — Datos del colaborador.</li>
-      <li><strong>Costos del Recurso Humano</strong> — Sueldo prorrateado, adicionales, viáticos, cargas sociales y gastos indirectos.</li>
-      <li><strong>Consolidado Final</strong> — Tabla resumen del costo operativo, administrativo, ganancia y precio de venta.</li>
+      <li><strong>Costos del Recurso Humano</strong> — Sueldo prorrateado, adicionales, viáticos, cargas sociales o factor sobre empleado.</li>
+      <li><strong>Consolidado Final</strong> — Tabla resumen del costo operativo, administrativo, ganancia y precio de venta sin y con IVA.</li>
     </ul>
+  </div>
+
+  <h3>Compartir con el Cliente — Modo Público</h3>
+  <p>Desde el Desglose, el botón <strong>Compartir</strong> genera un enlace público único para enviar al cliente. La vista pública muestra el desglose de costos y el precio final, pero <strong>oculta automáticamente</strong> los datos internos de rentabilidad:</p>
+  <table class="kv-table">
+    <thead><tr><th>Contenido</th><th>Vista Interna</th><th>Vista Pública (cliente)</th></tr></thead>
+    <tbody>
+      <tr><td>Desglose de costos (vehículo + RRHH)</td><td>✓ Visible</td><td>✓ Visible</td></tr>
+      <tr><td>Precio de venta con y sin IVA</td><td>✓ Visible</td><td>✓ Visible</td></tr>
+      <tr><td>Margen de ganancia (% y monto)</td><td>✓ Visible</td><td>✗ Oculto</td></tr>
+      <tr><td>Gráfico de distribución del precio</td><td>✓ Visible</td><td>✗ Oculto</td></tr>
+      <tr><td>KPIs internos de rentabilidad</td><td>✓ Visible</td><td>✗ Oculto</td></tr>
+    </tbody>
+  </table>
+  <div class="tip-box tip-box--amber">
+    <span class="tip-icon">⚠️</span>
+    <div>El cliente que accede al link público <strong>nunca puede ver tu margen de ganancia</strong>. El enlace es único por cotización y no requiere que el cliente tenga cuenta en el sistema.</div>
   </div>
 </div>
 
@@ -757,7 +774,13 @@ body {
     <li><strong>Costos variables</strong> — Precio combustible/L, precio cubierta, precio cambio aceite, vida útil vehículo/cubiertas/aceite.</li>
     <li><strong>Costos fijos</strong> — Mantenimiento preventivo, seguro, patente municipal, patente provincial (todos mensuales).</li>
     <li><strong>Depreciación</strong> — Precio vehículo nuevo, valor residual (%). Solo aplica para vehículos de ≤10 años.</li>
+    <li><strong>GNC</strong> — Si el vehículo tiene equipo de GNC, activar el toggle e ingresar el precio del m³. El sistema calculará automáticamente el costo de combustible con el rendimiento GNC.</li>
   </ul>
+
+  <div class="tip-box tip-box--amber">
+    <span class="tip-icon">⚠️</span>
+    <div><strong>Patente única por cuenta:</strong> La patente debe ser única dentro de tu cuenta. Si intentás registrar una patente que ya existe en tu flota, el sistema te avisa con un mensaje claro. Dos cuentas distintas sí pueden registrar el mismo vehículo.</div>
+  </div>
 
   <div class="tip-box tip-box--cyan">
     <span class="tip-icon">💡</span>
@@ -781,13 +804,19 @@ body {
 
   <h3>Campos principales</h3>
   <ul>
-    <li><strong>Datos personales</strong> — Nombre, DNI, modalidad de contratación (Empleado/Contratado).</li>
-    <li><strong>Sueldo</strong> — Sueldo básico, adicional por actividad (%), adicional no remunerativo fijo.</li>
-    <li><strong>Adicionales por km</strong> — Remunerativo ($/km con mínimo), viático No Remunerativo ($/km con mínimo).</li>
-    <li><strong>Carga/descarga</strong> — Adicional por carga/descarga, cada cuántos km aplica.</li>
-    <li><strong>Jornada</strong> — Horas laborales mensuales, mínimo minutos facturables.</li>
-    <li><strong>Cargas sociales</strong> — Porcentaje de cargas (para Empleados) o porcentaje de gastos indirectos (para Contratados).</li>
+    <li><strong>Datos personales</strong> — Nombre, DNI, CUIL y modalidad de contratación (Empleado CCT 40/89 / Contratado).</li>
+    <li><strong>Sueldo (Empleado CCT 40/89)</strong> — Sueldo básico según escala vigente, adicional por actividad (%), adicional no remunerativo fijo mensual.</li>
+    <li><strong>Adicionales por km</strong> — Remunerativo ($/km con mínimo CCT), viático No Remunerativo ($/km con mínimo CCT).</li>
+    <li><strong>Carga/descarga</strong> — Monto del adicional y cada cuántos km aplica (por tramo de ruta).</li>
+    <li><strong>Jornada</strong> — Horas laborales mensuales (divisor para valor hora) y mínimo de minutos facturables por servicio.</li>
+    <li><strong>Cargas sociales (Empleado)</strong> — Porcentaje de contribuciones patronales sobre la base remunerativa.</li>
+    <li><strong>Factor sobre Empleado (Contratado)</strong> — Porcentaje del equivalente CCT que se cobra al contratado (por defecto 75%). Refleja el ahorro en cargas patronales que no aplican.</li>
   </ul>
+
+  <div class="tip-box tip-box--amber">
+    <span class="tip-icon">⚠️</span>
+    <div><strong>Escalas CCT 40/89:</strong> Los valores de sueldo, adicionales por km y viáticos cambian con cada actualización del convenio. Actualizar estos campos cuando entre en vigencia una nueva escala para garantizar presupuestos precisos.</div>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════ -->
@@ -816,14 +845,16 @@ body {
   <table class="kv-table">
     <thead><tr><th>Constante</th><th>Valor por Defecto</th><th>Función</th></tr></thead>
     <tbody>
-      <tr><td>Tiempo Carga/Descarga</td><td>30 min</td><td>Se suma a la duración del viaje para calcular ocupación del vehículo</td></tr>
-      <tr><td>Umbral Jornada Completa</td><td>180 min</td><td>Si la misión supera este valor, se asigna 100% del costo fijo diario</td></tr>
-      <tr><td>Jornada Completa</td><td>480 min (8h)</td><td>Denominador para prorratear costos fijos por proporción de uso</td></tr>
-      <tr><td>Factor GNC</td><td>1.15×</td><td>El GNC rinde 15% más que nafta por metro cúbico</td></tr>
-      <tr><td>Factor Carga Refrigerada</td><td>1.25×</td><td>Incremento 25% sobre combustible</td></tr>
-      <tr><td>Adicional km Peligrosa</td><td>$250/km</td><td>Costo extra por seguro y protocolo</td></tr>
-      <tr><td>Semanas por Mes</td><td>4.33</td><td>Multiplicador para frecuencia mensual</td></tr>
-      <tr><td>Días Laborales/Mes</td><td>22</td><td>Denominador para prorratear costos fijos diarios</td></tr>
+      <tr><td>Tiempo Carga/Descarga</td><td>30 min</td><td>Se suma a la duración del viaje para calcular la ocupación real del vehículo y del colaborador</td></tr>
+      <tr><td>Umbral Jornada Completa</td><td>180 min</td><td>Si la misión supera este valor, se asigna el 100% del costo fijo diario y se cobra jornada completa</td></tr>
+      <tr><td>Jornada Completa</td><td>480 min (8h)</td><td>Denominador para prorratear costos fijos por proporción de uso en servicios cortos</td></tr>
+      <tr><td>Factor GNC</td><td>1.15×</td><td>El GNC rinde un 15% más que nafta por metro cúbico equivalente</td></tr>
+      <tr><td>Factor Carga Refrigerada</td><td>1.25×</td><td>Incremento del 25% sobre el consumo de combustible por el equipo de frío</td></tr>
+      <tr><td>Adicional km Peligrosa</td><td>$350/km</td><td>Recargo extra por km para cubrir seguro especial y protocolo de carga peligrosa</td></tr>
+      <tr><td>IVA</td><td>21%</td><td>IVA aplicado sobre el precio de venta para mostrar el total con impuesto incluido</td></tr>
+      <tr><td>Semanas por Mes</td><td>4.33</td><td>Multiplicador para convertir días/semana en días/mes en frecuencia mensual</td></tr>
+      <tr><td>Días Laborales/Mes</td><td>22</td><td>Denominador para calcular el costo fijo diario y el jornal del colaborador</td></tr>
+      <tr><td>Divisor Jornal CCT</td><td>24</td><td>El jornal diario CCT se obtiene dividiendo el sueldo mensual por 24 (según CCT 40/89)</td></tr>
     </tbody>
   </table>
 
