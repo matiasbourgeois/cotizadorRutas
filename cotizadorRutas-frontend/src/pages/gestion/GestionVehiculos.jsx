@@ -297,6 +297,28 @@ const GestionVehiculos = () => {
         title={editingId ? 'Editar Vehículo' : 'Nuevo Vehículo'}
         size="lg"
         centered
+        styles={{
+          content: {
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            maxHeight: '90vh',
+          },
+          header: {
+            position: 'sticky',
+            top: 0,
+            zIndex: 10,
+            background: 'var(--mantine-color-body)',
+            borderBottom: '1px solid var(--mantine-color-default-border)',
+            paddingBottom: 12,
+            marginBottom: 0,
+          },
+          body: {
+            overflow: 'auto',
+            flex: 1,
+            paddingTop: 12,
+          },
+        }}
       >
         <Stack gap="sm">
           <Group grow>
