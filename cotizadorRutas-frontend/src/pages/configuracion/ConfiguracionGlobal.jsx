@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import {
   Settings, Save, Fuel, Wrench, Disc, Info, Truck, Car, Users,
   Calculator, DollarSign, Shield, Clock, Gauge,
-  Weight, Box as BoxIcon, Zap, Building, Phone, Mail, MapPin, Palette, Upload
+  Weight, Box as BoxIcon, Zap, Building, Phone, Mail, MapPin, Palette, Upload, Route
 } from 'lucide-react';
 import { notifications } from '@mantine/notifications';
 import clienteAxios from '../../api/clienteAxios';
@@ -420,6 +420,37 @@ const ConfiguracionGlobal = () => {
                 <Campo label="Días laborales por mes" value={config.calculos?.diasLaboralesMes} onChange={v => setCalculo('diasLaboralesMes', v)} />
                 <Campo label="Divisor jornal CCT" value={config.calculos?.divisorJornalCCT} onChange={v => setCalculo('divisorJornalCCT', v)} />
               </SimpleGrid>
+            </Seccion>
+
+            <Seccion icon={Route} color="teal" titulo="Km Mínimos Facturables — RRHH (CCT 40/89)">
+              <Alert icon={<Info size={14} />} color="cyan" variant="light" radius="md" mb="sm" fz="xs">
+                El CCT 40/89 obliga a pagarle al chofer <b>350 km mínimo</b> siempre.
+                Estos valores controlan qué mínimo se le traslada al <b>cliente</b> según la distancia del viaje.
+                Si los km reales superan el mínimo, se cobran los km reales.
+              </Alert>
+              <SimpleGrid cols={{ base: 1, sm: 3 }}>
+                <Campo
+                  label="Umbral ruta larga (km)"
+                  value={config.calculos?.umbralKmRutaLarga ?? 200}
+                  onChange={v => setCalculo('umbralKmRutaLarga', v)}
+                  suffix=" km"
+                />
+                <Campo
+                  label="Mínimo km — ruta corta"
+                  value={config.calculos?.kmMinimoRutaCorta ?? 150}
+                  onChange={v => setCalculo('kmMinimoRutaCorta', v)}
+                  suffix=" km"
+                />
+                <Campo
+                  label="Mínimo km — ruta larga"
+                  value={config.calculos?.kmMinimoRutaLarga ?? 350}
+                  onChange={v => setCalculo('kmMinimoRutaLarga', v)}
+                  suffix=" km"
+                />
+              </SimpleGrid>
+              <Text size="xs" c="dimmed" mt="xs">
+                Rutas con menos km que el umbral usan el mínimo corto. Rutas iguales o mayores usan el mínimo largo.
+              </Text>
             </Seccion>
 
             <Seccion icon={DollarSign} color="green" titulo="Impuestos">

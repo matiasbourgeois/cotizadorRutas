@@ -117,6 +117,12 @@ export const DEFAULTS_CALCULOS = {
   semanasPorMes: 4.33,
   diasLaboralesMes: 22,
   porcentajeIVA: 21,
+  // ── Km mínimos facturables al cliente (RRHH CCT 40/89) ──
+  // El CCT obliga a pagar 350 km mínimo al chofer. Estos valores controlan
+  // qué mínimo se traslada al cliente según la distancia del viaje.
+  umbralKmRutaLarga: 200,   // rutas ≥ este valor usan el mínimo largo
+  kmMinimoRutaCorta: 150,   // mínimo km facturable en rutas cortas
+  kmMinimoRutaLarga: 350,   // mínimo km facturable en rutas largas (= CCT)
 };
 
 export const DEFAULTS_EMPRESA = {
@@ -183,6 +189,10 @@ const calculosDefaultsSchema = new mongoose.Schema({
   semanasPorMes: Number,
   diasLaboralesMes: Number,
   porcentajeIVA: Number,
+  // Km mínimos facturables al cliente (CCT 40/89)
+  umbralKmRutaLarga: Number,
+  kmMinimoRutaCorta: Number,
+  kmMinimoRutaLarga: Number,
 }, { _id: false });
 
 const empresaSchema = new mongoose.Schema({

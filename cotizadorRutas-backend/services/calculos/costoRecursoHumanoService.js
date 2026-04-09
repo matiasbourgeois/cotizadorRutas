@@ -112,7 +112,11 @@ function calcularCostoEmpleado(recurso, kmsPorViaje, duracionMin, frecuencia, C)
   }
 
   // ═══ Costos por km (igual para todos los niveles) ═══
-  const kilometrosMinimos = kmsPorViaje < 200 ? 150 : 350;
+  // Los umbrales son configurables desde Configuración Global → Constantes de Cálculo
+  const UMBRAL_KM_RUTA  = C.umbralKmRutaLarga  || 200; // km del viaje que activa el mínimo largo
+  const KM_MIN_CORTO    = C.kmMinimoRutaCorta  || 150; // mínimo facturable en rutas cortas
+  const KM_MIN_LARGO    = C.kmMinimoRutaLarga  || 350; // mínimo facturable en rutas largas (= CCT)
+  const kilometrosMinimos = kmsPorViaje < UMBRAL_KM_RUTA ? KM_MIN_CORTO : KM_MIN_LARGO;
   const kmParaPagar = Math.max(
     kmRealesTotales,
     kilometrosMinimos * (esServicioMensual ? 1 : cantidadViajesAlMes)

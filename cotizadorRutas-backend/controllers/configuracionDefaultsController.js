@@ -63,6 +63,20 @@ export const obtenerConfiguracion = async (req, res) => {
       await config.save();
     }
 
+    // Auto-migrate: agregar campos de km mínimos si no existen (nuevos en la última versión)
+    const calculos = config.calculos || {};
+    const kmFieldsMissing =
+      calculos.umbralKmRutaLarga == null ||
+      calculos.kmMinimoRutaCorta == null ||
+      calculos.kmMinimoRutaLarga == null;
+
+    if (kmFieldsMissing) {
+      if (calculos.umbralKmRutaLarga == null) config.calculos.umbralKmRutaLarga = 200;
+      if (calculos.kmMinimoRutaCorta == null) config.calculos.kmMinimoRutaCorta = 150;
+      if (calculos.kmMinimoRutaLarga == null) config.calculos.kmMinimoRutaLarga = 350;
+      await config.save();
+    }
+
     res.json(config);
   } catch (error) {
     console.error('Error al obtener configuración:', error);
