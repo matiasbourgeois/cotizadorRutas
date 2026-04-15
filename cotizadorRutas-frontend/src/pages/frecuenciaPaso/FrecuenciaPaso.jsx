@@ -59,6 +59,10 @@ const FrecuenciaPaso = () => {
   }, []);
 
   const handleSubmit = async () => {
+    if (tipo === 'mensual' && diasSeleccionados.length === 0) {
+      notifications.show({ title: 'Faltan datos', message: 'Seleccioná al menos un día de la semana para la operativa mensual.', color: 'orange' });
+      return;
+    }
     setIsSaving(true);
     const data = {
       tipo, viajesPorDia, observaciones,
