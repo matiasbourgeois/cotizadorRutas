@@ -23,6 +23,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.set('trust proxy', 1);
 
 const whitelist = [
   'https://quotargo.ar',
@@ -48,7 +49,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
 
 // ─── Rate Limiting ───────────────────────────────────────────────────────
 const publicLimiter = rateLimit({
