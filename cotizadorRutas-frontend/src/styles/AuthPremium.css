@@ -37,41 +37,35 @@
 
 /* ─── Logo section ─── */
 .auth-logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  display: block;
+  text-align: center;
   margin-bottom: 8px;
   cursor: pointer;
   text-decoration: none;
   color: inherit;
-}
-
-.auth-logo-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.auth-logo-icon img {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
-}
-
-.auth-logo:hover .auth-logo-icon {
-  transform: rotate(-8deg) scale(1.1);
+  overflow: visible;
 }
 
 .auth-logo-text {
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1;
+  line-height: 1.4;
+  overflow: visible;
+  display: inline;
+}
+
+.auth-logo-icon-img {
+  height: 1.1em;
+  width: auto;
+  object-fit: contain;
+  vertical-align: -0.18em;
+  margin-right: -3px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.auth-logo:hover .auth-logo-icon-img {
+  transform: rotate(-8deg) scale(1.1);
 }
 
 .auth-logo-accent {
@@ -214,6 +208,24 @@
   color: #94a3b8;
   position: relative;
   z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.auth-footer-icon {
+  height: 0.95em;
+  width: auto;
+  object-fit: contain;
+  vertical-align: -0.1em;
+  margin-right: -1px;
+  margin-left: 4px;
+  opacity: 0.6;
+}
+
+.auth-footer-accent {
+  color: #06b6d4;
+  font-weight: 600;
 }
 
 /* ─── Responsive ─── */

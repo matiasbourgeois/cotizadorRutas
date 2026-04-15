@@ -363,7 +363,7 @@ const DocumentacionTecnica = () => {
           <div className="dt-hero">
             <img src="/favicon.png" alt="" className="dt-hero-logo" />
             <h1>Documentación Técnica de Cálculos</h1>
-            <p className="dt-hero-sub">Cotizador Logístico — Motor Interno, Fórmulas y Variables</p>
+            <p className="dt-hero-sub">Quotargo — Motor Interno, Fórmulas y Variables</p>
             <span className="dt-hero-badge">CCT 40/89 · DOCUMENTO CONFIDENCIAL · {year}</span>
           </div>
 
@@ -1037,7 +1037,7 @@ const DocumentacionTecnica = () => {
           {/* ═══ FOOTER ═══ */}
           <div className="dt-footer">
             <img src="/favicon.png" alt="" />
-            <p>Cotizador Logístico — Documentación Técnica de Cálculos</p>
+            <p>Quotargo — Documentación Técnica de Cálculos</p>
             <p>© {year} — Documento interno confidencial</p>
           </div>
 

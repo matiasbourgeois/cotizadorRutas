@@ -25,8 +25,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 const whitelist = [
-  'https://cotizadorlogistico.site',
-  'https://www.cotizadorlogistico.site',
+  'https://quotargo.ar',
+  'https://www.quotargo.ar',
   'http://localhost:5174',
   'http://localhost:5175',
   'http://localhost:6174',

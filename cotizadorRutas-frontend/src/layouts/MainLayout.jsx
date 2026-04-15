@@ -92,17 +92,9 @@ const MainLayout = () => {
           <Group gap="sm">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
             <Box className="logo-box" onClick={() => handleNav('/cotizador')} style={{ cursor: 'pointer' }}>
-              <Group gap={6} align="center">
-                <div className="logo-icon">
-                  <img src="/favicon.png" alt="" className="logo-favicon" />
-                </div>
-                <div>
-                  <Text className="logo-text" lh={1}>
-                    <span className="logo-text-primary">Cotizador</span>
-                    <span className="logo-text-accent"> Logístico</span>
-                  </Text>
-                </div>
-              </Group>
+              <div className="logo-text">
+                <img src="/favicon.png" alt="" className="logo-favicon" /><span className="logo-text-primary">uot</span><span className="logo-text-accent">argo</span>
+              </div>
             </Box>
           </Group>
 
@@ -250,7 +242,7 @@ const MainLayout = () => {
         {/* Footer */}
         <AppShell.Section>
           <Divider mt={4} mb={6} />
-          <Text fz={10} c="dimmed" ta="center" lh={1.2}>Cotizador Logístico {new Date().getFullYear()}</Text>
+          <Text fz={10} c="dimmed" ta="center" lh={1.2}>Quotargo {new Date().getFullYear()}</Text>
           <Text
             component="a"
             href="/guia-de-uso.html"

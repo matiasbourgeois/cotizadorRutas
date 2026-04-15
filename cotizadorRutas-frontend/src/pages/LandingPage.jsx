@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import {
   MapPin, Truck, Calculator, FileText, Users, BarChart3,
   Target, Zap, Shield, ArrowRight, Route, Settings,
-  CheckCircle, Menu, X,
+  CheckCircle, Menu, X, Package,
 } from 'lucide-react';
 import './LandingPage.css';
+import ParticleCanvas from '../components/ParticleCanvas';
 
 const features = [
   {
@@ -68,6 +69,7 @@ const stats = [
 ];
 
 const benefits = [
+  'Especializado en carga FTL (Full Truck Load) — camión dedicado',
   'Costos calculados con datos reales, no estimaciones',
   'Feriados nacionales incorporados automáticamente',
   'Propuestas comerciales listas para tu cliente',
@@ -92,9 +94,8 @@ const LandingPage = () => {
       <nav className={`lp-nav ${scrolled ? 'lp-nav--scrolled' : ''}`}>
         <div className="lp-nav-inner">
           <Link to="/landing" className="lp-nav-brand">
-            <img src="/favicon.png" alt="" className="lp-nav-favicon" />
             <span className="lp-nav-brand-text">
-              Cotizador <span className="lp-nav-brand-accent">Logístico</span>
+              <img src="/favicon.png" alt="" className="lp-nav-favicon" /><span className="lp-nav-brand-q">uot</span><span className="lp-nav-brand-accent">argo</span>
             </span>
           </Link>
 
@@ -119,22 +120,18 @@ const LandingPage = () => {
         <div className="lp-hero-glow lp-hero-glow--1" />
         <div className="lp-hero-glow lp-hero-glow--2" />
         <div className="lp-hero-glow lp-hero-glow--3" />
+        <ParticleCanvas particleCount={85} maxDist={140} />
         <div className="lp-hero-grid" />
 
         <div className="lp-hero-content">
+          <h1 className="lp-hero-title">
+            <img src="/favicon.png" alt="Quotargo" className="lp-hero-title-icon" /><span className="lp-hero-title-q">uot</span><span className="lp-hero-title-accent">argo</span>
+          </h1>
+
           <div className="lp-hero-badge">
             <span className="lp-hero-badge-dot" />
-            Plataforma de cotización logística
+            Plataforma de cotización logística - Carga Dedicada
           </div>
-
-          <div className="lp-hero-logo">
-            <img src="/favicon.png" alt="Cotizador Logístico" />
-          </div>
-
-          <h1 className="lp-hero-title">
-            Cotizador{' '}
-            <span className="lp-hero-title-accent">Logístico</span>
-          </h1>
 
           <p className="lp-hero-sub">
             Calculá el costo real de tus operaciones logísticas con precisión profesional.
@@ -180,10 +177,28 @@ const LandingPage = () => {
             </div>
           ))}
         </div>
+
+        {/* FTL Explainer - full width under feature cards */}
+        <div className="lp-ftl-inline">
+          <div className="lp-ftl-icon">
+            <Package size={32} />
+          </div>
+          <div className="lp-ftl-content">
+            <h3 className="lp-ftl-title">
+              ¿Qué es <span className="lp-ftl-highlight">FTL</span>?
+            </h3>
+            <p className="lp-ftl-text">
+              <strong>Full Truck Load</strong> — modalidad de transporte donde el camión viaja exclusivamente con tu carga.
+              A diferencia del LTL (carga compartida), en FTL tu mercadería ocupa el vehículo completo,
+              ofreciendo mayor seguridad, rapidez y trazabilidad.
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* ══════ CÓMO FUNCIONA ══════ */}
       <section className="lp-how" id="how">
+        <ParticleCanvas particleCount={50} maxDist={120} />
         <div className="lp-section-header">
           <span className="lp-label lp-label--light">Cómo funciona</span>
           <h2 className="lp-heading lp-heading--light">Tres pasos para tu cotización</h2>
@@ -256,8 +271,8 @@ const LandingPage = () => {
       <footer className="lp-footer">
         <div className="lp-footer-inner">
           <div className="lp-footer-brand">
-            <img src="/favicon.png" alt="" className="lp-footer-favicon" />
-            <span>Cotizador Logístico © {new Date().getFullYear()}</span>
+            <span className="lp-footer-brand-text"><img src="/favicon.png" alt="" className="lp-footer-favicon" /><span className="lp-footer-q">uot</span><span className="lp-footer-accent">argo</span></span>
+            <span className="lp-footer-copy">© {new Date().getFullYear()}</span>
           </div>
           <div className="lp-footer-links">
             <Link to="/login">Iniciar Sesión</Link>

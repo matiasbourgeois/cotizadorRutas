@@ -56,9 +56,8 @@ const RecuperarPasswordPage = () => {
   return (
     <div className="auth-page">
       <Link to="/landing" className="auth-logo" style={{ textDecoration: 'none' }}>
-        <div className="auth-logo-icon"><img src="/favicon.png" alt="" /></div>
         <div className="auth-logo-text">
-          Cotizador <span className="auth-logo-accent">Logístico</span>
+          <img src="/favicon.png" alt="" className="auth-logo-icon-img" /><span>uot</span><span className="auth-logo-accent">argo</span>
         </div>
       </Link>
       <div className="auth-subtitle">Creá tu nueva contraseña</div>
@@ -152,7 +151,7 @@ const RecuperarPasswordPage = () => {
         </Paper>
       </div>
 
-      <div className="auth-footer">© {new Date().getFullYear()} Cotizador Logístico</div>
+      <div className="auth-footer">© {new Date().getFullYear()} <img src="/favicon.png" alt="" className="auth-footer-icon" />uot<span className="auth-footer-accent">argo</span></div>
     </div>
   );
 };

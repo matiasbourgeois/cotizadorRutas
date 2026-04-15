@@ -13,36 +13,32 @@
 /* ─── Logo ─── */
 .logo-box {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   user-select: none;
   transition: all 0.2s ease;
 }
 .logo-box:hover {
   opacity: 0.9;
 }
-.logo-box:hover .logo-icon {
+.logo-box:hover .logo-favicon {
   transform: rotate(-8deg) scale(1.1);
 }
 
-.logo-icon {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+.logo-favicon {
+  height: 1.1em;
+  width: auto;
+  object-fit: contain;
+  vertical-align: -0.18em;
+  margin-right: -2px;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.logo-favicon {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-}
-
 .logo-text {
-  font-size: 1rem;
+  font-size: 1.15rem;
   letter-spacing: -0.02em;
+  display: inline;
+  line-height: 1.4;
+  overflow: visible;
 }
 
 .logo-text-primary {
@@ -236,14 +232,9 @@
   .nav-section .mantine-NavLink-children .mantine-NavLink-label {
     font-size: 0.75rem;
   }
-  .logo-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-  }
-  .logo-icon svg {
-    width: 12px;
-    height: 12px;
+  .logo-favicon {
+    width: 18px;
+    height: 18px;
   }
   .logo-text {
     font-size: 0.88rem;
