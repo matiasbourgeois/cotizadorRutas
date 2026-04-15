@@ -1,0 +1,3813 @@
+
+
+===== PAGINA 1 =====
+ 
+Universidad Siglo 21 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Trabajo Final De Grado. Prototipado Tecnológico 
+Carrera: Ingeniería De Software  
+ 
+Sistema de gestión para la cotización de transporte terrestre de carga 
+dedicada 
+ 
+Autor: Bourgeois Matias Federico 
+Legajo: SOF01458 
+ 
+Tutor: Cassi, Jorge Humberto 
+ 
+Córdoba, noviembre 2025 
+ 
+
+
+===== PAGINA 2 =====
+ 
+1 
+Índice 
+Resumen​
+5 
+Abstract​
+6 
+Título​
+7 
+Introducción​
+7 
+Antecedentes​
+7 
+Descripción del área problemática​
+10 
+Justificación​
+11 
+Objetivo General del Proyecto​
+13 
+Objetivos Específicos del Proyecto​
+13 
+Marco Teórico Referencial​
+13 
+Dominio del problema​
+13 
+TIC (Tecnología de la Información y la Comunicación)​
+18 
+Competencia​
+21 
+Diseño Metodológico​
+22 
+Relevamiento​
+26 
+Relevamiento Estructural​
+26 
+Relevamiento Funcional​
+27 
+Procesos de Negocio​
+30 
+Diagnóstico y Propuesta​
+31 
+Objetivo, Límites y Alcances del Prototipo​
+33 
+Objetivo del Prototipo​
+33 
+Límites​
+33 
+Alcances​
+34 
+Descripción del Sistema​
+34 
+Product Backlog​
+35 
+Historias de Usuario​
+37 
+Sprint Backlog​
+60 
+Estructura de Datos​
+63 
+Prototipos de interfaces de pantallas​
+66 
+Diagrama de Arquitectura​
+70 
+Seguridad​
+71 
+Acceso a la Aplicación​
+71 
+Política de Respaldo de Información​
+73 
+Análisis de Costos​
+75 
+Análisis de Riesgos​
+78 
+Conclusiones​
+85 
+ 
+
+
+===== PAGINA 3 =====
+ 
+2 
+Demo​
+86 
+Referencias​
+87 
+ 
+Índice de imágenes 
+ 
+Ilustración 1. Diagrama de Gantt. 
+26
+Ilustración 2. Organigrama Sol del Amanecer SRL. 
+28
+Ilustración 3. Diagrama BPMN del Proceso de Cotización Manual. 
+30
+Ilustración 4. Diagrama de clases - Modelo de Dominio.  
+64
+Ilustración 5. Arquitectura de Base de Datos NoSQL (MongoDB). 
+65
+Ilustración 6. Prototipo de Interfaz – Definir Ruta de Viaje y Tipo de Carga.  
+66
+Ilustración 7. Prototipo de Interfaz – Establecer Frecuencia del Servicio.  
+67
+Ilustración 8. Prototipo de Interfaz – Asignar Vehículo a Cotización. 
+68
+Ilustración 9. Prototipo de Interfaz – Asignar Recurso Humano a Cotización. 
+69
+Ilustración 10. Prototipo de Interfaz – Guardar Presupuesto con Ajustes Finales. 
+70
+Ilustración 11. Diagrama de Arquitectura del Sistema de Cotización Inteligente. 
+71
+Ilustración 12. Diagrama de Pareto de los riesgos del proyecto. 
+83
+ 
+Índice de tablas 
+ 
+Tabla 1. Fechas y Duraciones de la planificación del Proyecto. 
+25
+Tabla 2. Diagnóstico del Proceso de Negocio. 
+32
+Tabla 3. Product Backlog. 
+35
+Tabla 4. HU-001: Iniciar sesión con E-mail y contraseña. 
+37
+Tabla 5. HU-002: Registrarse con Email y Contraseña. 
+38
+Tabla 6. HU-003: Validar Cuenta de Usuario por Email. 
+39
+ 
+
+
+===== PAGINA 4 =====
+ 
+3 
+Tabla 7. HU-004: Registrarse e Iniciar Sesión con Google. 
+40
+Tabla 8. HU-005: Definir Ruta de Viaje y Tipo de Carga. 
+41
+Tabla 9. HU-006: Establecer Frecuencia del Servicio. 
+42
+Tabla 10. HU-007: Asignar Vehículo a Cotización. 
+43
+Tabla 11. HU-008: Asignar Recurso Humano a Cotización. 
+44
+Tabla 12. HU-009: Calcular Costos y visualizarlos en Tiempo Real. 
+45
+Tabla 13. HU-010: Guardar Presupuesto con Ajustes Finales. 
+46
+Tabla 14. HU-011: Generar Documentos Digitales de la Cotización. 
+47
+Tabla 15. HU-012: Reiniciar la Cotización Actual. 
+48
+Tabla 16. HU-013: Visualizar Ayuda Contextual en la Interfaz. 
+49
+Tabla 17. HU-014: Registrar un Nuevo Vehículo en la Flota. 
+50
+Tabla 18. HU-015: Consultar y Filtrar la Flota de Vehículos. 
+51
+Tabla 19. HU-016: Modificar Datos de Costos de un Vehículo. 
+52
+Tabla 20. HU-017: Eliminar un Vehículo de la Flota. 
+53
+Tabla 21. HU-018: Registrar un Nuevo Recurso Humano. 
+54
+Tabla 22. HU-019: Consultar y Filtrar Recursos Humanos. 
+55
+Tabla 23. HU-020: Modificar Datos de Costos de un Recurso Humano. 
+56
+Tabla 24. HU-021: Eliminar un Recurso Humano. 
+57
+Tabla 25. HU-022: Consultar y Gestionar Historial de Presupuestos. 
+58
+Tabla 26. HU-023: Visualizar Panel de Inteligencia de Negocio. 
+59
+Tabla 27. Sprint Backlog. 
+60
+Tabla 28. Costos de Desarrollo - Recursos Humano. 
+75
+Tabla 29. Costos de Infraestructura y Servicios. 
+76
+Tabla 30. Costos de Software. 
+76
+Tabla 31.  Resumen de Inversión del proyecto. 
+77
+Tabla 32. Riesgos identificados del proyecto. 
+79
+Tabla 33. Probabilidad e impacto de los riesgos del proyecto. 
+80
+ 
+
+
+===== PAGINA 5 =====
+ 
+4 
+Tabla 34. Matriz probabilidad–impacto del riesgo. 
+81
+Tabla 35. Análisis cuantitativo y grado de exposición de los riesgos del proyecto. 
+82
+Tabla 36. Plan de contingencia para riesgos prioritarios. 
+84
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 6 =====
+ 
+5 
+Resumen 
+El sector del transporte de carga en Argentina, caracterizado por su dependencia de 
+métodos manuales, enfrenta serios desafíos para calcular costos de manera precisa en un 
+entorno económico volátil. Esta problemática, presente en la empresa Sol del Amanecer 
+S.R.L., generaba inconsistencias, demoras y errores en la elaboración de cotizaciones, 
+resultando en la pérdida de oportunidades comerciales y la erosión de la rentabilidad. 
+Para resolver este desafío, se diseñó y desarrolló un sistema de cotización inteligente, 
+una aplicación web que automatiza integralmente el proceso de presupuestación de 
+fletes de carga dedicada. El sistema integró un motor de cálculo dinámico que procesa 
+en tiempo real todas las variables de costo de la flota y el personal, y automatizó la 
+generación de propuestas comerciales profesionales en formato digital. Como resultado, 
+se logró transformar un proceso manual y propenso a errores en un flujo de trabajo ágil, 
+preciso y estandarizado, optimizando la rentabilidad y fortaleciendo la competitividad 
+de la empresa al permitir una toma de decisiones basada en datos concretos. 
+Palabras clave: cotización logística, motor de cálculo, aplicación web. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 7 =====
+ 
+6 
+Abstract 
+The cargo transportation sector in Argentina, characterized by its reliance on manual 
+methods, faces serious challenges in accurately calculating costs within a volatile 
+economic environment. This issue, present in the company Sol del Amanecer S.R.L., 
+led to inconsistencies, delays, and errors in the preparation of quotes, resulting in the 
+loss of business opportunities and an erosion of profitability. To address this challenge, 
+an intelligent quotation system was designed and developed, a web application that fully 
+automates the budgeting process for dedicated cargo freight. The system integrated a 
+dynamic calculation engine that processes all cost variables of the fleet and personnel in 
+real-time, and automated the generation of professional commercial proposals in digital 
+format. As a result, a manual and error-prone process was transformed into an agile, 
+precise, and standardized workflow, optimizing profitability and strengthening the 
+company's competitiveness by enabling decision-making based on concrete data. 
+Keywords: logistics quoting, calculation engine, web application. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 8 =====
+ 
+7 
+Título 
+Sistema de gestión para la cotización de transporte terrestre de carga dedicada 
+Introducción 
+Este proyecto abordó el diseño y desarrollo del Sistema de Cotización 
+Inteligente, una solución de software para la gestión de cotizaciones de transporte 
+terrestre de carga dedicada en la empresa Sol del Amanecer S.R.L., ubicada en la 
+provincia de Córdoba y especializada en el transporte de medicamentos y cargas 
+generales. La iniciativa surgió de la necesidad de superar las limitaciones de los 
+métodos manuales y planillas de cálculo que se utilizaban para elaborar presupuestos, 
+los cuales generaban demoras, inconsistencias y una falta de estandarización en las 
+propuestas comerciales. El propósito del proyecto fue ofrecer una solución que integrara 
+de manera sistemática todos los componentes de costo de los viajes, tanto esporádicos 
+como recurrentes, y generara cotizaciones precisas y homogéneas, contribuyendo a 
+optimizar los tiempos de respuesta, reducir errores y fortalecer la competitividad de la 
+organización en un entorno logístico cada vez más exigente. 
+Antecedentes 
+El sector del transporte terrestre de carga en Argentina ha estado históricamente 
+caracterizado por una estructura atomizada, compuesta en su mayoría por Pequeñas y 
+Medianas Empresas (PyME) que operan con un alto grado de informalidad y una 
+marcada dependencia de métodos de gestión tradicionales. Esta realidad ha perpetuado 
+un significativo rezago tecnológico que se manifiesta de manera crítica en los procesos 
+de cotización y cálculo de costos. Un estudio sobre la madurez digital del sector en 
+Argentina revela que la gran mayoría de las empresas transportistas combinan procesos 
+manuales con un nivel de digitalización básico o casi nulo, mientras que solo un 5% ha 
+logrado una diferenciación significativa mediante el uso de software de gestión 
+integrado (Forbes Argentina, 2023). Esta brecha se materializa en lo que, según 
+Mendonça (citado en Forbes Argentina, 2023), experto del sector, ha denominado un 
+ 
+
+
+===== PAGINA 9 =====
+ 
+8 
+alto grado de papelización, donde la operatoria diaria se sostiene sobre documentos 
+físicos como remitos, facturas y órdenes de carga, ralentizando los procesos e 
+introduciendo múltiples puntos de falla. 
+Para una porción considerable de estas empresas, la transición a lo digital se ha 
+limitado a la adopción de herramientas de ofimática de propósito general, como las 
+planillas de cálculo. De hecho, mientras las grandes corporaciones invierten en sistemas 
+avanzados, se ha observado que muchas pequeñas y medianas aún se apoyan en 
+planillas de Excel para gestionar sus operaciones (Pactum, 2025, párr. 4). Este panorama 
+no es exclusivo de Argentina. Un informe del Banco Interamericano de Desarrollo 
+(BID) confirma que el subsector de transporte terrestre de mercancías es el más 
+rezagado en la transformación digital en América Latina y el Caribe. El estudio describe 
+una industria muy fragmentada, donde la gran mayoría de los transportistas son 
+empresas muy pequeñas u transportistas autónomos. Son precisamente estas PyMEs las 
+que representan el mayor cuello de botella para la modernización y enfrentan las 
+barreras más significativas, como la falta de recursos y la resistencia gerencial, para 
+integrarse a esta transformación digital (Calatayud, Katz, y Riobó, 2022). 
+La persistencia de estos métodos manuales se vuelve insostenible frente a la 
+complejidad y volatilidad del entorno de costos en Argentina. La fijación de una tarifa 
+de flete es un ejercicio que debe balancear la cobertura de múltiples variables, como 
+combustible, neumáticos, salarios, seguros y peajes, entre otros. La Federación 
+Argentina de Entidades Empresarias del Autotransporte de Cargas (FADEEAC), que 
+representa a cerca del 80% de las PyMEs transportistas del país, monitorea 
+mensualmente estas variables a través de su Índice de Costos del Transporte (ICT), una 
+herramienta de referencia para el sector cuya elaboración es auditada por la Universidad 
+de Buenos Aires (FADEEAC, 2025). Los informes periódicos de esta entidad 
+evidencian una inestabilidad crónica, con variaciones mensuales que han alcanzado el 
+4,03% y acumulados anuales que superan el 32% (Énfasis Logística, 2025). En este 
+contexto, una planilla de cálculo estática se revela como una herramienta 
+inherentemente inadecuada, ya que no puede procesar en tiempo real la asincronía en la 
+fluctuación de los costos, llevando a errores sistemáticos que erosionan los márgenes de 
+ 
+
+
+===== PAGINA 10 =====
+ 
+9 
+ganancia. La propia FADEEAC (2025) ha advertido que la combinación entre subas 
+puntuales y factores macroeconómicos obliga a una revisión constante de las 
+condiciones operativas (párr. 2). 
+Esta revisión constante es una tarea prácticamente imposible de ejecutar con 
+eficiencia y precisión sin el apoyo de herramientas tecnológicas dinámicas. Al respecto, 
+Mendonça (citado en Forbes Argentina, 2023) expresa que: 
+La digitalización y el uso de sistemas con módulos de costeo de flota 
+juegan un papel fundamental para la automatización del cálculo y la 
+actualización de los datos. Dada la baja penetración de soluciones 
+digitales en el transporte, 46% de los transportistas se basan en los 
+índices de referencia (FADEEAC / CATAC / etc.) que juegan un rol 
+importante porque promedian los rubros que impactan en el transporte de 
+cargas. Sin embargo, no dejan de ser un promedio y podría variar los 
+datos exactos en cada empresa transportista. 
+Las consecuencias de esta brecha son directas. Un sondeo reveló que el 41% de 
+los transportistas sigue sus pagos de manera analógica o sin sistemas, concluyendo que 
+este tipo de transportistas tienen una probabilidad de errores en la facturación o de no 
+cobrar/pagar más alta que aquellos que operan con algún grado de digitalización (Forbes 
+Argentina, 2023). Además, se genera una ceguera operativa que impide la toma de 
+decisiones estratégicas; un estudio regional encontró que un 24% de las PyMEs ni 
+siquiera mide su nivel de servicio, lo que las obliga a competir exclusivamente por 
+precio y las atrapa en una guerra de tarifas que deteriora su rentabilidad (Aragonez, 
+citada en Pactum, 2025). Esta ineficiencia a nivel microescala contribuye a que la 
+región presente costos logísticos elevados en comparación con otras economías, 
+afectando la competitividad. 
+ 
+
+
+===== PAGINA 11 =====
+ 
+10 
+La evolución de esta problemática ha puesto de manifiesto que la adopción de 
+software de gestión especializado, como los Sistemas de Gestión de Transporte (TMS), 
+ya no es una mejora opcional, sino una condición imperativa para la supervivencia y 
+competitividad. Sin embargo, la barrera más profunda es de naturaleza cultural. Baruj 
+(2023) sostiene que es de vital importancia trabajar en la brecha que existe entre la 
+cultura y la tecnología, ya que la apertura a nuevas herramientas y la convicción sobre 
+su impacto positivo es una variable crítica para el éxito (p. 188). Esta resistencia al 
+cambio, a menudo anclada en la idea de que los métodos tradicionales han funcionado 
+en el pasado, choca con la necesidad de una gestión basada en datos que permita 
+navegar la complejidad del mercado actual. Superar esta inercia cultural y replantear la 
+tecnología no como un costo, sino como una inversión estratégica, se ha convertido en 
+el antecedente fundamental que justifica la necesidad de desarrollar e implementar 
+soluciones digitales accesibles y adaptadas a la realidad de las PyMEs del transporte de 
+carga. 
+Descripción del área problemática 
+La problemática central que este proyecto abordó se originaba en el proceso de 
+cotización de Sol del Amanecer S.R.L., el cual se basaba en métodos manuales que ya 
+no respondían a las exigencias del mercado. Esta operatoria, dependiente de planillas de 
+cálculo y la experiencia individual, entraba en conflicto directo con la visión de la 
+empresa de ofrecer una logística inteligente y rentable, convirtiéndose en un cuello de 
+botella que limitaba su eficiencia y potencial de crecimiento en los frentes 
+administrativo, comercial y estratégico de la compañía. 
+La raíz del problema era la complejidad para calcular los costos del transporte de 
+carga en Argentina. Establecer una tarifa competitiva no era una tarea simple; requería 
+el análisis de numerosas variables que cambiaban constantemente. Según los estudios 
+de la Federación Argentina de Entidades Empresarias del Autotransporte de Cargas 
+(FADEEAC), estos costos incluyen no solo el combustible, los neumáticos y el 
+personal, sino también rubros como el costo financiero, seguros, peajes, reparaciones, 
+patentes y el material rodante (FADEEAC, 2025). Por su naturaleza estática, una 
+ 
+
+
+===== PAGINA 12 =====
+ 
+11 
+planilla de cálculo no podía manejar eficazmente la variación constante de estos 
+factores, convirtiéndose en una herramienta poco fiable. 
+El impacto de esta metodología manual fue significativo y se manifestaba en una 
+serie de consecuencias negativas para el negocio. La lentitud propia del proceso 
+generaba demoras en la entrega de presupuestos, una desventaja crítica en un sector que 
+valora la rapidez de respuesta. Esta tardanza no solo afectaba la imagen operativa de la 
+empresa, sino que provocaba la pérdida de oportunidades comerciales frente a 
+competidores más ágiles. 
+Desde la perspectiva financiera, el riesgo era considerable. Por un lado, un error 
+de cálculo podía resultar en tarifas que no cubrían los costos reales, lo que generaba 
+pérdidas directas en la operación. Por otro lado, cotizar precios por encima del mercado 
+reducía la competitividad y provocaba la pérdida de clientes. Adicionalmente, la falta de 
+un método estandarizado creaba un problema de inconsistencia: un mismo servicio 
+podía ser presupuestado con valores diferentes, lo que perjudicaba la imagen profesional 
+de la empresa y deterioraba la confianza del cliente. 
+Las áreas afectadas por esta problemática eran las responsables de la salud 
+financiera y la dirección estratégica de la empresa. Específicamente, la Jefatura de 
+Administración y la Jefatura de Logística invertían un tiempo desproporcionado en una 
+tarea que podía ser automatizada, restando recursos a funciones de mayor valor 
+agregado. Esta situación impactaba de forma directa en la conducción de la empresa, ya 
+que la ausencia de datos centralizados y fiables sobre la rentabilidad de cada ruta les 
+impedía tomar decisiones informadas y estratégicas, comprometiendo así la visión de 
+crecimiento de la organización. 
+Justificación 
+El presente proyecto se justificó por la necesidad imperativa de modernizar un 
+proceso comercial crítico para Sol del Amanecer S.R.L., reemplazando una metodología 
+basada en métodos manuales y planillas de cálculo por una solución tecnológica que 
+impulsó la eficiencia, la rentabilidad y la competitividad. Este proyecto respondió 
+ 
+
+
+===== PAGINA 13 =====
+ 
+12 
+directamente a la necesidad de eliminar las demoras, los errores de cálculo y la 
+inconsistencia, permitiendo a la organización ofrecer respuestas rápidas y precisas en un 
+mercado logístico cada vez más exigente. 
+Desde el punto de vista tecnológico, este proyecto representó un salto cualitativo 
+para la empresa, superando las herramientas ofimáticas genéricas para adoptar una 
+solución de software especializada y a medida. La principal innovación a nivel de 
+Tecnologías de la Información y Comunicación (TIC) radicó en la implementación de 
+una arquitectura web moderna (React, Node.js, MongoDB) que integró dinámicamente 
+múltiples fuentes de datos. El uso de la API de Google Maps para el cálculo exacto de 
+distancias y tiempos, junto a la generación automatizada de propuestas comerciales con 
+Puppeteer, fueron ejemplos concretos de cómo este proyecto utilizó tecnologías actuales 
+y eficientes para resolver problemas de negocio específicos. 
+El valor para la organización fue tangible y multifacético. Comercialmente, el 
+sistema fortaleció la capacidad de la empresa para competir, reduciendo drásticamente 
+el tiempo de respuesta a solicitudes de cotización y proyectando una imagen de mayor 
+profesionalismo y fiabilidad. Financieramente, protegió los márgenes de ganancia al 
+basar cada presupuesto en un desglose de costos detallado y actualizado, minimizando 
+el riesgo de pérdidas por errores de cálculo. Operacionalmente, optimizó el tiempo de 
+roles clave como la Jefatura de Administración y Logística, permitiéndoles enfocarse en 
+tareas estratégicas. Este conjunto de beneficios contribuyó directamente a la visión de la 
+empresa de consolidarse como un socio estratégico clave y un referente de logística 
+inteligente. 
+Finalmente, el proyecto introdujo una innovación fundamental en los procesos 
+de negocio. Transformó la cotización de un procedimiento artesanal, basado en la 
+intuición y la memoria individual, a un proceso estandarizado, centralizado y basado en 
+datos. Al crear una base de datos única para los costos de la flota de vehículos y del 
+personal, el sistema no solo agilizó la tarea de cotizar, sino que generó información 
+valiosa para el análisis de rentabilidad por ruta, cliente o vehículo, facilitando una toma 
+de decisiones estratégica que antes era imposible de alcanzar. 
+ 
+
+
+===== PAGINA 14 =====
+ 
+13 
+Objetivo General del Proyecto 
+Desarrollar un Sistema de Cotización Inteligente para la empresa Sol del 
+Amanecer S.R.L., mediante la implementación de un motor de cálculo de costos y un 
+generador de propuestas comerciales, para automatizar el proceso de cotización, 
+optimizando la rentabilidad y la toma de decisiones estratégicas en sus servicios de 
+transporte de carga dedicada. 
+Objetivos Específicos del Proyecto 
+●​ Desarrollar el motor de cálculo del sistema, capaz de procesar y centralizar la 
+totalidad de las variables que componen la estructura de costos del servicio, para 
+realizar el análisis y desglose detallado de los costos operativos. 
+●​ Automatizar la generación de las propuestas comerciales para el cliente y de los 
+informes de desglose de costos para uso interno, transformando los datos del 
+motor de cálculo en formatos estandarizados y profesionales. 
+●​ Implementar un panel de inteligencia de negocio que, a través de la 
+visualización de datos históricos, permita optimizar la rentabilidad y soportar la 
+toma de decisiones estratégicas. 
+Marco Teórico Referencial 
+Dominio del problema 
+Para comprender la lógica y la necesidad del sistema desarrollado, es 
+fundamental definir los conceptos centrales que conforman el negocio de Sol del 
+Amanecer S.R.L. y el sector en el que opera. El dominio del problema abarca el tipo de 
+servicio ofrecido, el proceso comercial que lo sustenta y la compleja estructura de 
+costos que lo condiciona. 
+ 
+ 
+ 
+
+
+===== PAGINA 15 =====
+ 
+14 
+El Servicio: Transporte de Carga Dedicada o FTL (Full Truckload) 
+El transporte de carga dedicada, conocido en la industria por su sigla en inglés 
+FTL (Full Truckload), constituye la modalidad de servicio en la que se enfoca este 
+proyecto. Se define como un modelo de transporte en el que la totalidad del camión se 
+asigna a un solo remitente (Chopra y Meindl, 2013). A diferencia de la carga 
+consolidada o LTL (Less Than Truckload), donde las mercancías de múltiples clientes 
+comparten espacio y costos, el servicio FTL implica la asignación exclusiva de un 
+vehículo para la operación logística de un único cliente contratante. Los clientes de Sol 
+del Amanecer S.R.L. prefieren esta modalidad por los beneficios inherentes de mayor 
+seguridad y velocidad, ya que reduce la manipulación de la mercancía y permite rutas 
+más directas sin paradas intermedias para otras cargas (Chopra y Meindl, 2013). 
+Es crucial aclarar que, si bien el vehículo está dedicado a un solo cliente, la 
+operación puede ser tanto punto a punto como multi-punto, involucrando la distribución 
+de su mercadería a varios de sus propios clientes o puntos de entrega finales en una 
+misma ruta. La característica fundamental del servicio es la exclusividad del vehículo 
+para la totalidad del recorrido, sin consolidar con cargas ajenas. En el caso de Sol del 
+Amanecer S.R.L., este servicio se materializa en sus soluciones de logística empresarial 
+B2B y logística farmacéutica. 
+La implicancia directa de este modelo es que cada operación es un proyecto 
+único con un valor agregado diferencial. Para toda su oferta de servicios FTL, la 
+empresa ofrece seguimiento satelital continuo, pero es en su vertical de logística 
+farmacéutica donde suma un nivel de especialización superior, garantizando el 
+cumplimiento de normativas específicas como las Buenas Prácticas de Distribución de 
+Medicamentos exigidas por la Disposición 2069/2018 de la Administración Nacional de 
+Medicamentos, Alimentos y Tecnología Médica (ANMAT, 2018). Por lo tanto, no es 
+posible aplicar una tarifa estándar, ya que cada variable —la ruta, la frecuencia, el tipo 
+de carga y el vehículo asignado— es específica para esa operación. El proceso para 
+determinar su precio debe ser un análisis a medida, preciso y detallado, lo que nos lleva 
+al siguiente concepto clave: la cotización logística. 
+ 
+
+
+===== PAGINA 16 =====
+ 
+15 
+ El Proceso Crítico: La Cotización Logística 
+La cotización logística es el proceso comercial mediante el cual una empresa de 
+transporte determina y presenta el precio de un servicio a un cliente potencial. Lejos de 
+ser un simple cálculo, es un análisis fundamental que debe equilibrar dos objetivos a 
+menudo contrapuestos: ofrecer una tarifa competitiva para ganar el contrato y, al mismo 
+tiempo, asegurar que todos los costos operativos estén cubiertos para garantizar la 
+rentabilidad del viaje. En el contexto de los servicios de carga dedicada (FTL), donde 
+cada operación es única, este proceso se vuelve aún más crítico y complejo. 
+Previo a la implementación de este proyecto, el proceso de cotización en la 
+empresa se sustentaba en métodos manuales, el uso de planillas de cálculo y, en gran 
+medida, en la experiencia y memoria de individuos para recordar cotizaciones pasadas. 
+Este enfoque presentaba severas ineficiencias, como la falta de estandarización, una alta 
+propensión a errores y demoras significativas en la respuesta al cliente. Un proceso de 
+cotización moderno, en cambio, debe ser un flujo de trabajo sistemático y centralizado 
+que transforme datos en decisiones comerciales. 
+Un enfoque robusto para la cotización logística, como el que este proyecto 
+modeló, debe considerar secuencialmente todas las variables de la operación: la 
+definición de la ruta y sus puntos de entrega, la frecuencia del servicio, el vehículo y el 
+recurso humano asignado, y los costos adicionales como peajes o gastos 
+administrativos. El resultado de este proceso no es un único número, sino dos artefactos 
+distintos pero complementarios: 
+1.​ La Propuesta Comercial: Un documento formal y estandarizado destinado al 
+cliente, que resume los aspectos clave del servicio y su precio final. 
+2.​ El Desglose de Costos: Un informe detallado para uso interno de la empresa, 
+que desmenuza cada componente del costo (vehículo, personal, fijos, variables) 
+y permite un análisis exhaustivo de la rentabilidad de la operación. 
+ 
+
+
+===== PAGINA 17 =====
+ 
+16 
+Dominar este proceso es, por lo tanto, una capacidad estratégica clave para 
+cualquier empresa de transporte, ya que impacta directamente en su agilidad comercial, 
+su rentabilidad y su imagen profesional. 
+La Estructura de Costos Operativos 
+La cotización de un servicio de transporte FTL es un ejercicio de modelización 
+financiera donde la precisión es fundamental. Un sistema de cotización moderno debe 
+ser capaz de desglosar, procesar y agregar una matriz compleja de variables. El sistema 
+desarrollado en este proyecto estructura este desafío dividiendo los costos operativos en 
+tres componentes principales: los costos asociados al vehículo, los costos derivados del 
+recurso humano y los costos finales de agregación del viaje. 
+1. Modelo de Costos de Vehículo 
+El sistema trata a cada vehículo no como una simple herramienta, sino como una 
+unidad de negocio individual con una estructura de costos propia y detallada. Estos 
+costos se agrupan en categorías lógicas: 
+●​ Costos Fijos Mensuales: Aquellos gastos que la empresa debe afrontar 
+independientemente del uso del vehículo, como el costo mensual del seguro, las 
+patentes municipales y provinciales, y el mantenimiento preventivo programado. 
+●​ Costos de Desgaste (Variables por KM): Gastos directamente relacionados con 
+el uso, calculados a partir de parámetros como el precio del vehículo nuevo, su 
+vida útil estimada en kilómetros, su valor residual porcentual, y el costo y vida 
+útil de las cubiertas y los cambios de aceite. 
+●​ Costos de Combustible: Se determinan por el rendimiento del vehículo y el 
+precio del litro de combustible, con la capacidad de calcular costos alternativos 
+si el vehículo utiliza GNC. 
+La lógica de cálculo de estos costos es uno de los núcleos inteligentes del 
+sistema. Destaca el prorrateo de costos fijos por tiempo, donde el sistema asigna una 
+proporción del costo fijo diario basándose en la duración en minutos de la misión, un 
+ 
+
+
+===== PAGINA 18 =====
+ 
+17 
+método de costeo mucho más preciso que la simple división por viaje. Además, el 
+motor de cálculo aplica reglas de negocio específicas, como un recargo porcentual al 
+consumo de combustible destinado a mantener la cadena de frío para cargas 
+refrigeradas. 
+2. Modelo de Costos de Recurso Humano 
+El segundo componente principal es el costo del personal, cuya complejidad 
+radica en las diferentes modalidades de contratación y las normativas laborales. El 
+sistema modela esta estructura con gran detalle: 
+●​ Tipo de Contratación: El tipo de contratación del personal —ya sea como 
+empleado directo o contratado— es el eje central, ya que determina cómo se 
+calculan los costos indirectos. 
+●​ Componentes Salariales: El modelo incluye conceptos remunerativos (como el 
+sueldo básico, un adicional por actividad y un pago por kilómetro recorrido) y 
+no remunerativos (como viáticos y adicionales fijos). 
+●​ Costos Indirectos: Se aplican porcentajes específicos para las cargas sociales en 
+el caso de un empleado, o un porcentaje de gastos generales para personal 
+tercerizado. 
+El cálculo de este costo es igualmente sofisticado. El sistema aplica una lógica 
+dual basada en la duración del viaje: los viajes cortos se costean por hora (con un 
+mínimo facturable), mientras que los largos se costean por jornada completa más las 
+horas extra correspondientes. Asimismo, se asegura un pago por kilometraje mínimo 
+para compensar al personal en rutas cortas pero de larga duración. 
+3. Agregación Final del Presupuesto 
+Finalmente, el sistema actúa como un integrador, sumando los costos calculados 
+de vehículo y recurso humano y añadiendo las últimas capas de variables para construir 
+el precio final: 
+ 
+
+
+===== PAGINA 19 =====
+ 
+18 
+●​ Costos Directos de la Ruta: Se añaden los costos de peajes y otros gastos 
+definidos por el usuario para esa operación específica. 
+●​ Recargos Específicos: El sistema contempla la aplicación de costos adicionales 
+por kilómetro para cubrir los seguros y protocolos especiales requeridos en el 
+transporte de cargas peligrosas. 
+●​ Costos Administrativos y Ganancia: Sobre el subtotal de los costos operativos, 
+se aplica un porcentaje de costo administrativo y, finalmente, un margen de 
+ganancia para determinar el precio de venta al cliente. 
+Esta estructura de costos, modelada y procesada por el sistema, permite pasar de 
+una estimación basada en la experiencia a un cálculo preciso, repetible y auditable, 
+sentando las bases para una operación logística rentable y profesional. 
+TIC (Tecnología de la Información y la Comunicación) 
+La arquitectura del proyecto se construyó utilizando un conjunto de tecnologías 
+modernas y robustas, seleccionadas para garantizar un desarrollo eficiente, una interfaz 
+de usuario dinámica y una lógica de negocio escalable. El proyecto se dividió en dos 
+componentes principales: el Frontend, que correspondió a la interfaz visible para el 
+usuario, y el Backend, que gestionó toda la lógica del servidor y la comunicación con la 
+base de datos. 
+Frontend (Interfaz de Usuario) 
+El frontend se desarrolló como una aplicación web interactiva bajo el paradigma 
+de Aplicación de Página Única o SPA (Single Page Application). Una SPA es una 
+aplicación web que mejora la experiencia del usuario al reescribir dinámicamente la 
+página actual en lugar de cargar páginas completamente nuevas desde el servidor (MDN 
+Web Docs, 2025b). Para construir esta experiencia fluida y moderna, se utilizaron las 
+siguientes tecnologías clave: 
+React: Se utilizó como la biblioteca principal de JavaScript para construir toda la 
+interfaz. Su enfoque basado en componentes permitió crear elementos reutilizables y 
+ 
+
+
+===== PAGINA 20 =====
+ 
+19 
+dinámicos. React es una biblioteca para construir interfaces de usuario rápidas e 
+interactivas (Meta, 2025). 
+Mantine y Bootstrap: Se empleó Mantine como la biblioteca principal de 
+componentes de React para proporcionar elementos de interfaz listos para usar, mientras 
+que Bootstrap se utilizó para la maquetación y el sistema de grillas, asegurando una 
+apariencia visual consistente y adaptativa (Mantine Team, 2025; Bootstrap, 2025). 
+Google Maps Platform: A través de la librería @react-google-maps/api, esta 
+tecnología fue fundamental para la funcionalidad central del sistema. Es un conjunto de 
+APIs y SDKs que permiten incorporar imágenes de Google Maps y datos geoespaciales 
+en páginas web y aplicaciones móviles (Google, 2025a). 
+@hello-pangea/dnd: Se implementó esta librería para añadir la funcionalidad de 
+arrastrar y soltar (Drag and Drop), permitiendo al usuario reordenar de manera intuitiva 
+los puntos de entrega en la planificación de la ruta. Es una librería de arrastrar y soltar 
+accesible y de alto rendimiento para listas (Hello Pangea, 2025). 
+Framer Motion: Se utilizó para añadir animaciones fluidas a la interfaz, creando 
+transiciones y micro-interacciones que mejoran la percepción de calidad y la usabilidad 
+de la aplicación (Framer, 2025). 
+Lucide React: Se empleó como la librería de íconos principal del proyecto, 
+ofreciendo un conjunto de pictogramas limpios y consistentes que contribuyen a la 
+claridad visual de la interfaz (Lucide, 2025). 
+Vite, React Router y Axios: Completaron el stack Vite como herramienta de 
+compilación ultrarrápida, React Router para la navegación del lado del cliente y Axios 
+para la comunicación eficiente con la API del backend (Vite, 2025; Remix, 2025; Axios 
+Community, 2025). 
+ 
+
+
+===== PAGINA 21 =====
+ 
+20 
+Backend (Servidor y Lógica de Negocio) 
+El backend se construyó sobre el ecosistema de Node.js, creando una API 
+RESTful para manejar toda la lógica del negocio, la seguridad y la persistencia de los 
+datos: 
+Node.js y Express: Se utilizó Node.js como el entorno de ejecución del servidor 
+y Express como el framework minimalista para construir y organizar las rutas de la API 
+de manera eficiente (OpenJS Foundation, 2025; Express, 2025). 
+MongoDB y Mongoose: Se seleccionó MongoDB como la base de datos NoSQL 
+orientada a documentos y se utilizó Mongoose para modelar los datos de la aplicación a 
+través de esquemas estructurados (MongoDB, Inc., 2025; Mongoose, 2025). 
+JSON Web Tokens (JWT) y Bcrypt.js: Se implementaron para la seguridad; 
+JWT para la autenticación basada en tokens y Bcrypt.js para el hasheo seguro de las 
+contraseñas de los usuarios antes de almacenarlas (Okta, 2025). 
+Puppeteer: Esta librería fue la tecnología clave para la generación de los 
+documentos finales. Es una librería de Node que proporciona una API de alto nivel para 
+controlar navegadores como Chrome (Google, 2025b). 
+Let's Encrypt: Se utilizó para gestionar los certificados SSL/TLS, facilitando la 
+implementación del protocolo HTTPS. Es una autoridad de certificación gratuita, 
+automatizada y abierta (Let's Encrypt, 2025). Su función en el proyecto fue garantizar 
+una comunicación encriptada y segura entre el servidor y el cliente. 
+CORS: Se utilizó este middleware para habilitar el Intercambio de Recursos de 
+Origen Cruzado, un mecanismo de seguridad indispensable que permite que el frontend 
+se comunique con la API del backend de forma autorizada (MDN Web Docs, 2025a). 
+qrcode: Se implementó esta librería para generar códigos QR dinámicos dentro 
+de los documentos PDF. Un código QR es un estándar de código de barras 
+bidimensional que puede ser leído por dispositivos de imagen (Soldair, 2025).  
+ 
+
+
+===== PAGINA 22 =====
+ 
+21 
+Competencia 
+El panorama competitivo en el mercado argentino no se define por una 
+confrontación con herramientas de idéntica filosofía, sino por la existencia de 
+soluciones indirectas y métodos sustitutos que abordan el problema de la cotización 
+desde perspectivas fundamentalmente distintas.  
+Sistemas de Gestión de Transporte (TMS) 
+Los competidores indirectos más significativos son las plataformas TMS, que 
+ofrecen módulos de precios como parte de una solución operativa completa. Los actores 
+más relevantes en el mercado local son: 
+SITca: Esta plataforma integral incluye un cotizador de fletes que opera 
+principalmente a través de la personalización de tarifas predefinidas. El sistema aplica 
+reglas de precios según variables como peso o destino, en lugar de realizar un cálculo de 
+los costos operativos subyacentes para cada viaje en particular (GNW Software, 2025). 
+Setup TMS: Este proveedor argentino consolidado utiliza un módulo de 
+Tarifario Automático para valorizar los viajes. Su lógica se basa en aplicar tablas de 
+precios previamente negociadas por cliente, agilizando la facturación pero sin calcular 
+el costo real en el momento de la cotización (Setup Informática, 2025). 
+La debilidad estratégica de estos sistemas es su enfoque en la gestión de precios, 
+no en la gestión de costos. Resuelven la necesidad de dar una tarifa rápida, pero no la 
+necesidad de entender la rentabilidad real de cada operación antes de realizarla. 
+Métodos Sustitutos: La Planilla de Cálculo 
+El competidor más formidable y omnipresente en el segmento PyME es la 
+planilla de cálculo. Microsoft Excel, definida por sus creadores como una herramienta 
+que permite calcular, analizar y visualizar datos (Microsoft, 2025), es la solución por 
+defecto para la cotización de fletes. Su principal fortaleza radica en su flexibilidad y 
+bajo costo percibido. Sin embargo, su naturaleza de propósito general la convierte en 
+ 
+
+
+===== PAGINA 23 =====
+ 
+22 
+una herramienta inherentemente riesgosa para un proceso tan crítico: es altamente 
+propensa a errores humanos en la carga de datos y fórmulas, carece de estandarización y 
+dificulta la actualización de variables clave. 
+Conclusión del Análisis Competitivo 
+El análisis del panorama demostró que los competidores existentes dejaban una 
+clara brecha de mercado. Mientras los TMS se enfocaban en la eficiencia operativa a 
+través de tarifarios rígidos y los métodos manuales carecían de precisión y 
+profesionalismo, existía una necesidad insatisfecha de herramientas especializadas. Se 
+evidenció una oportunidad para una solución, que no solo automatizara el cálculo de 
+costos desde su origen, sino que también entregara como resultado una propuesta 
+comercial de alto valor profesional y, a su vez, proveyera un análisis de rentabilidad 
+interno que facilitara la toma de decisiones estratégicas. 
+Diseño Metodológico 
+Herramientas Metodológicas 
+Para el desarrollo del proyecto, se adoptó un marco de trabajo basado en los 
+principios de las metodologías ágiles, utilizando Scrum como referencia principal. Esta 
+elección se justificó por la alta complejidad de las reglas de negocio del sector y la 
+necesidad de un enfoque flexible que permitiera la validación continua y la adaptación 
+durante la construcción del prototipo. La Guía Oficial de Scrum define este marco de la 
+siguiente manera: 
+Scrum es un marco de trabajo liviano que ayuda a las personas, equipos 
+y organizaciones a generar valor a través de soluciones adaptativas para 
+problemas complejos. […] Scrum es simple. Pruebe las cosas como son 
+y determine si su filosofía, teoría y estructura ayudan a lograr sus 
+objetivos y crear valor. (Schwaber y Sutherland, 2020) 
+ 
+
+
+===== PAGINA 24 =====
+ 
+23 
+Herramientas de Desarrollo 
+Para la construcción del Sistema de Cotización Inteligente, se seleccionó un 
+conjunto de tecnologías que establecieron una relación sinérgica para crear una 
+aplicación web moderna, robusta y escalable. La elección de un stack basado en 
+JavaScript para todo el proyecto (backend, frontend y base de datos) se fundamentó en 
+la búsqueda de consistencia y eficiencia en el desarrollo. 
+Para el backend, se eligió Node.js junto con el framework Express. Esta 
+combinación se seleccionó por su arquitectura orientada a eventos y su naturaleza 
+asíncrona, ideal para construir una API RESTful rápida y capaz de manejar múltiples 
+peticiones de cálculo de forma eficiente. La gestión de los datos se confió a MongoDB, 
+una base de datos NoSQL, cuya flexibilidad para manejar documentos con estructuras 
+complejas y variables resultó superior a las bases de datos relacionales tradicionales. La 
+librería Mongoose se utilizó para facilitar la interacción y el modelado de estos datos. 
+En el frontend, la elección principal fue React, seleccionado por su paradigma de 
+componentes reutilizables y su eficiencia para crear interfaces dinámicas. Sobre esta 
+base, se integró Mantine como la biblioteca de componentes principal. La elección de 
+Mantine fue estratégica para acelerar significativamente los tiempos de desarrollo y 
+asegurar una estética profesional y consistente en toda la aplicación, gracias a su extensa 
+colección de elementos de interfaz listos para usar. Para la generación de los 
+documentos finales, se utilizó Puppeteer en el backend, una herramienta potente que 
+permitió traducir las vistas de la aplicación directamente a propuestas digitales 
+estandarizadas. 
+Recolección de Datos 
+Para obtener un entendimiento profundo del problema y definir los 
+requerimientos del Sistema de Cotización Inteligente, se empleó un enfoque de 
+recolección de datos multifacético, combinando el análisis de documentación interna 
+con la consulta a expertos y el conocimiento de dominio de los actores clave de la 
+empresa involucrados en el proceso de cotización. 
+ 
+
+
+===== PAGINA 25 =====
+ 
+24 
+1. Revisión de Documentación Interna: Se realizó un análisis exhaustivo de la 
+documentación de Sol del Amanecer S.R.L. Se examinaron documentos como el 
+Dossier Comercial, informes previos y, de manera crítica, las plantillas de cálculo 
+utilizadas hasta el momento para la cotización de servicios. Esta revisión fue 
+fundamental para establecer una línea de base de las variables de costo y comprender 
+sus limitaciones, tales como la necesidad de ingresar manualmente las distancias en 
+kilómetros para cada cotización y la ausencia de un prorrateo automático para viajes 
+esporádicos y mensuales, lo que obligaba a realizar cambios manuales extensos y 
+propensos a errores. 
+2. Consulta a Expertos (Stakeholders Clave): Para validar y refinar las reglas de 
+negocio, se llevaron a cabo consultas dirigidas a personal clave de la empresa. Se 
+realizaron reuniones informales con el contador, quien proporcionó la estructura del 
+desglose salarial de acuerdo al Convenio Colectivo de Trabajo 40/89 y a las escalas 
+salariales actualizadas publicadas por los organismos de control del sector (Ente 
+Fiscalizador, 2025). De estas consultas también surgió un requerimiento clave, como la 
+regla de negocio que estipula la liquidación de un mínimo de 350 kilómetros por 
+jornada. Asimismo, se mantuvieron reuniones de trabajo con el área de Logística y otros 
+actores involucrados en el proceso de planificación y cotización de rutas, quienes 
+aportaron su conocimiento operativo sobre la organización de los viajes, las frecuencias 
+y las particularidades del servicio. 
+Planificación del Proyecto 
+Para la gestión y el seguimiento de las actividades requeridas, se elaboró un plan 
+de proyecto detallado. A continuación, se presenta un Diagrama de Gantt que visualiza 
+el cronograma de tareas, sus duraciones estimadas en días hábiles, las fechas de inicio y 
+fin, y las relaciones de precedencia entre ellas. 
+ 
+ 
+ 
+
+
+===== PAGINA 26 =====
+ 
+25 
+Id 
+Nombre de la Actividad 
+Duración 
+(días) 
+Fecha 
+Inicio 
+Fecha 
+Fin 
+Predecesoras 
+0 
+Selección de la Temática 
+8 
+25-ago 
+03-sep 
+ 
+1 
+Elaboración de Introducción, 
+Justificación y Objetivo 
+4 
+04-sep 
+09-sep 
+0 
+2 
+Desarrollo del Marco Teórico 
+Referencial 
+5 
+10-sep 
+16-sep 
+1 
+3 
+Elaboración del Diseño 
+Metodológico 
+3 
+17-sep 
+19-sep 
+2 
+4 
+Ejecución del Relevamiento 
+(Estructural y Funcional) 
+3 
+20-sep 
+24-sep 
+3 
+5 
+Modelado del Proceso de Negocio 
+1 
+25-sep 
+25-sep 
+4 
+6 
+Realización del Diagnóstico y 
+Propuesta 
+3 
+26-sep 
+30-sep 
+5 
+7 
+Definición de Objetivos y Alcances 
+del Prototipo 
+2 
+01-oct 
+02-oct 
+6 
+8 
+Diseño de la Arquitectura y 
+Diagramas 
+5 
+03-oct 
+09-oct 
+7 
+9 
+Diseño de la Estructura de Datos 
+1 
+10-oct 
+10-oct 
+8 
+10 
+Diseño de Interfaces de Pantalla 
+(Mockups) 
+1 
+11-oct 
+11-oct 
+8 
+11 
+Análisis de Seguridad del Proyecto 
+3 
+14-oct 
+16-oct 
+8 
+12 
+Análisis de Costos del Proyecto 
+3 
+15-oct 
+17-oct 
+8 
+13 
+Análisis de Riesgos del Proyecto 
+3 
+16-oct 
+18-oct 
+8 
+14 
+Redacción de Conclusiones 
+3 
+21-oct 
+23-oct 
+11, 12, 13 
+15 
+Preparación de Demo, Resumen y 
+Abstract 
+6 
+24-oct 
+31-oct 
+10, 14 
+16 
+Consolidación y Formateo Final del 
+Documento 
+11 
+01-nov 
+15-nov 
+15 
+Tabla 1. Fechas y Duraciones de la planificación del Proyecto. Elaboración propia. 
+ 
+ 
+
+
+===== PAGINA 27 =====
+ 
+26 
+Ilustración 1. Diagrama de Gantt. Elaboración propia. 
+ 
+Relevamiento 
+Relevamiento Estructural 
+El proyecto se desarrolló en el contexto de la empresa de transporte y logística 
+Sol del Amanecer S.R.L., cuya sede central se encuentra ubicada en la calle Estados 
+Unidos 2657, en la ciudad de Córdoba, Argentina. Esta localización es estratégica, 
+situada en una zona industrial con acceso directo a las principales vías de circulación, lo 
+que facilita las operaciones de su flota de vehículos. 
+La infraestructura física de la empresa se compone de una sede central, que 
+concentra las operaciones administrativas y logísticas, y una red de depósitos remotos 
+en puntos clave como Río Cuarto, Villa María, Mina Clavero y Almafuerte. Estos 
+ 
+
+
+===== PAGINA 28 =====
+ 
+27 
+últimos operan exclusivamente como nodos de carga y descarga de mercadería y 
+cuentan con servicios de internet y seguridad, pero no disponen de equipamiento 
+tecnológico para tareas administrativas. 
+El ecosistema tecnológico de la sede central opera sobre una red local (LAN) 
+con conectividad cableada y Wi-Fi, soportada por un servicio de internet de fibra óptica. 
+La infraestructura de hardware se compone de: 
+Un servidor dedicado que cumple la doble función de alojar la base de datos 
+central y ejecutar el sistema de gestión principal de la empresa. 
+Cinco ordenadores de escritorio que actúan como terminales de trabajo para las 
+áreas de administración, gerencia y depósito. 
+Dos impresoras de red con funciones especializadas: una destinada a la emisión 
+de comprobantes de pago y la otra al manejo de reportes, informes y documentación 
+operativa diaria. 
+A nivel de software, la operatoria se apoya en tres pilares: un sistema de gestión 
+desarrollado en Microsoft Access que cubre funcionalidades de facturación, 
+contabilidad y gestión de proveedores; el paquete de ofimática Microsoft Office para 
+tareas generales; y la plataforma QuadMinds para el seguimiento satelital en tiempo real 
+de la flota. 
+Relevamiento Funcional  
+Sol del Amanecer S.R.L. opera bajo una estructura de gestión familiar, liderada 
+por una Dirección General que supervisa las unidades organizativas estratégicas de la 
+compañía. El organigrama funcional sitúa a la Dirección General por encima de dos 
+Áreas clave para el proceso de cotización: el Área de Administración y el Área de 
+Logística. Estas áreas trabajan en conjunto para definir los costos y la viabilidad 
+operativa de cada servicio, reportando directamente a la dirección. 
+ 
+ 
+
+
+===== PAGINA 29 =====
+ 
+28 
+Ilustración 2. Organigrama Sol del Amanecer SRL. Elaboración propia. 
+ 
+Funciones de las Áreas 
+Las responsabilidades de las unidades organizativas y roles involucrados 
+directamente en el proceso de elaboración de cotizaciones son las siguientes: 
+Dirección General: Es el máximo nivel de autoridad de la empresa. Su función 
+en este proceso no es operativa, sino estratégica y de control. Supervisa la rentabilidad 
+de las propuestas comerciales y es el rol responsable de dar la aprobación final a las 
+cotizaciones antes de ser enviadas a clientes importantes o en operaciones de gran 
+volumen. 
+Área de Logística: Es la unidad responsable de la planificación y ejecución de 
+las operaciones de transporte. El Jefe de Logística, como rol principal dentro de esta 
+área, es el encargado de analizar la viabilidad de las rutas solicitadas, estimar los 
+kilómetros a recorrer, calcular los tiempos de viaje y definir los recursos necesarios 
+ 
+
+
+===== PAGINA 30 =====
+ 
+29 
+(tipo de vehículo y personal). Su análisis técnico es el punto de partida para la 
+construcción de cualquier costo operativo. 
+Área de Administración: Es la unidad que se encarga de la gestión financiera, 
+comercial y contable de la empresa. El Jefe de Administración, como rol principal 
+dentro de esta área, es el responsable de recopilar los datos del Área de Logística y 
+combinarlos con las variables económicas (costos de combustible, salarios, seguros, 
+etc.) para estructurar el presupuesto. Además, define el margen de ganancia y prepara el 
+documento final de la propuesta para el cliente. 
+Procesos Relevados 
+     
+A continuación, se describe el flujo de trabajo que se llevaba a cabo para la 
+elaboración de una cotización de transporte de carga dedicada. 
+●​ Proceso: Elaboración de Cotización y Propuesta Comercial. 
+●​ Roles: Jefe de Administración, Jefe de Logística, Dirección General. 
+●​ Pasos: 
+1.​ El Jefe de Administración recibía la solicitud de cotización por parte de 
+un cliente vía correo electrónico, teléfono o WhatsApp. 
+2.​ El Jefe de Administración, en ocasiones con el apoyo del Jefe de 
+Logística, recopilaba los datos técnicos de la operación: se definían los 
+puntos de entrega, la frecuencia del servicio y el tipo de carga. 
+3.​ El cálculo de la distancia y la duración del viaje se realizaba de forma 
+manual, utilizando herramientas externas como Google Maps. 
+4.​ Con estos datos, el Jefe de Administración procedía al cálculo de costos 
+utilizando una planilla de cálculo (Microsoft Excel). Este proceso, 
+propenso a errores por su naturaleza manual, implicaba la consulta y 
+carga de múltiples variables dispersas (precios de combustible, escalas 
+salariales, etc.), resultando en un número meramente estimativo. 
+5.​ Para servicios complejos, el cálculo se complementaba con la 
+experiencia y la memoria del personal para recordar cotizaciones 
+pasadas, lo que reforzaba el carácter estimativo del presupuesto final. 
+ 
+
+
+===== PAGINA 31 =====
+ 
+30 
+6.​ Una vez consolidado el costo operativo, se aplicaba un margen de 
+ganancia y se definía un precio de venta, el cual era sometido a la 
+aprobación de la Dirección General. 
+7.​ Finalmente, el Jefe de Administración redactaba la propuesta comercial 
+en un documento de texto o en el cuerpo de un mensaje. Frecuentemente, 
+estas propuestas se compartían a través de WhatsApp o correo 
+electrónico, lo que ocasionaba una falta de registro formal y la pérdida de 
+la trazabilidad comercial. 
+ 
+Procesos de Negocio 
+     A continuación, se presenta el diagrama de flujo que modela el proceso de negocio 
+central del área problemática en Sol del Amanecer S.R.L. Se ha utilizado la notación 
+estándar BPMN 2.0 (Business Process Model and Notation) para representar el proceso 
+de Elaboración de Cotización y Propuesta Comercial, tal como se llevaba a cabo de 
+forma manual. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Ilustración 3. Diagrama BPMN del Proceso de Cotización Manual. Elaboración propia. 
+ 
+
+
+===== PAGINA 32 =====
+ 
+31 
+Diagnóstico y Propuesta 
+Diagnóstico 
+A continuación, se presentó el diagnóstico derivado del análisis realizado sobre 
+el proceso de Elaboración de Cotización y Propuesta Comercial en Sol del Amanecer 
+S.R.L., identificando los problemas centrales y sus causas. 
+Nombre del Proceso: Elaboración de Cotización y Propuesta Comercial 
+Problemas 
+Causas 
+1. Alta propensión a errores y demoras 
+en el cálculo de costos. Los 
+presupuestos resultaban estimativos y 
+poco fiables, lo que generaba un cuello 
+de botella operativo y un elevado riesgo 
+financiero para la compañía. 
+• El uso de herramientas estáticas 
+(planillas de cálculo) para un entorno de 
+costos dinámico. 
+• Dependencia de la carga manual de 
+datos dispersos (precios de combustible, 
+salarios, etc.). 
+• Ausencia de un motor de cálculo 
+estandarizado que aplique reglas de 
+negocio consistentes. 
+2. Inconsistencia y falta de 
+estandarización en las propuestas 
+comerciales. El método de cálculo 
+carecía de un estándar, y la consistencia 
+final de las propuestas dependía 
+exclusivamente de la validación de un 
+único rol directivo, lo que hacia al 
+proceso frágil y no escalable. 
+• Ausencia de un proceso formal y 
+centralizado, lo que derivaba en criterios 
+de cálculo individuales. 
+• Falta de plantillas de documentos 
+estandarizadas, lo que llevaba a la 
+comunicación de propuestas a través de 
+canales informales (WhatsApp, email). 
+• Dependencia de la memoria y validación 
+manual de un único rol directivo. 
+3. Pérdida de oportunidades comerciales 
+y lentitud en la respuesta al cliente. El 
+tiempo requerido para recopilar datos y 
+realizar cálculos manuales generaba una 
+desventaja competitiva que provocó la 
+pérdida efectiva de potenciales clientes. 
+• Proceso de cálculo de costos no 
+automatizado, basado en herramientas 
+ofimáticas genéricas. 
+• Necesidad de recopilar y cargar 
+manualmente variables de costo dispersas 
+y volátiles. 
+• Cálculo manual de distancias y 
+duraciones de ruta utilizando herramientas 
+externas. 
+ 
+
+
+===== PAGINA 33 =====
+ 
+32 
+4. Carencia de trazabilidad y registro 
+formal de la gestión comercial. Las 
+propuestas se compartían por medios 
+informales, por lo que el historial 
+quedaba fragmentado en canales como 
+correos electrónicos y WhatsApp, 
+dificultando el seguimiento. 
+• Inexistencia de un repositorio o base de 
+datos centralizada para el archivo 
+histórico de las cotizaciones generadas. 
+• Uso de canales de comunicación 
+informales y no persistentes (WhatsApp, 
+cuerpo de email) como único medio de 
+registro y consulta. 
+5. Toma de decisiones estratégicas 
+basada en estimaciones y no en datos 
+precisos. La falta de un análisis de 
+rentabilidad por ruta impedía optimizar 
+la operación de manera informada. 
+• El método de cálculo manual no 
+generaba un registro de datos 
+estructurados y auditables como resultado 
+de cada cotización. 
+• Ausencia de una base de datos histórica 
+que permitiera realizar análisis 
+comparativos de rentabilidad por cliente, 
+ruta o vehículo. 
+• Imposibilidad de identificar patrones, 
+tendencias y oportunidades de 
+optimización a partir de la información 
+comercial. 
+6. Presentación no profesional de las 
+cotizaciones. La entrega de la oferta en 
+texto plano deterioraba la imagen de la 
+empresa y reducía el impacto comercial 
+de la propuesta. 
+• Inexistencia de una herramienta para la 
+generación automática de documentos 
+comerciales con formato estandarizado y 
+profesional. 
+• Dependencia de la comunicación en 
+texto plano como único vehículo para la 
+entrega de la oferta. 
+Tabla 2. Diagnóstico del Proceso de Negocio. Elaboración propia. 
+Propuesta 
+Se propuso el desarrollo de un Sistema de Cotización Inteligente, una aplicación 
+web diseñada para automatizar y centralizar integralmente el proceso de cotización de 
+servicios de transporte de carga dedicada. Se definió que el sistema integrara un motor 
+de cálculo capaz de procesar en tiempo real todas las variables de costo asociadas a los 
+vehículos y al personal, y que utilizara información geoespacial a fin de determinar de 
+forma automática las distancias y las duraciones de ruta. 
+ 
+
+
+===== PAGINA 34 =====
+ 
+33 
+La solución se concibió para unificar la captura de datos, el cálculo de costos y 
+la emisión de documentos digitales, de modo que cada cotización mantuviera un 
+estándar único. Estos documentos digitales constituyeron las propuestas comerciales, 
+con formato profesional y listas para ser compartidas con el cliente. Asimismo, se 
+producirían informes de desglose de costos para el análisis de rentabilidad interno. 
+Adicionalmente, se determinó que el sistema crearía un repositorio histórico de 
+todas las cotizaciones generadas. Con ello, se estableció por primera vez una 
+trazabilidad completa de la gestión comercial y se conformó una base de datos valiosa 
+para el análisis y la consulta futura, que alimentaría un Panel de Inteligencia de Negocio 
+con indicadores y visualizaciones para apoyar la toma de decisiones estratégicas. 
+La solución se concibió para unificar la captura de datos, el cálculo de costos y 
+la emisión de documentos digitales, de modo que cada cotización mantuviera un 
+estándar único. Estos documentos digitales constituían las propuestas comerciales, con 
+formato profesional y listas para ser compartidas con el cliente. Asimismo, se generaban 
+informes de desglose de costos para el análisis de rentabilidad interno. 
+Objetivo, Límites y Alcances del Prototipo 
+Objetivo del Prototipo 
+Desarrollar un prototipo de sistema web que automatice y centralice el proceso 
+de cotización de transporte de carga dedicada, mediante la implementación de un motor 
+de cálculo de costos y un generador de propuestas comerciales, para optimizar la 
+precisión, velocidad y profesionalismo de la gestión comercial de Sol del Amanecer 
+S.R.L. 
+Límites 
+Desde que el usuario inicia la sesión para registrar una nueva solicitud de 
+cotización, hasta la generación y guardado del documento comercial final, ya fuera la 
+Propuesta Comercial para el cliente o el Desglose de Costos para uso interno. 
+ 
+
+
+===== PAGINA 35 =====
+ 
+34 
+Alcances 
+El prototipo del sistema contempló las siguientes funcionalidades: 
+●​ La gestión de la flota de vehículos, incluyendo su alta, baja, modificación y 
+consulta, así como el registro detallado de sus parámetros de costos. 
+●​ La gestión de los recursos humanos, incluyendo su alta, baja, modificación y 
+consulta, detallando su tipo de contratación y estructura de costos salariales. 
+●​ La creación de rutas con múltiples puntos de entrega sobre un mapa interactivo 
+para el cálculo automático de distancias y duraciones. 
+●​ La configuración de la frecuencia del servicio, distinguiendo entre operaciones 
+esporádicas o mensuales. 
+●​ El cálculo integral y automatizado de los costos operativos del viaje, 
+consolidando los costos de vehículo, recurso humano y otros gastos adicionales. 
+●​ La configuración de los costos administrativos y el margen de ganancia para la 
+determinación del precio de venta final. 
+●​ La generación de dos tipos de salidas digitales: una Propuesta Comercial 
+estandarizada para el cliente y un Desglose de Costos detallado para análisis 
+interno. 
+●​ La implementación de un panel de inteligencia de negocio para el análisis de la 
+rentabilidad a partir del historial de los presupuestos generados. 
+ 
+Descripción del Sistema 
+Como parte del diseño funcional del Sistema de Cotización Inteligente, se 
+definió el siguiente Product Backlog, que reúne las historias de usuario priorizadas, sus 
+puntos de historia y sus dependencias para guiar el desarrollo del prototipo. 
+ 
+ 
+
+
+===== PAGINA 36 =====
+ 
+35 
+Product Backlog 
+ID 
+Historia de Usuario 
+Prioridad 
+Puntos de 
+Historia 
+Dependencias 
+HU-001 
+Iniciar Sesión con Email y 
+Contraseña 
+Alta 
+3 
+- 
+HU-002 
+Registrarse con Email y 
+Contraseña 
+Alta 
+5 
+- 
+HU-003 
+Validar Cuenta de Usuario 
+por Email 
+Alta 
+3 
+HU-002 
+HU-004 
+Registrarse e Iniciar Sesión 
+con Google 
+Media 
+5 
+- 
+HU-005 
+Definir Ruta de Viaje y 
+Tipo de Carga 
+Alta 
+5 
+HU-001 
+HU-006 
+Establecer Frecuencia del 
+Servicio 
+Alta 
+3 
+HU-005 
+HU-007 
+Asignar Vehículo a 
+Cotización 
+Alta 
+3 
+HU-006, 
+HU-015 
+HU-008 
+Asignar Recurso Humano a 
+Cotización 
+Alta 
+3 
+HU-007, 
+HU-019 
+HU-009 
+Calcular Costos y 
+visualizarlos en Tiempo 
+Real 
+Alta 
+13 
+HU-008 
+HU-010 
+Guardar Presupuesto con 
+Ajustes Finales 
+Alta 
+5 
+HU-009 
+HU-011 
+Generar Documentos 
+Digitales de la Cotización 
+Alta 
+5 
+HU-010 
+HU-012 
+Reiniciar la Cotización 
+Actual 
+Baja 
+1 
+HU-001 
+ 
+
+
+===== PAGINA 37 =====
+ 
+36 
+HU-013 
+Visualizar Ayuda 
+Contextual en la Interfaz 
+Baja 
+2 
+HU-001 
+HU-014 
+Registrar un Nuevo 
+Vehículo en la Flota 
+Alta 
+5 
+HU-001 
+HU-015 
+Consultar y Filtrar la Flota 
+de Vehículos 
+Alta 
+3 
+HU-014 
+HU-016 
+Modificar Datos de Costos 
+de un Vehículo 
+Alta 
+3 
+HU-015 
+HU-017 
+Eliminar un Vehículo de la 
+Flota 
+Media 
+2 
+HU-015 
+HU-018 
+Registrar un Nuevo 
+Recurso Humano 
+Alta 
+5 
+HU-001 
+HU-019 
+Consultar y Filtrar 
+Recursos Humanos 
+Alta 
+3 
+HU-018 
+HU-020 
+Modificar Datos de Costos 
+de un Recurso Humano 
+Alta 
+3 
+HU-019 
+HU-021 
+Eliminar un Recurso 
+Humano 
+Media 
+2 
+HU-019 
+HU-022 
+Consultar y Gestionar 
+Historial de Presupuestos 
+Media 
+5 
+HU-010 
+HU-023 
+Visualizar Panel de 
+Inteligencia de Negocio 
+Media 
+8 
+HU-022 
+Tabla 3. Product Backlog. Elaboración propia. 
+ 
+
+
+===== PAGINA 38 =====
+ 
+37 
+Historias de Usuario 
+ID 
+HU-001 
+Nombre 
+Iniciar Sesión con E-mail y Contraseña 
+Descripción 
+Como usuario registrado del sistema, quiero ingresar mis 
+credenciales 
+de 
+forma 
+segura 
+para 
+acceder 
+a 
+las 
+funcionalidades del cotizador y gestionar mis recursos y 
+presupuestos. 
+Criterios de 
+Aceptación 
+1. Dado que un usuario registrado ingresa su email y 
+contraseña correctos, cuando hace clic en el botón Iniciar 
+Sesión, entonces el sistema valida las credenciales, le 
+concede el acceso y lo redirige al panel principal. 
+2. Dado que un usuario ingresa una combinación de email o 
+contraseña incorrecta, cuando hace clic en el botón Iniciar 
+Sesión, entonces el sistema debe mostrar un mensaje de error 
+genérico (Email o contraseña incorrectos) y no permitir el 
+acceso. 
+3. Dado que el usuario no ha completado el campo de email o 
+el de contraseña, cuando hace clic en el botón Iniciar Sesión, 
+entonces el sistema debe mostrar un mensaje indicando que 
+ambos campos son obligatorios. 
+4. Dado que el usuario envía sus credenciales, cuando el 
+servidor procesa la autenticación, entonces la contraseña 
+enviada debe compararse con el hash almacenado en la base 
+de datos usando Bcrypt. 
+5. Dado que un usuario ha ingresado una contraseña 
+incorrecta 5 veces consecutivas, cuando intenta iniciar sesión 
+por sexta vez, entonces el sistema debe mostrar un mensaje 
+informando que la cuenta ha sido bloqueada temporalmente y 
+no procesar la solicitud. 
+Prioridad 
+Alta 
+Puntos de Historia 
+3 
+Tabla 4. HU-001: Iniciar Sesión con E-mail y Contraseña. Elaboración propia. 
+ 
+
+
+===== PAGINA 39 =====
+ 
+38 
+ID 
+HU-002 
+Nombre 
+Registrarse con Email y Contraseña 
+Descripción 
+Como usuario no registrado, quiero crear una cuenta 
+utilizando mi email y una contraseña segura para poder 
+acceder al sistema y comenzar a crear cotizaciones. 
+Criterios de 
+Aceptación 
+1. Dado un usuario no registrado en la página de registro que 
+ha completado todos los campos con datos válidos y un email 
+no existente en el sistema, cuando hace clic en el botón 
+Registrarse, entonces el sistema crea la nueva cuenta, 
+almacena la contraseña hasheada con Bcrypt, y lo redirige a 
+una página de éxito o al panel de inicio de sesión. 
+2. Dado un usuario no registrado que ingresa un email que ya 
+se encuentra en el sistema, cuando intenta enviar el 
+formulario, entonces el sistema debe mostrar un mensaje de 
+error claro indicando que el email ya está en uso y no crear la 
+cuenta. 
+3. Dado un usuario no registrado que ingresa una contraseña 
+que no cumple con la política de seguridad (8 caracteres, una 
+mayúscula, un número), cuando intenta enviar el formulario, 
+entonces el sistema debe mostrar un mensaje de error 
+específico indicando los requisitos de la contraseña. 
+4. Dado un usuario no registrado que ingresa dos contraseñas 
+que no coinciden, cuando intenta enviar el formulario, 
+entonces el sistema debe mostrar un mensaje de error 
+indicando que las contraseñas no coinciden. 
+5. Dado un usuario no registrado que no completa uno o más 
+campos obligatorios, cuando intenta enviar el registro, 
+entonces el sistema debe marcar los campos faltantes y 
+mostrar un mensaje indicando que son requeridos. 
+Prioridad 
+Alta 
+Puntos de Historia 
+5 
+Tabla 5: HU-002: Registrarse con Email y Contraseña. Elaboración propia. 
+ 
+ 
+
+
+===== PAGINA 40 =====
+ 
+39 
+ID 
+HU-003 
+Nombre 
+Validar Cuenta de Usuario por Email 
+Descripción 
+Como nuevo usuario que acaba de registrarse, quiero validar 
+mi dirección de email mediante un enlace de confirmación 
+para activar mi cuenta y asegurar su acceso. 
+Criterios de 
+Aceptación 
+1. Dado que un usuario completa exitosamente el registro 
+(HU-002), cuando el sistema crea la cuenta, entonces debe 
+generar un token de verificación único (con una validez de 24 
+horas) y enviar automáticamente un email al usuario con el 
+enlace de validación. 
+2. Dado un usuario que ha recibido el email de validación, 
+cuando hace clic en el enlace de verificación dentro del plazo 
+de 24 horas, entonces el sistema debe marcar la cuenta como 
+verificada y mostrar una página de confirmación de éxito. 
+3. Dado que un usuario intenta validar su cuenta, cuando 
+utiliza un enlace con un token inválido o que ya ha expirado, 
+entonces el sistema debe mostrar un mensaje de error y 
+ofrecer la opción de solicitar un nuevo email de verificación. 
+4. Dado un usuario registrado pero aún no verificado, cuando 
+intenta iniciar sesión (HU-001), entonces el sistema debe 
+denegar el acceso y mostrar un mensaje que indique que la 
+cuenta requiere validación, incluyendo un botón para 
+Reenviar email de verificación. 
+Prioridad 
+Alta 
+Puntos de Historia 
+3 
+Tabla 6: HU-003: Validar Cuenta de Usuario por Email. Elaboración propia. 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 41 =====
+ 
+40 
+ID 
+HU-004 
+Nombre 
+Registrarse e Iniciar Sesión con Google 
+Descripción 
+Como usuario no registrado o recurrente, quiero utilizar mi 
+cuenta de Google para registrarme o iniciar sesión en el 
+sistema con un solo clic para agilizar el proceso de acceso y 
+evitar tener que recordar otra contraseña. 
+Criterios de 
+Aceptación 
+1. Dado un usuario no registrado en la página de inicio de 
+sesión, cuando hace clic en el botón Continuar con Google y 
+completa exitosamente la autenticación en la ventana de 
+Google, entonces el sistema debe crear una nueva cuenta de 
+usuario asociada a su perfil de Google y redirigirlo al panel 
+principal. 
+2. Dado un usuario que ya se registró previamente con su 
+cuenta de Google, cuando hace clic en el botón Continuar 
+con Google y se autentica, entonces el sistema debe 
+reconocer al usuario existente, iniciar su sesión y redirigirlo 
+al panel principal. 
+3. Dado un usuario que intenta registrarse con Google, pero 
+el email de su cuenta de Google ya existe en el sistema como 
+una cuenta local (creada con contraseña), cuando completa la 
+autenticación con Google, entonces el sistema debe mostrar 
+un mensaje de error indicando que el email ya está registrado 
+y sugerirle que inicie sesión con su contraseña. 
+4. Dado un usuario en la página de inicio de sesión, cuando 
+hace clic en Continuar con Google pero cancela el proceso o 
+la autenticación de Google falla, entonces el sistema debe 
+devolverlo a la página de inicio de sesión sin realizar ninguna 
+acción. 
+Prioridad 
+Media 
+Puntos de Historia 
+5 
+Tabla 7: HU-004: Registrarse e Iniciar Sesión con Google. Elaboración propia. 
+ 
+ 
+
+
+===== PAGINA 42 =====
+ 
+41 
+ID 
+HU-005 
+Nombre 
+Definir Ruta de Viaje y Tipo de Carga 
+Descripción 
+Como usuario cotizador, quiero utilizar un buscador de 
+direcciones para definir los puntos de un viaje para que el 
+sistema calcule automáticamente la distancia y duración total 
+de la ruta. 
+Criterios de 
+Aceptación 
+1. Dado un usuario que está iniciando una cotización, cuando 
+ingresa y selecciona una dirección de origen y una de destino, 
+entonces el sistema debe dibujar la ruta en el mapa y mostrar 
+en el Panel de Misión la distancia y duración estimadas. 
+2. Dado que ya existe una ruta con origen y destino, cuando 
+el usuario añade uno o más puntos intermedios, entonces el 
+sistema debe recalcular la ruta óptima y actualizar la 
+distancia y duración en el Panel de Misión. 
+3. Dado un usuario que ha definido una ruta, cuando activa la 
+opción Ida y vuelta, entonces el sistema debe añadir un punto 
+final a la ruta que sea idéntico al punto de origen, recalcular 
+el trayecto completo y actualizar la distancia y duración. 
+4. Dado un usuario que está definiendo la ruta, cuando 
+selecciona un Tipo de Carga del menú (Carga general, Carga 
+refrigerada o Carga peligrosa), entonces el sistema debe 
+registrar esta selección para el cálculo de costos posterior. 
+5. Dado un usuario que ha definido una ruta que contiene al 
+menos dos puntos (un origen y un destino), entonces el botón 
+para continuar con la definición de la frecuencia debe 
+habilitarse. 
+Prioridad 
+Alta 
+Puntos de Historia 
+5 
+Tabla 8: HU-005: Definir Ruta de Viaje y Tipo de Carga. Elaboración propia. 
+ 
+ 
+ 
+
+
+===== PAGINA 43 =====
+ 
+42 
+ID 
+HU-006 
+Nombre 
+Establecer Frecuencia del Servicio 
+Descripción 
+Como usuario administrador, quiero definir la frecuencia del 
+servicio como esporádica o mensual para que el sistema 
+determine la cantidad total de viajes y la distancia acumulada 
+de la operación. 
+Criterios de 
+Aceptación 
+1. Dado un usuario que está definiendo la frecuencia, cuando 
+selecciona la modalidad Esporádico e ingresa un número de 
+viajes, entonces el Panel de Misión debe actualizarse para 
+mostrar la Frecuencia y la Distancia Total resultantes. 
+2. Dado un usuario que selecciona la modalidad Mensual, 
+cuando elige los días de operación y la cantidad de viajes 
+diarios, entonces el sistema debe calcular el total de viajes 
+mensuales (multiplicando por 4.33) y actualizar la Frecuencia 
+y la Distancia Total en el Panel de Misión. 
+3. Dado un usuario que está definiendo la frecuencia, cuando 
+ingresa texto en el campo Observaciones Adicionales, 
+entonces el sistema debe guardar esta información asociada a 
+la cotización. 
+4. Dado un usuario que ha definido una frecuencia válida 
+(esporádica o mensual), entonces el botón para continuar con 
+la asignación de vehículo debe habilitarse. 
+Prioridad 
+Alta 
+Puntos de Historia 
+3 
+Tabla 9: HU-006: Establecer Frecuencia del Servicio. Elaboración propia. 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 44 =====
+ 
+43 
+ID 
+HU-007 
+Nombre 
+Asignar Vehículo a Cotización 
+Descripción 
+Como usuario administrador, quiero visualizar y seleccionar 
+un vehículo de la flota durante el proceso de cotización para 
+asignar el recurso correcto al viaje y que el sistema calcule 
+sus costos asociados. 
+Criterios de 
+Aceptación 
+1. Dado un usuario que está asignando un vehículo, cuando la 
+pantalla carga, entonces se debe mostrar una lista paginada de 
+los vehículos activos, con un máximo de 5 por página. 
+2. Dado un vehículo en la lista, cuando el usuario hace clic en 
+el botón Usar, entonces la fila de ese vehículo debe resaltar y 
+el botón debe cambiar a un indicador de estado Activo. 
+3. Dado un vehículo seleccionado, cuando el Panel de Misión 
+se actualiza, entonces debe mostrar un desglose detallado de 
+los costos para ese vehículo. 
+4. Dado un usuario que está asignando un vehículo, cuando 
+necesita gestionar la flota, entonces debe tener disponibles las 
+opciones para Añadir Vehículo (HU-014) y Configurar un 
+vehículo existente (HU-016). 
+5. Dado un usuario que ha seleccionado un vehículo, 
+entonces el botón para continuar con la asignación de recurso 
+humano debe habilitarse. 
+6. Dado un usuario que está asignando un vehículo, cuando 
+hace clic en el botón Volver, entonces el sistema debe 
+navegarlo de regreso a la definición de frecuencia, 
+conservando los datos ya ingresados. 
+Prioridad 
+Alta 
+Puntos de Historia 
+3 
+Tabla 10: HU-007: Asignar Vehículo a Cotización. Elaboración propia. 
+ 
+ 
+ 
+
+
+===== PAGINA 45 =====
+ 
+44 
+ID 
+HU-008 
+Nombre 
+Asignar Recurso Humano a Cotización 
+Descripción 
+Como usuario administrador, quiero visualizar y asignar un 
+colaborador a la cotización para incorporar el costo de mano 
+de obra y completar la asignación de recursos. 
+Criterios de 
+Aceptación 
+1. Dado un usuario que está asignando un recurso humano, 
+cuando la pantalla carga, entonces el sistema debe mostrar 
+una lista paginada (de a 5 por página) de los colaboradores 
+activos, con las columnas: Colaborador, Modalidad y Costo 
+Base. 
+2. Dado un colaborador en la lista, cuando el usuario hace 
+clic en el botón Asignar, entonces la fila de esa persona debe 
+resaltar visualmente y el botón debe cambiar a un indicador 
+de estado Activo. 
+3. Dado un colaborador asignado, cuando el Panel de Misión 
+se actualiza, entonces debe mostrar un desglose detallado de 
+los costos para ese recurso, incluyendo: Costo Base y 
+Adicionales, Viáticos y No Remunerativos, Cargas Sociales y 
+costos adicionales. 
+4. Dado un usuario que está asignando un recurso humano, 
+cuando necesita gestionar el personal, entonces debe tener 
+disponibles las opciones para Añadir Personal (HU-018) y 
+Configurar un colaborador existente (HU-020). 
+5. Dado un usuario que ha asignado un colaborador, entonces 
+el botón para continuar con el resumen y costos debe 
+habilitarse. 
+6. Dado un usuario que está asignando un recurso humano, 
+cuando hace clic en el botón Volver, entonces el sistema debe 
+navegarlo de regreso a la asignación de vehículo, 
+conservando los datos ingresados. 
+Prioridad 
+Alta 
+Puntos de Historia 
+3 
+Tabla 11: HU-008: Asignar Recurso Humano a Cotización. Elaboración propia. 
+ 
+
+
+===== PAGINA 46 =====
+ 
+45 
+ID 
+HU-009 
+Nombre 
+Calcular Costos y visualizarlos en Tiempo Real 
+Descripción 
+Como usuario administrador, quiero que el sistema recalcule 
+automáticamente todos los costos de la operación cada vez 
+que tomo una decisión en el cotizador para ver el impacto 
+financiero de mis elecciones en tiempo real y construir una 
+cotización precisa. 
+Criterios de 
+Aceptación 
+1. Dado un usuario que está configurando una cotización, 
+cuando selecciona o modifica un parámetro clave (ruta, 
+frecuencia, vehículo o personal), entonces el motor de 
+cálculo debe ejecutarse en tiempo real y actualizar las cifras 
+desglosadas en el Panel de Misión. 
+2. Dado un vehículo seleccionado, cuando el sistema calcula 
+su costo, entonces debe sumar los costos variables 
+(depreciación, desgaste de cubiertas, combustible) y una 
+porción de los costos fijos (seguro, patentes) prorrateada 
+según la duración del viaje. 
+3. Dado un recurso humano asignado, cuando el sistema 
+calcula su costo, entonces debe aplicar una lógica diferencial 
+basada en la duración del viaje (costeo por hora o por 
+jornada), sumar sus costos variables (viáticos por km) y 
+añadir los costos indirectos correspondientes (Cargas 
+Sociales o costos adicionales). 
+4. Dado que se seleccionó una frecuencia Mensual, cuando el 
+sistema calcula el total de viajes, entonces debe utilizar un 
+factor de 4.33 semanas por mes y aplicar un factor de ajuste 
+por feriados si se opera 5 o más días a la semana. 
+5. Dado que se seleccionó Carga Refrigerada o Carga 
+Peligrosa, cuando el sistema realiza el cálculo, entonces debe 
+aplicar automáticamente los recargos correspondientes al 
+costo 
+de 
+combustible 
+o 
+al 
+total 
+de 
+kilómetros, 
+respectivamente. 
+6. Dado un usuario que ha llegado a la etapa de resumen 
+final, cuando se han calculado todos los costos base, entonces 
+el sistema debe sumar los costos adicionales (peajes), los 
+gastos administrativos y el margen de ganancia para 
+determinar el Precio de Venta final. 
+ 
+
+
+===== PAGINA 47 =====
+ 
+46 
+Prioridad 
+Alta 
+Puntos de Historia 
+13 
+Tabla 12: HU-009: Calcular Costos y visualizarlos en Tiempo Real. Elaboración propia. 
+ 
+ID 
+HU-010 
+Nombre 
+Guardar Presupuesto con Ajustes Finales 
+Descripción 
+Como usuario administrador, quiero finalizar el proceso de 
+cotización guardando los ajustes de rentabilidad en la base de 
+datos, para dejar el presupuesto listo para la generación de los 
+documentos comerciales. 
+Criterios de 
+Aceptación 
+1. Dado un usuario que accede a la etapa de resumen final, 
+cuando la pantalla carga, entonces el sistema debe mostrar los 
+campos de ajuste con sus valores preestablecidos. 
+2. Dado un usuario que está en la etapa de resumen final, 
+cuando modifica cualquier valor de ajuste, entonces el 
+sistema debe recalcular y actualizar en tiempo real el Precio 
+Venta en el Panel de Misión. 
+3. Dado un usuario que ha finalizado sus ajustes, cuando hace 
+clic en el botón Finalizar y Ver Propuesta, entonces el sistema 
+debe guardar la cotización completa en la base de datos y la 
+interfaz debe actualizarse, reemplazando el botón presionado 
+por los botones Ver Propuesta Cliente y Ver Desglose 
+Interno. 
+4. Dado un usuario que está en la etapa de resumen final, 
+cuando hace clic en el botón Volver, entonces el sistema debe 
+navegarlo de regreso a la asignación de recurso humano. 
+Prioridad 
+Alta 
+Puntos de Historia 
+3 
+Tabla 13: HU-010: Guardar Presupuesto con Ajustes Finales. Elaboración propia. 
+ 
+
+
+===== PAGINA 48 =====
+ 
+47 
+ID 
+HU-011 
+Nombre 
+Generar Documentos Digitales de la Cotización 
+Descripción 
+Como usuario administrador, una vez que he finalizado una 
+cotización, quiero poder generar y visualizar tanto la 
+Propuesta Comercial para el cliente como el Desglose de 
+Costos interno. 
+Criterios de 
+Aceptación 
+1. Dado un usuario que ha finalizado una cotización 
+(completado HU-10) y puede observar los botones de 
+generación de documentos en la etapa de resumen final, 
+cuando hace clic en Ver Propuesta Cliente, entonces el 
+sistema debe generar y abrir en una nueva pestaña el 
+documento digital de la propuesta comercial, que incluye: 
+datos del cliente, resumen de la operación, costo final, mapa 
+de la ruta y un código QR. 
+2. Dado un usuario que ha finalizado una cotización y ve los 
+botones de generación de documentos en la etapa de resumen 
+final, cuando hace clic en Ver Desglose Interno, entonces el 
+sistema debe generar y abrir en una nueva pestaña el 
+documento digital del desglose, que incluye: la estructura 
+detallada de costos, el análisis de rentabilidad y los gráficos 
+de viabilidad. 
+Prioridad 
+Alta 
+Puntos de Historia 
+5 
+Tabla 14: HU-011: Generar Documentos Digitales de la Cotización. Elaboración propia. 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 49 =====
+ 
+48 
+ID 
+HU-012 
+Nombre 
+Reiniciar la Cotización Actual 
+Descripción 
+Como usuario administrador, quiero tener la opción de 
+reiniciar el proceso de cotización en cualquier momento, para 
+poder descartar los datos ingresados y comenzar una nueva 
+cotización desde cero de forma rápida. 
+Criterios de 
+Aceptación 
+1. Dado un usuario que se encuentra en cualquier paso del 
+proceso de cotización, cuando hace clic en el botón Reiniciar 
+Cotización, entonces el sistema debe mostrar un modal de 
+confirmación para prevenir la pérdida accidental de datos. 
+2. Dado que el modal de confirmación está visible, cuando el 
+usuario hace clic en el botón Confirmar, entonces el sistema 
+debe limpiar todos los datos de la cotización actual (ruta, 
+frecuencia, vehículo, recurso humano y ajustes) y redirigir al 
+usuario al inicio del proceso de cotización (Definir Ruta). 
+3. Dado que el modal de confirmación está visible, cuando el 
+usuario hace clic en el botón Cancelar o cierra el modal, 
+entonces el sistema debe cerrar el modal y el usuario debe 
+permanecer en el proceso actual de cotización sin que se 
+borre ningún dato. 
+Prioridad 
+Baja 
+Puntos de Historia 
+1 
+Tabla 15: HU-012: Reiniciar la Cotización Actual. Elaboración propia. 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 50 =====
+ 
+49 
+ID 
+HU-013 
+Nombre 
+Visualizar Ayuda Contextual en la Interfaz 
+Descripción 
+Como usuario administrador, quiero que un asistente me 
+muestre sugerencias y guías relevantes en cada etapa del 
+cotizador para entender mejor las decisiones que estoy 
+tomando y utilizar el sistema de manera más eficiente. 
+Criterios de 
+Aceptación 
+1. Dado un usuario en la etapa de Definición de Ruta, cuando 
+aún no ha definido una ruta completa, entonces el asistente 
+debe mostrar una guía sobre cómo añadir puntos de origen y 
+destino. 
+2. Dado un usuario que navega a la etapa de Frecuencia, 
+entonces el asistente debe explicar la diferencia entre un 
+servicio Esporádico y uno Mensual, y cómo esta elección 
+impacta en el cálculo de costos. 
+3. Dado un usuario que avanza a la etapa de Asignación de 
+Vehículo, entonces el asistente debe indicar que la selección 
+del vehículo actualizará el Panel de Misión con sus costos 
+específicos y recordar la opción de configurar los parámetros 
+de cada uno. 
+4. Dado un usuario en la etapa de Asignación de Recurso 
+Humano, entonces el asistente debe explicar la importancia 
+de la modalidad de contratación (Empleado o Contratado) 
+para el cálculo de los costos indirectos. 
+5. Dado un usuario que llega a la etapa de Resumen y Costos, 
+entonces el asistente debe informar que en esta etapa se 
+define la rentabilidad final y que el Panel de Misión muestra 
+el desglose completo del precio de venta. 
+Prioridad 
+Baja 
+Puntos de Historia 
+2 
+Tabla 16: HU-013: Visualizar Ayuda Contextual en la Interfaz. Elaboración propia. 
+ 
+ 
+ 
+
+
+===== PAGINA 51 =====
+ 
+50 
+ID 
+HU-014 
+Nombre 
+Registrar un Nuevo Vehículo en la Flota 
+Descripción 
+Como usuario administrador, quiero registrar un nuevo 
+vehículo en la flota para que esté disponible para su selección 
+al momento de cotizar. 
+Criterios de 
+Aceptación 
+1. Dado un usuario en la pantalla de Asignación de Vehículo, 
+cuando selecciona la opción Añadir Vehículo definida en la 
+HU-007, entonces el sistema debe desplegar un formulario 
+para el alta de un nuevo vehículo. 
+2. Dado el formulario de alta, cuando el usuario interactúa 
+con él, entonces debe poder ingresar los datos básicos del 
+vehículo: marca, modelo, patente, año, tipo de vehículo y tipo 
+de combustible. 
+3. Dado un usuario que intenta guardar el formulario, cuando 
+los campos obligatorios como marca, modelo o patente no 
+están completos o son inválidos, entonces el sistema debe 
+indicar el error y no permitir el registro. 
+4. Dado que el usuario ha ingresado datos válidos y confirma 
+el guardado, cuando la operación finaliza, entonces el sistema 
+debe cerrar el formulario, actualizar los valores de costo 
+predeterminados al vehículo, y actualizar el listado de la flota 
+en la interfaz para incluir el nuevo vehículo. 
+Prioridad 
+Alta 
+Puntos de Historia 
+5 
+Tabla 17: HU-014: Registrar un Nuevo Vehículo en la Flota. Elaboración propia. 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 52 =====
+ 
+51 
+ID 
+HU-015 
+Nombre 
+Consultar y Filtrar la Flota de Vehículos 
+Descripción 
+Como usuario administrador, quiero poder consultar el 
+listado completo de mi flota y utilizar herramientas de 
+búsqueda y paginación, para encontrar rápidamente un 
+vehículo específico al momento de asignarlo a una 
+cotización. 
+Criterios de 
+Aceptación 
+1. Dado un usuario en la pantalla de Asignación de Vehículo, 
+cuando la pantalla carga, entonces el sistema debe mostrar un 
+listado paginado de los vehículos registrados en la flota. 
+2. Dado el listado de la flota, cuando el usuario lo visualiza, 
+entonces cada fila debe mostrar la información clave del 
+vehículo, incluyendo su marca, modelo, tipo y patente. 
+3. Dado un usuario que utiliza la barra de búsqueda, cuando 
+ingresa un término, entonces el listado de vehículos debe 
+filtrarse en tiempo real para mostrar únicamente los 
+resultados que coinciden con la búsqueda. 
+4. Dado un listado de vehículos que excede el tamaño de una 
+página, cuando el usuario interactúa con los controles de 
+paginación, entonces el sistema debe permitirle navegar entre 
+las diferentes páginas del listado. 
+Prioridad 
+Alta 
+Puntos de Historia 
+3 
+Tabla 18: HU-015: Consultar y Filtrar la Flota de Vehículos. Elaboración propia. 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 53 =====
+ 
+52 
+ID 
+HU-016 
+Nombre 
+Modificar Datos de Costos de un Vehículo 
+Descripción 
+Como usuario administrador, quiero poder modificar los 
+parámetros de costos de un vehículo existente para asegurar 
+que los cálculos de las cotizaciones se basen en datos 
+precisos y actualizados. 
+Criterios de 
+Aceptación 
+1. Dado un usuario en la pantalla de Asignación de Vehículo, 
+cuando selecciona la acción Configurar de un vehículo 
+específico, entonces el sistema debe abrir un formulario 
+modal con los parámetros de costos actuales de ese vehículo. 
+2. Dado el formulario modal, cuando este se muestra, 
+entonces la información debe estar organizada en pestañas 
+como Rendimiento, Desgaste y Costos Fijos para facilitar la 
+navegación. 
+3. Dado un usuario que interactúa con el formulario, cuando 
+modifica los valores en cualquiera de las pestañas, entonces 
+el sistema debe permitir la edición de dichos campos. 
+4. Dado un usuario que ha modificado los datos y hace clic 
+en Guardar, cuando la operación es exitosa, entonces el 
+sistema debe actualizar la información del vehículo en la base 
+de datos y cerrar el formulario modal. 
+Prioridad 
+Alta 
+Puntos de Historia 
+3 
+Tabla 19: HU-016: Modificar Datos de Costos de un Vehículo. Elaboración propia. 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 54 =====
+ 
+53 
+ID 
+HU-017 
+Nombre 
+Eliminar un Vehículo de la Flota 
+Descripción 
+Como usuario administrador, quiero poder eliminar un 
+vehículo de la flota, principalmente durante el proceso de 
+cotización y, de forma secundaria, desde el Panel de Gestión, 
+para mantener el listado de recursos actualizado. 
+Criterios de 
+Aceptación 
+1. Dado un usuario en la pantalla de Asignación de Vehículo, 
+cuando selecciona la acción Eliminar de un vehículo, 
+entonces el sistema debe mostrar un modal de confirmación. 
+2. Dado un usuario en el Panel de Gestión, cuando selecciona 
+la acción Eliminar de un vehículo, entonces el sistema debe 
+mostrar el mismo modal de confirmación. 
+3. Dado que el modal de confirmación está visible, cuando el 
+usuario confirma la acción, entonces el sistema debe proceder 
+a eliminar permanentemente el vehículo de la base de datos. 
+4. Dado que la eliminación fue exitosa, cuando la operación 
+finaliza, entonces el vehículo debe desaparecer del listado en 
+la interfaz y el sistema debe mostrar una notificación de 
+éxito. 
+5. Dado que el modal de confirmación está visible, cuando el 
+usuario anula la acción, entonces el vehículo no debe ser 
+eliminado. 
+Prioridad 
+Media 
+Puntos de Historia 
+2 
+Tabla 20: HU-017: Eliminar un Vehículo de la Flota. Elaboración propia. 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 55 =====
+ 
+54 
+ID 
+HU-018 
+Nombre 
+Registrar un Nuevo Recurso Humano 
+Descripción 
+Como usuario administrador, quiero poder registrar un nuevo 
+recurso humano en el sistema, durante el proceso de 
+cotización como desde el Panel de Gestión, para tenerlo 
+disponible para futuras asignaciones. 
+Criterios de 
+Aceptación 
+1. Dado un usuario en la pantalla de Asignación de Recurso 
+Humano, cuando selecciona la opción Añadir Personal, 
+entonces el sistema debe desplegar un formulario modal para 
+el alta de un nuevo colaborador. 
+2. Dado un usuario en el Panel de Gestión, cuando selecciona 
+la opción Añadir Personal, entonces el sistema debe 
+desplegar el mismo formulario modal. 
+3. Dado el formulario de alta, cuando se muestra, entonces 
+debe presentar los campos para ingresar el nombre completo, 
+DNI y tipo de contratación como obligatorios. 
+4. Dado un usuario que intenta guardar el formulario, cuando 
+los campos obligatorios no están completos o sus datos son 
+inválidos, entonces el sistema debe indicar el error y no 
+permitir el registro. 
+5. Dado que el usuario ha ingresado datos válidos y confirma 
+el guardado, cuando la operación es exitosa, entonces el 
+sistema debe crear el nuevo registro asignándole los valores 
+de costo predeterminados, cerrar el formulario y actualizar el 
+listado de personal en la interfaz. 
+Prioridad 
+Alta 
+Puntos de Historia 
+5 
+Tabla 21: HU-018: Registrar un Nuevo Recurso Humano. Elaboración propia. 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 56 =====
+ 
+55 
+ID 
+HU-019 
+Nombre 
+Consultar y Filtrar Recursos Humanos 
+Descripción 
+Como usuario administrador, quiero poder consultar el 
+listado de mis colaboradores y utilizar herramientas de 
+búsqueda y paginación, para encontrar rápidamente un 
+recurso humano específico al momento de asignarlo a una 
+cotización. 
+Criterios de 
+Aceptación 
+1. Dado un usuario en la pantalla de Asignación de Recurso 
+Humano, cuando la pantalla carga, entonces el sistema debe 
+mostrar un listado paginado de los colaboradores registrados. 
+2. Dado el listado de colaboradores, cuando el usuario lo 
+visualiza, entonces cada fila debe mostrar la información 
+clave del recurso, incluyendo su nombre, modalidad de 
+contratación y costo base. 
+3. Dado un usuario que utiliza la barra de búsqueda, cuando 
+ingresa un término, entonces el listado debe filtrarse en 
+tiempo real para mostrar únicamente los colaboradores que 
+coinciden con la búsqueda. 
+4. Dado un listado de colaboradores que excede el tamaño de 
+una página, cuando el usuario interactúa con los controles de 
+paginación, entonces el sistema debe permitirle navegar entre 
+las diferentes páginas del listado. 
+Prioridad 
+Alta 
+Puntos de Historia 
+3 
+Tabla 22: HU-019: Consultar y Filtrar Recursos Humanos. Elaboración propia. 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 57 =====
+ 
+56 
+ID 
+HU-020 
+Nombre 
+Modificar Datos de Costos de un Recurso Humano 
+Descripción 
+Como usuario administrador, quiero poder personalizar los 
+parámetros de costos de un colaborador existente para 
+adaptar el motor de cálculo a la realidad económica de mi 
+operación y modelar diferentes escenarios de rentabilidad. 
+Criterios de 
+Aceptación 
+1. Dado un usuario en la pantalla de Asignación de Recurso 
+Humano o en el Panel de Gestión, cuando selecciona la 
+acción Configurar de un colaborador, entonces el sistema 
+debe abrir un formulario modal con los parámetros de costos 
+actuales de esa persona. 
+2. Dado el formulario modal, cuando este se muestra, 
+entonces la información debe estar organizada en pestañas 
+como Salario Base, Costos Variables y Costos Indirectos. 
+3. Dado un usuario que interactúa con el formulario, cuando 
+modifica los valores en cualquiera de las pestañas, entonces 
+el sistema debe permitir la edición de dichos campos. 
+4. Dado un usuario que ha modificado los datos y hace clic 
+en Guardar, cuando la operación es exitosa, entonces el 
+sistema debe actualizar la información del colaborador en la 
+base de datos y cerrar el formulario modal. 
+Prioridad 
+Alta 
+Puntos de Historia 
+3 
+Tabla 23: HU-020: Modificar Datos de Costos de un Recurso Humano. Elaboración 
+propia. 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 58 =====
+ 
+57 
+ID 
+HU-021 
+Nombre 
+Eliminar un Recurso Humano 
+Descripción 
+Como usuario administrador, quiero poder eliminar un 
+recurso humano del sistema, tanto durante el proceso de 
+cotización como desde el Panel de Gestión, para mantener 
+actualizado el listado de colaboradores. 
+Criterios de 
+Aceptación 
+1. Dado un usuario en la pantalla de Asignación de Recurso 
+Humano, cuando selecciona la acción Eliminar de un 
+colaborador, entonces el sistema debe mostrar un modal de 
+confirmación. 
+2. Dado un usuario en el Panel de Gestión, cuando selecciona 
+la acción Eliminar de un colaborador, entonces el sistema 
+debe mostrar el mismo modal de confirmación. 
+3. Dado que el modal de confirmación está visible, cuando el 
+usuario confirma la acción, entonces el sistema debe proceder 
+a eliminar permanentemente el colaborador de la base de 
+datos. 
+4. Dado que la eliminación fue exitosa, cuando la operación 
+finaliza, entonces el colaborador debe desaparecer del listado 
+en la interfaz y el sistema debe mostrar una notificación de 
+éxito. 
+5. Dado que el modal de confirmación está visible, cuando el 
+usuario anula la acción, entonces el colaborador no debe ser 
+eliminado. 
+Prioridad 
+Media 
+Puntos de Historia 
+2 
+Tabla 24: HU-021: Eliminar un Recurso Humano. Elaboración propia. 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 59 =====
+ 
+58 
+ID 
+HU-022 
+Nombre 
+Consultar y Gestionar Historial de Presupuestos 
+Descripción 
+Como usuario administrador, quiero acceder a un historial de 
+todos los presupuestos guardados para poder consultarlos, 
+gestionar sus documentos y eliminarlos si es necesario. 
+Criterios de 
+Aceptación 
+1. Dado un usuario que navega a la sección Historial de 
+Cotizaciones, cuando la pantalla carga, entonces el sistema 
+debe mostrar un listado paginado de todos los presupuestos 
+previamente guardados. 
+2. Dado el listado del historial, cuando el usuario lo visualiza, 
+entonces cada fila debe mostrar la información principal del 
+presupuesto, incluyendo su fecha, la ruta, el tipo de servicio y 
+el monto final. 
+3. Dado un presupuesto en el listado, cuando el usuario 
+selecciona la acción para Ver Propuesta Cliente, entonces el 
+sistema debe generar y abrir el documento digital 
+correspondiente en una nueva pestaña. 
+4. Dado un presupuesto en el listado, cuando el usuario 
+selecciona la acción para Ver Desglose Interno, entonces el 
+sistema debe generar y abrir el documento digital 
+correspondiente en una nueva pestaña. 
+5. Dado un presupuesto en el listado, cuando el usuario 
+selecciona la acción Eliminar, entonces el sistema debe 
+mostrar un modal de confirmación antes de proceder con la 
+eliminación permanente del registro. 
+Prioridad 
+Media 
+Puntos de Historia 
+5 
+Tabla 25: HU-022: Consultar y Gestionar Historial de Presupuestos. Elaboración propia. 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 60 =====
+ 
+59 
+ID 
+HU-023 
+Nombre 
+Visualizar Panel de Inteligencia de Negocio 
+Descripción 
+Como usuario administrador, quiero acceder a un Panel de 
+Inteligencia de Negocio con indicadores y visualizaciones de 
+datos para analizar el rendimiento histórico de mis 
+cotizaciones y tomar decisiones estratégicas que optimicen la 
+rentabilidad. 
+Criterios de 
+Aceptación 
+1. Dado un usuario que navega a la sección Panel de 
+Inteligencia de Negocio, cuando la pantalla carga, entonces el 
+sistema debe mostrar un panel con la capacidad de filtrar los 
+datos por períodos de tiempo. 
+2. Dado el panel, cuando el usuario lo visualiza, entonces 
+deben 
+mostrarse 
+tarjetas 
+con Indicadores Clave de 
+Rendimiento para el período seleccionado, como el volumen 
+total cotizado y el margen de ganancia promedio. 
+3. Dado el panel, cuando el usuario lo visualiza, entonces 
+debe incluir una visualización gráfica que muestre el 
+rendimiento del negocio a lo largo del tiempo. 
+4. Dado el panel, cuando el usuario lo visualiza, entonces 
+debe incluir una visualización que permita analizar la 
+composición general de los costos, como la distribución entre 
+Vehículo, Recurso Humano y Otros. 
+Prioridad 
+Media 
+Puntos de Historia 
+8 
+Tabla 26: HU-023: Visualizar Panel de Inteligencia de Negocio. Elaboración propia. 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 61 =====
+ 
+60 
+Sprint Backlog 
+A partir de las Historias de Usuario, se estableció el alcance del primer sprint . 
+La duración de este ciclo de trabajo se fijó en 14 días, detallando las tareas en horas para 
+una estimación más precisa. 
+ID 
+Historia de 
+Usuario 
+Tareas Detalladas 
+Estimado 
+(horas) 
+Estado 
+HU-
+002 
+Registrarse con 
+Email y 
+Contraseña 
+1. Diseñar UI de la página de 
+registro. 
+2. Crear el modelo de datos 
+Usuario en la base de datos. 
+3. Desarrollar la ruta y el 
+controlador de registro en el 
+servidor. 
+4. Implementar el formulario y 
+sus validaciones en la interfaz 
+de usuario. 
+5. Realizar pruebas de la 
+creación de usuario y el 
+cifrado de contraseña. 
+8 
+Finalizado 
+HU-
+001 
+Iniciar Sesión 
+con Email y 
+Contraseña 
+1. Desarrollar la ruta y el 
+controlador de inicio de sesión 
+con generación de token. 
+2. Implementar el formulario 
+de inicio de sesión y la gestión 
+de la sesión del usuario. 
+3. Implementar la lógica para 
+proteger rutas y redirigir al 
+usuario. 
+4. Realizar pruebas de 
+autenticación. 
+8 
+Finalizado 
+ 
+
+
+===== PAGINA 62 =====
+ 
+61 
+HU-
+014 
+Registrar un 
+Nuevo 
+Vehículo en la 
+Flota 
+1. Crear el modelo de datos 
+Vehículo en la base de datos. 
+2. Desarrollar la ruta y el 
+controlador para registrar un 
+nuevo vehículo. 
+3. Implementar el formulario 
+modal de alta y su lógica de 
+guardado en la interfaz. 
+4. Realizar pruebas del alta de 
+un vehículo. 
+8 
+Finalizado 
+HU-
+018 
+Registrar un 
+Nuevo Recurso 
+Humano 
+1. Crear el modelo de datos 
+RecursoHumano en la base de 
+datos. 
+2. Desarrollar la ruta y el 
+controlador para registrar un 
+nuevo colaborador. 
+3. Implementar el formulario 
+modal de alta y su lógica de 
+guardado en la interfaz. 
+4. Realizar pruebas del alta de 
+un colaborador. 
+8 
+Finalizado 
+HU-
+005 
+Definir Ruta de 
+Viaje y Tipo de 
+Carga 
+1. Diseñar la interfaz del mapa 
+y el buscador de direcciones. 
+2. Integrar la API de Google 
+Maps para el cálculo de rutas. 
+3. Desarrollar el componente 
+de mapa interactivo en la 
+interfaz. 
+4. Realizar pruebas del cálculo 
+de distancia y duración. 
+16 
+Finalizado 
+HU-
+006 
+Establecer 
+Frecuencia del 
+Servicio 
+1. Diseñar la interfaz para la 
+selección de tipo de servicio. 
+2. Implementar la lógica para 
+el cálculo de viajes totales en 
+4 
+Finalizado 
+ 
+
+
+===== PAGINA 63 =====
+ 
+62 
+la interfaz. 
+HU-
+007 
+Asignar 
+Vehículo a 
+Cotización 
+1. Desarrollar la conexión para 
+obtener el listado de 
+vehículos. 
+2. Implementar la tabla de 
+vehículos con paginación y la 
+lógica de selección en la 
+interfaz. 
+4 
+Finalizado 
+HU-
+008 
+Asignar 
+Recurso 
+Humano a 
+Cotización 
+1. Desarrollar la conexión para 
+obtener el listado de personal. 
+2. Implementar la tabla de 
+personal con paginación y la 
+lógica de selección en la 
+interfaz. 
+4 
+Finalizado 
+HU-
+009 
+Calcular 
+Costos y 
+visualizarlos en 
+Tiempo Real 
+1. Desarrollar el servicio de 
+cálculo de vehículo y el 
+servicio de cálculo de recurso 
+humano en el servidor. 
+2. Crear la conexión principal 
+de la API para recibir los 
+datos y devolver el cálculo. 
+3. Conectar el Panel de Misión 
+para que se actualice en cada 
+cambio en la interfaz. 
+4. Realizar pruebas de 
+precisión de los cálculos. 
+28 
+Finalizado 
+HU-
+010 
+Guardar 
+Presupuesto 
+con Ajustes 
+Finales 
+1. Crear el modelo de datos 
+Presupuesto en la base de 
+datos. 
+2. Desarrollar la conexión de 
+la API para guardar la 
+cotización completa. 
+3. Implementar la lógica de 
+finalización y cambio de 
+8 
+Finalizado 
+ 
+
+
+===== PAGINA 64 =====
+ 
+63 
+estado de la interfaz. 
+4. Realizar pruebas del 
+guardado del presupuesto. 
+HU-
+011 
+Generar 
+Documentos 
+Digitales de la 
+Cotización 
+1. Diseñar las plantillas 
+HTML para la Propuesta y el 
+Desglose. 
+2. Crear las rutas en el 
+servidor que utilizan la librería 
+de generación de documentos. 
+3. Conectar los botones de la 
+interfaz a las rutas de 
+generación. 
+4. Realizar pruebas de la 
+correcta generación de los 
+documentos. 
+16 
+Finalizado 
+ 
+TOTAL 
+ESTIMADO 
+ 
+112 
+ 
+Tabla 27. Sprint Backlog. Elaboración propia. 
+ 
+Estructura de Datos 
+Para el almacenamiento de datos se seleccionó una base de datos NoSQL 
+orientada a documentos, específicamente MongoDB, que agrupa la información en una 
+única estructura. Como la lógica del sistema se basa en objetos que representan las 
+entidades del dominio, tales como vehículos, personal y presupuestos, se presenta 
+primero un Diagrama de Clases. Este diagrama visualiza la estructura lógica de dichos 
+objetos, sus atributos y relaciones, previo a su implementación en la base de datos. 
+ 
+
+
+===== PAGINA 65 =====
+ 
+64 
+Ilustración 4. Diagrama de clases - Modelo de Dominio. Elaboración propia. 
+ 
+
+
+===== PAGINA 66 =====
+ 
+65 
+Una vez modelada la estructura lógica de los objetos en el Diagrama de Clases, 
+se detalla a continuación cómo se implementa su persistencia en la base de datos 
+NoSQL. El siguiente diagrama representa la arquitectura de datos en MongoDB, 
+mostrando la organización de las colecciones y la estructura de los documentos.  
+ 
+Ilustración 5. Arquitectura de Base de Datos NoSQL (MongoDB). Elaboración propia. 
+ 
+ 
+
+
+===== PAGINA 67 =====
+ 
+66 
+Prototipos de interfaces de pantallas 
+A continuación, se presentan los prototipos de interfaz de pantalla del Sistema 
+de Cotización Inteligente. Estos diseños, elaborados como bosquejos no funcionales, 
+tuvieron como objetivo ilustrar el encadenamiento lógico de su proceso de negocio 
+principal: el sistema de cotización.  
+La primera pantalla del sistema dio inicio al flujo de cotización, centrándose en 
+la definición de la ruta. El usuario ingresó la localización de origen y destino utilizando 
+un buscador que autocompletó direcciones mediante la API de Google Maps. El sistema 
+calculó automáticamente la distancia y duración del trayecto, y actualizó en tiempo real 
+el panel de misión. En esta etapa también se definió si la ruta era de ida y vuelta y se 
+seleccionó el tipo de carga, variable que impactó directamente en los costos posteriores 
+del vehículo. 
+Ilustración 6. Prototipo de Interfaz – Definir Ruta de Viaje y Tipo de Carga. 
+Corresponde a la HU-005. Fuente: Elaboración propia. 
+ 
+
+
+===== PAGINA 68 =====
+ 
+67 
+En la sección de Frecuencia del servicio, el sistema se enfocó en la definición de 
+la frecuencia del servicio. La interfaz le presentó al usuario dos modalidades de 
+operación: Esporádico, para un número determinado de viajes, y Mensual, para 
+servicios recurrentes. La selección de una de estas opciones desplegó controles 
+específicos, como el selector de días de la semana para la frecuencia mensual. Esta 
+elección fue un parámetro fundamental para el motor de cálculo, ya que determinó 
+cómo se prorratearon los costos fijos del vehículo y del personal en la cotización final. 
+Ilustración 7. Prototipo de Interfaz – Establecer Frecuencia del Servicio. Corresponde a 
+la HU-006. Fuente: Elaboración propia. 
+ 
+En la sección de Asignación de Vehículo, la interfaz le presentó al usuario la 
+flota de vehículos disponibles en el sistema. Desde esta pantalla, se seleccionó la unidad 
+que se asignaría a la operación. Al elegir un vehículo, el sistema ejecutó en tiempo real 
+el motor de cálculo de costos específico para esa unidad, procesando sus variables de 
+desgaste, consumo y costos fijos. El resultado de este cálculo se reflejó inmediatamente 
+ 
+
+
+===== PAGINA 69 =====
+ 
+68 
+en el Panel de Misión, mostrando por primera vez un desglose detallado de los costos 
+operativos del vehículo para la ruta y frecuencia ya definidas. 
+Ilustración 8. Prototipo de Interfaz – Asignar Vehículo a Cotización. Corresponde a la 
+HU-007 y HU-009. Fuente: Elaboración propia. 
+ 
+En la sección de Asignación de Recurso Humano, el sistema presentó la nómina 
+de recursos humanos disponibles para asignar a la misión. De manera análoga al paso 
+anterior, la interfaz mostró una tabla con el personal, permitiendo al usuario seleccionar 
+al colaborador responsable del viaje. Al realizar esta selección, el motor de cálculo 
+procesó la estructura de costos específica de esa persona, considerando su modalidad de 
+contratación y variables salariales. El Panel de Misión se actualizó para incluir el 
+desglose detallado de los costos del recurso humano, sumándose al costo del vehículo 
+ya calculado. 
+ 
+ 
+ 
+
+
+===== PAGINA 70 =====
+ 
+69 
+ 
+Ilustración 9. Prototipo de Interfaz – Asignar Recurso Humano a Cotización. 
+Corresponde a la HU-008. 
+ 
+En la pantalla de Configuración Final de la cotización, donde se realizaron los 
+ajustes finales para definir la rentabilidad de la operación. En esta interfaz, el usuario 
+estableció el margen de ganancia deseado y los costos administrativos a través de 
+controles deslizantes. Además, se ingresaron otros costos directos de la ruta, como los 
+peajes. Con esta información, el sistema consolidó todos los cálculos previos y presentó 
+en el Panel de Misión el resumen final, mostrando el precio de venta definitivo y 
+habilitando la acción para generar la propuesta comercial formal. 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 71 =====
+ 
+70 
+Ilustración 10. Prototipo de Interfaz – Guardar Presupuesto con Ajustes Finales. 
+Corresponde a la HU-010. 
+Diagrama de Arquitectura 
+La arquitectura del Sistema de Cotización Inteligente se diseñó bajo un modelo 
+cliente-servidor que desacopló la interfaz de la lógica de negocio para garantizar su 
+escalabilidad. El flujo se inició cuando el usuario accedió desde un navegador web a la 
+aplicación de una sola página (SPA) construida en React. Dicha interfaz se comunicó 
+mediante peticiones HTTPS con una API RESTful desarrollada en Node.js, la cual 
+actuó como núcleo del sistema. Esta API orquestó toda la lógica de negocio, los 
+cálculos de costos y la comunicación tanto con la base de datos MongoDB para la 
+persistencia de la información como con servicios externos, específicamente la API de 
+Google Maps para las funcionalidades geoespaciales. 
+ 
+ 
+
+
+===== PAGINA 72 =====
+ 
+71 
+Ilustración 11. Diagrama de Arquitectura del Sistema de Cotización Inteligente. Fuente: 
+Elaboración propia. 
+ 
+Seguridad 
+La seguridad fue un pilar fundamental en el diseño del Sistema de Cotización 
+Inteligente, concebida para garantizar la integridad, confidencialidad y disponibilidad de 
+la información. La política de seguridad del proyecto se estructuró en dos áreas 
+principales: el control de acceso a la aplicación y la política de respaldo de la 
+información. 
+Acceso a la Aplicación 
+El acceso al Sistema de Cotización Inteligente se gestionó mediante un sistema 
+de roles y políticas de autenticación robustas. El diseño del proyecto buscó proteger los 
+datos y asegurar que cada usuario interactuara únicamente con los recursos que le 
+correspondían, adhiriéndose al principio de mínimo privilegio. Este principio es un 
+concepto de seguridad informática que dicta que a un usuario se le deben otorgar 
+únicamente los permisos necesarios para realizar sus tareas autorizadas, y no más. 
+ 
+
+
+===== PAGINA 73 =====
+ 
+72 
+Perfiles de Usuario 
+El proyecto definió dos perfiles con responsabilidades y permisos claramente 
+diferenciados: 
+●​ Perfil Usuario Operativo: Fue el rol diseñado para el personal encargado de la 
+gestión comercial diaria. Operó dentro de un espacio de trabajo privado y 
+aislado, con acceso exclusivo a los recursos que él mismo creó. 
+●​ Perfil Administrador: Fue un rol con privilegios elevados, responsable de la 
+administración estratégica del sistema. Sus funciones incluyeron la gestión de 
+cuentas de usuario, la supervisión de la plataforma y el control sobre la lógica 
+del motor de negocio. 
+Niveles de Acceso y Permisos 
+●​ Permisos del Usuario Operativo: 
+○​ Creación de Presupuestos: Realizar el proceso completo de cotización de 
+servicios. 
+○​ Gestión de Recursos Propios: Control total para Crear, Leer, Actualizar y 
+Eliminar sobre su propia flota de vehículos y nómina de recursos 
+Humanos. 
+○​ Consulta de Historial: Acceder al registro histórico de los presupuestos 
+generados por su cuenta. 
+●​ Permisos del Administrador: 
+○​ Permisos Totales: Incluyó todas las capacidades del Usuario Operativo. 
+○​ Control del Motor de Cálculo: Gestionar las plantillas de costos globales 
+para todos los tipos de vehículos y recursos humanos. 
+○​ Gestión de Cuentas: Administrar los perfiles de Usuario Operativo. 
+○​ Supervisión y Soporte: Acceder a paneles de analíticas con datos 
+agregados de toda la plataforma y visualizar los recursos de otros 
+usuarios en modo de solo lectura para fines de soporte técnico. 
+ 
+
+
+===== PAGINA 74 =====
+ 
+73 
+Políticas de Claves y Autenticación 
+Para asegurar un acceso robusto al sistema, se establecieron las siguientes 
+políticas: 
+1.​ Identificación de Usuario: Se definió la dirección de correo electrónico del 
+usuario como su identificador único para el inicio de sesión. 
+2.​ Complejidad de Contraseña: Se requirió que toda contraseña tuviera una 
+longitud mínima de ocho caracteres y contuviera, al menos, una letra mayúscula, 
+una minúscula, un número y un carácter especial. 
+3.​ Almacenamiento Seguro: Las contraseñas se sometieron a un proceso de 
+hashing utilizando el algoritmo Bcrypt.js antes de ser guardadas, lo que las hizo 
+irreversibles. 
+4.​ Bloqueo de Cuenta: Se determinó que el sistema bloquearía automáticamente 
+una cuenta por un período de una hora tras tres intentos fallidos de inicio de 
+sesión consecutivos. 
+5.​ Periodicidad y Criterios de Cambio: Se estableció una política de cambio de 
+contraseña obligatoria cada noventa días y se impidió la reutilización de las 
+últimas tres contraseñas utilizadas por el usuario. 
+6.​ Autenticación Social: Se ofreció la opción de registro e inicio de sesión a través 
+de cuentas de Google, utilizando el protocolo estándar y seguro OAuth 2.0. 
+7.​ Gestión de Sesión: Las sesiones se administraron mediante JSON Web Tokens, 
+un estándar abierto que permitió la transmisión segura de información, 
+asegurando que cada petición estuviera debidamente autenticada. 
+8.​ Primer Ingreso: El sistema le exigió al usuario cambiar su contraseña temporal 
+en el primer inicio de sesión para las cuentas creadas por un administrador. 
+Política de Respaldo de Información 
+Para proteger la información del proyecto y asegurar la operatividad del sistema, 
+se diseñó una estrategia de respaldo de triple capa, la cual combinó respaldos lógicos 
+ 
+
+
+===== PAGINA 75 =====
+ 
+74 
+diarios, copias de seguridad externas y snapshots completos del servidor para 
+maximizar la resiliencia. 
+●​ Resguardo y Respaldo de la Base de Datos​
+La estrategia combinó respaldos granulares de la base de datos con imágenes 
+completas del servidor: 
+1.​ Respaldo Lógico Diario de la Base de Datos: Se configuró un script 
+desarrollado en Bash en el Servidor Privado Virtual para ejecutarse 
+automáticamente todos los días a las 2:00 AM. Este script utilizó la 
+herramienta nativa mongodump para generar un archivo con el respaldo 
+exclusivo de la base de datos MongoDB. 
+2.​ Copia de Seguridad Externa: El mismo script se encargó de transferir el 
+archivo de respaldo de la base de datos al servicio de almacenamiento en 
+la nube Google Cloud Storage. Esta medida aseguró una copia externa de 
+los datos para la recuperación ante desastres. 
+3.​ Snapshot Semanal del Servidor Completo: Como tercera capa de 
+seguridad, se utilizó el servicio de respaldos semanales proporcionado 
+por Hostinger. Este proceso creó una imagen completa del servidor que 
+incluyó tanto el código de la aplicación backend como la base de datos, 
+sirviendo como una red de seguridad para una restauración total del 
+entorno. 
+●​ El acceso a los respaldos almacenados, tanto en el servicio externo como en el 
+proveedor de alojamiento, se gestionó a través de los mecanismos de seguridad 
+de cada plataforma. Las credenciales de acceso se restringieron exclusivamente 
+al personal técnico autorizado de la empresa Sol del Amanecer S.R.L., 
+asegurando la confidencialidad de las copias. 
+●​ Disponibilidad de la Información​
+El sistema se diseñó para operar con una disponibilidad continua de 24 horas, 
+los 7 días de la semana. Esta alta disponibilidad se garantizó mediante el uso de 
+los servicios de alojamiento comercial de Hostinger, cuya infraestructura está 
+preparada para una operación ininterrumpida. 
+ 
+
+
+===== PAGINA 76 =====
+ 
+75 
+Análisis de Costos 
+Para determinar la inversión requerida para el proyecto, se realizó un análisis 
+detallado que desglosa los costos en las categorías de desarrollo, operativos, software y 
+hardware. Todos los valores se expresan en Pesos Argentinos. 
+Costos de Desarrollo 
+Los costos de desarrollo se calcularon en base al esfuerzo estimado en horas 
+para el equipo profesional requerido. Los honorarios de referencia para cada rol se 
+obtuvieron de la tabla publicada por el Consejo Profesional de Ciencias Informáticas de 
+la Provincia de Córdoba (CPCIPC, 2025). 
+Rol 
+Horas 
+Estimadas 
+Costo por Hora 
+Costo Total 
+Desarrollador Full-Stack 
+480 
+$17.092,81 
+$8.204.548,80 
+Analista Funcional 
+320 
+$10.679,24 
+$3.417.356,80 
+Diseñador UX/UI 
+160 
+$11.954,22 
+$1.912.675,20 
+Costo Total de Desarrollo 
+ 
+ 
+$13.534.580,80 
+Tabla 28. Costos de Desarrollo - Recursos Humano. Fuente: Elaboración propia en base 
+a datos del CPCIPC (2025). 
+ 
+Costos Operativos 
+Los costos operativos corresponden a la infraestructura tecnológica y los 
+servicios necesarios para el despliegue y funcionamiento continuo del proyecto. Los 
+precios fueron obtenidos directamente del sitio web del proveedor Hostinger (2025). 
+ 
+ 
+
+
+===== PAGINA 77 =====
+ 
+76 
+Servicio 
+Proveedor 
+Detalle 
+Costo 
+Mensual 
+Costo Anual 
+Servidor 
+VPS 
+Hostinger 
+Plan KVM 2 para 
+backend y BD 
+$13.999,00 
+$167.988,00 
+Alojamiento 
+Web 
+Hostinger 
+Plan Single para 
+frontend 
+$1.999,00 
+$23.988,00 
+Dominio 
+Web 
+Hostinger 
+Dominio clogistico.site 
+$174,92 
+$2.099,00 
+Costo Total 
+Operativo 
+ 
+ 
+$16.172,92 
+$194.075,00 
+Tabla 29. Costos de Infraestructura y Servicios. Fuente: Elaboración propia en base a 
+datos de Hostinger (2025). 
+ 
+Costos de Software y Licencias 
+El desarrollo del proyecto se apalancó estratégicamente en el uso de tecnologías 
+de código abierto y herramientas con licencias gratuitas para minimizar los costos de 
+licenciamiento. 
+Tecnología 
+Rol en el Proyecto 
+Tipo de 
+Licencia 
+Costo Anual 
+Node.js 
+Entorno de ejecución del 
+Backend 
+Código Abierto 
+$0 
+Express.js 
+Framework del Backend 
+Código Abierto 
+$0 
+MongoDB 
+Base de Datos 
+Community 
+(SSPL) 
+$0 
+React 
+Librería del Frontend 
+Gratuita (MIT) 
+$0 
+Visual Studio 
+Code 
+Entorno de Desarrollo 
+(IDE) 
+Gratuita (MIT) 
+$0 
+ 
+
+
+===== PAGINA 78 =====
+ 
+77 
+Costo Total de 
+Software 
+ 
+ 
+$0 
+Tabla 30. Costos de Software. Fuente: Elaboración propia. 
+ 
+Costos de Hardware 
+Dado que la arquitectura del proyecto se basa enteramente en servicios de 
+infraestructura en la nube, no se requirió la adquisición de hardware físico de 
+servidores. Adicionalmente, se partió del supuesto de que el equipo de desarrollo utiliza 
+su propio equipamiento informático preexistente, por lo que no se imputaron costos de 
+adquisición de hardware al presupuesto del proyecto. 
+ 
+Resumen de Costos del Proyecto 
+La tabla 31 consolida la inversión total requerida para el primer año del 
+proyecto. 
+ 
+Concepto 
+Costo Total 
+Costo Total de Desarrollo (única vez) 
+$13.534.580,80 
+Costo Total Operativo (anual) 
+$194.075,00 
+Inversión Total del proyecto 
+$13.728.655,80 
+Tabla 31.  Resumen de Inversión del proyecto. Fuente: Elaboración propia. 
+ 
+ 
+ 
+
+
+===== PAGINA 79 =====
+ 
+78 
+Análisis de Riesgos 
+Para la gestión de riesgos del proyecto se llevó a cabo un proceso de 
+identificación, análisis cualitativo, análisis cuantitativo y planificación de respuestas. El 
+objetivo fue detectar las incertidumbres que podrían afectar el logro de los objetivos del 
+proyecto y definir estrategias para reducir su probabilidad de ocurrencia y/o su impacto 
+sobre el cronograma, el alcance y los costos. 
+Identificación de riesgos 
+En primer lugar, se identificaron los riesgos relevantes para el proyecto, 
+clasificándolos según su naturaleza —riesgos de proyecto, riesgos técnicos y riesgos de 
+negocio— e incorporando la causa principal asociada a cada uno. En la siguiente tabla 
+se presentan los riesgos detectados, el tipo de riesgo al que pertenecen y la causa que los 
+origina. 
+ID 
+Tipo 
+Riesgo 
+Causa 
+1 
+Proyecto 
+Error en la estimación de 
+tiempo 
+La complejidad del motor de 
+cálculo y la falta de experiencia 
+en proyectos similares pueden 
+llevar a subestimar el esfuerzo 
+real necesario para el desarrollo. 
+2 
+Proyecto 
+Expansión no controlada 
+del alcance 
+La incorporación de nuevas 
+funcionalidades no previstas, sin 
+un proceso formal de control de 
+cambios, puede ampliar el 
+alcance original afectando 
+tiempos y costos. 
+3 
+Proyecto 
+Enfermedad de personal 
+clave 
+La dependencia de un número 
+reducido de personas en tareas 
+críticas, sin recursos de respaldo 
+definidos, incrementa el impacto 
+de ausencias inesperadas. 
+ 
+
+
+===== PAGINA 80 =====
+ 
+79 
+4 
+Técnico 
+Dependencia crítica de 
+API externa 
+El uso exclusivo de la API de 
+Google Maps para el cálculo de 
+rutas, sin alternativas 
+configuradas, expone al sistema 
+a cambios o interrupciones del 
+proveedor. 
+5 
+Técnico 
+Error lógico en el motor 
+de cálculo 
+La complejidad de las fórmulas y 
+reglas de negocio, combinada 
+con una cobertura de pruebas 
+insuficiente, puede provocar 
+errores lógicos difíciles de 
+detectar. 
+6 
+Técnico 
+Obsolescencia 
+tecnológica 
+Las tecnologías utilizadas 
+(frameworks, librerías y 
+servicios externos) evolucionan 
+rápidamente y, sin una estrategia 
+de actualización, pueden quedar 
+desfasadas y exigir reescrituras 
+no planificadas. 
+7 
+Negocio 
+Resistencia al cambio del 
+personal 
+El hábito de trabajar con 
+procesos manuales y la falta de 
+participación temprana del 
+personal en el diseño del sistema 
+pueden generar rechazo a la 
+adopción de la nueva 
+herramienta. 
+8 
+Negocio 
+Vulnerabilidad de 
+seguridad 
+La ausencia o debilidad de 
+controles de seguridad (gestión 
+de accesos, cifrado, respaldo y 
+monitoreo) puede exponer datos 
+sensibles de costos y márgenes, 
+generando desventajas 
+competitivas. 
+Tabla 32. Riesgos identificados del proyecto. Fuente: Elaboración propia. 
+ 
+ 
+
+
+===== PAGINA 81 =====
+ 
+80 
+A continuación se realizó un análisis cualitativo de los riesgos identificados, 
+evaluando para cada uno la probabilidad de ocurrencia y el impacto potencial sobre el 
+proyecto. 
+La probabilidad de ocurrencia se valoró en cinco niveles: muy baja, baja, media, 
+alta y muy alta, según la posibilidad estimada de que el evento se concrete durante la 
+ejecución del proyecto. 
+El grado de impacto también se expresó en cinco niveles: muy bajo, bajo, 
+medio, alto y muy alto, de acuerdo con el efecto esperado sobre el cronograma, los 
+costos y el alcance en caso de materializarse el riesgo. 
+ID 
+Tipo 
+Riesgo 
+Probabilidad 
+Impacto 
+1 
+Proyecto 
+Error en la estimación de tiempo 
+Media 
+Alto 
+2 
+Proyecto 
+Expansión no controlada del alcance 
+Media 
+Alto 
+3 
+Proyecto 
+Enfermedad de personal clave 
+Baja 
+Medio 
+4 
+Técnico 
+Dependencia crítica de API externa 
+Baja 
+Muy alto 
+5 
+Técnico 
+Error lógico en el motor de cálculo 
+Media 
+Alto 
+6 
+Técnico 
+Obsolescencia tecnológica 
+Baja 
+Alto 
+7 
+Negocio 
+Resistencia al cambio del personal 
+Muy alta 
+Medio 
+8 
+Negocio 
+Vulnerabilidad de seguridad 
+Muy baja 
+Muy alto 
+Tabla 33. Probabilidad e impacto de los riesgos del proyecto. Fuente: Elaboración 
+propia. 
+Análisis cuantitativo de riesgos 
+A partir del análisis cualitativo se realizó un análisis cuantitativo de los riesgos 
+identificados. Para ello se asignaron valores numéricos a los niveles de probabilidad de 
+ocurrencia: muy alta = 0,9; alta = 0,7; media = 0,5; baja = 0,3; muy baja = 0,1. Del 
+mismo modo, los niveles de impacto se valoraron como: muy bajo = 1; bajo = 2; medio 
+= 3; alto = 4; muy alto = 5. 
+ 
+
+
+===== PAGINA 82 =====
+ 
+81 
+Con estos valores se construyó una matriz probabilidad–impacto, en la que cada 
+celda representa el grado de exposición del riesgo, calculado como el producto entre la 
+probabilidad y el impacto. Cuanto mayor es este valor, mayor es la importancia del 
+riesgo para el proyecto y, en consecuencia, su prioridad de tratamiento. En la siguiente 
+tabla se presenta dicha matriz. 
+Tabla 34. Matriz probabilidad–impacto del riesgo. Fuente: Elaboración propia. 
+ 
+Aplicando la matriz probabilidad–impacto a los riesgos identificados, se calculó 
+el grado de exposición de cada uno de ellos. En la Tabla 34 se presentan los resultados 
+del análisis cuantitativo de los riesgos del proyecto: para cada riesgo se indica la 
+probabilidad de ocurrencia, el nivel de impacto, el grado de exposición obtenido como 
+producto de ambas dimensiones y su peso relativo respecto del riesgo total, junto con el 
+porcentaje acumulado. 
+ 
+ 
+Probabilidad 
+Porcentaje 
+Valor 
+Gravedad (impacto) 
+ 
+ 
+ 
+Muy 
+bajo 
+Bajo 
+Medio 
+Alto 
+Muy 
+alto 
+ 
+ 
+ 
+1 
+2 
+3 
+4 
+5 
+Muy alta 
+90% 
+0.9 
+0.9 
+1.8 
+2.7 
+3.6 
+4.5 
+Alta 
+70% 
+0.7 
+0.7 
+1.4 
+2.1 
+2.8 
+3.5 
+Media 
+50% 
+0.5 
+0.5 
+1 
+1.5 
+2 
+2.5 
+Baja 
+30% 
+0.3 
+0.3 
+0.6 
+0.9 
+1.2 
+1.5 
+Muy baja 
+10% 
+0.1 
+0.1 
+0.2 
+0.3 
+0.4 
+0.5 
+
+
+===== PAGINA 83 =====
+ 
+82 
+Riesgo 
+Probabilidad 
+de ocurrencia 
+Efecto o 
+impacto 
+Grado de 
+exposición 
+Porcentaje 
+Porcentaje 
+Acumulado 
+Resistencia al 
+cambio del 
+personal 
+90 % 
+3 
+2,7 
+21,1 % 
+21,1 % 
+Expansión no 
+controlada del 
+alcance 
+50 % 
+4 
+2 
+15,6 % 
+36,7 % 
+Error en la 
+estimación de 
+tiempo 
+50 % 
+4 
+2 
+15,6 % 
+52,3 % 
+Error lógico en el 
+motor de cálculo 
+50 % 
+4 
+2 
+15,6 % 
+67,9 % 
+Dependencia 
+crítica de API 
+externa 
+30 % 
+5 
+1,5 
+11,7 % 
+79,6 % 
+Obsolescencia 
+tecnológica 
+30 % 
+4 
+1,2 
+9,4 % 
+89,0 % 
+Enfermedad de 
+personal clave 
+30 % 
+3 
+0,9 
+7,0 % 
+96,0 % 
+Vulnerabilidad 
+de seguridad 
+10 % 
+5 
+0,5 
+3,9 % 
+100,0 % 
+Tabla 35. Análisis cuantitativo y grado de exposición de los riesgos del proyecto. 
+Fuente: Elaboración propia. 
+Análisis de Pareto de los riesgos 
+Para priorizar las acciones de respuesta se aplicó el principio de Pareto al 
+análisis cuantitativo de los riesgos. A partir de los porcentajes de exposición obtenidos 
+en la Tabla 34 se construyó un diagrama de Pareto, en el que las barras representan el 
+peso porcentual de cada riesgo sobre el total y la línea muestra el porcentaje acumulado. 
+ 
+ 
+ 
+
+
+===== PAGINA 84 =====
+ 
+83 
+ 
+Ilustración 12. Diagrama de Pareto de los riesgos del proyecto. Fuente: Elaboración 
+propia. 
+Como se observa en el diagrama, los cinco primeros riesgos —Resistencia al 
+cambio del personal, Expansión no controlada del alcance, Error en la estimación de 
+tiempo, Error lógico en el motor de cálculo y Dependencia crítica de API externa— 
+concentran aproximadamente el 80 % del riesgo total del proyecto (79,6 %). En 
+consecuencia, estos riesgos se consideran prioritarios y son los que se abordan 
+específicamente en el plan de contingencia. 
+Plan de contingencia 
+A partir de los resultados del análisis de Pareto, se diseñó un plan de 
+contingencia para los cinco riesgos de mayor exposición. El objetivo fue definir 
+acciones concretas que permitan reducir su probabilidad de ocurrencia y/o su impacto 
+en el proyecto. 
+ 
+ 
+ 
+
+
+===== PAGINA 85 =====
+ 
+84 
+Riesgo 
+Plan de contingencia 
+Resistencia al cambio del personal 
+Involucrar al personal de la empresa en 
+las 
+etapas 
+finales 
+del 
+desarrollo, 
+compartiendo 
+avances y recogiendo 
+comentarios. 
+Realizar 
+capacitaciones 
+breves y demostraciones del sistema 
+antes 
+de 
+su 
+puesta 
+en 
+marcha, 
+remarcando 
+los 
+beneficios 
+directos 
+(reducción de tareas manuales, mayor 
+precisión en las cotizaciones) y dejando 
+disponible un manual de uso sencillo 
+para acompañar la transición. 
+Expansión no controlada del alcance 
+Mantener claramente documentado el 
+alcance acordado del proyecto y registrar 
+por separado todas las nuevas ideas o 
+funcionalidades que surjan durante el 
+desarrollo. Evaluar cada propuesta junto 
+con el tutor y la empresa, priorizando 
+únicamente aquellas mejoras que sean 
+críticas para cumplir los objetivos del 
+TFG y dejando el resto como trabajo 
+futuro. En caso de aprobarse un cambio 
+relevante, actualizar el cronograma para 
+evitar que se comprometan los tiempos 
+de entrega. 
+Error en la estimación de tiempo 
+Desglosar las tareas complejas (por 
+ejemplo, el desarrollo del motor de 
+cálculo) en actividades más pequeñas y 
+manejables para mejorar la precisión de 
+las estimaciones. Revisar periódicamente 
+el avance real frente al planificado e 
+incorporar un margen de seguridad en las 
+tareas críticas, de modo que sea posible 
+absorber desvíos sin afectar la fecha de 
+entrega del proyecto. 
+ 
+
+
+===== PAGINA 86 =====
+ 
+85 
+Error lógico en el motor de cálculo 
+Definir y ejecutar un conjunto de pruebas 
+unitarias y funcionales específicas para el 
+motor de cálculo, utilizando casos de 
+prueba con datos reales de la empresa y 
+resultados 
+esperados 
+conocidos. 
+Complementar 
+estas 
+pruebas 
+con 
+revisiones 
+de 
+código 
+y 
+pruebas 
+integradas sobre escenarios completos de 
+cotización. Si se detecta un error en 
+producción, deshabilitar temporalmente 
+la funcionalidad afectada y utilizar 
+planillas auxiliares hasta corregir y 
+volver a validar el cálculo. 
+Dependencia crítica de API externa 
+(Google Maps) 
+Implementar un manejo robusto de 
+errores y tiempos de respuesta de la API 
+(reintentos limitados, mensajes claros al 
+usuario) y parametrizar las claves y 
+URLs de acceso para facilitar un cambio 
+futuro de proveedor. Como respaldo, 
+habilitar la carga manual de distancias o 
+kilómetros en el sistema y disponer de 
+planillas con trayectos frecuentes, de 
+modo que el cálculo de cotizaciones 
+pueda continuar aun ante una caída 
+temporal del servicio externo. 
+Tabla 36. Plan de contingencia para riesgos prioritarios. Fuente: Elaboración propia. 
+ 
+Conclusiones 
+El presente proyecto nació de una necesidad crítica identificada en la operación 
+comercial de Sol del Amanecer S.R.L.: la dependencia de procesos manuales para la 
+cotización de servicios de transporte. Esta metodología, basada en planillas de cálculo y 
+estimaciones subjetivas, generaba demoras en la respuesta a los clientes y una alta 
+propensión a errores que resultaban en la pérdida de oportunidades de negocio y en la 
+formulación de precios inconsistentes. El objetivo general del proyecto fue, por lo tanto, 
+desarrollar un Sistema de Cotización Inteligente que transformara este proceso artesanal 
+en un flujo de trabajo automatizado, preciso y profesional. 
+ 
+
+
+===== PAGINA 87 =====
+ 
+86 
+Este objetivo se cumplió con éxito mediante el desarrollo de una aplicación web 
+que ataca directamente la raíz del problema. Se implementó un motor de cálculo robusto 
+que procesa en tiempo real la compleja matriz de variables de costos, desde los 
+parámetros del vehículo hasta la estructura salarial del personal, eliminando los errores 
+y la subjetividad del método anterior. Adicionalmente, se automatizó la generación de 
+documentos digitales, permitiendo a la empresa presentar propuestas comerciales 
+estandarizadas y profesionales que pueden ser compartidas de forma instantánea, 
+mejorando drásticamente la agilidad comercial y la imagen corporativa de la empresa. 
+Desde una perspectiva profesional, el mayor desafío del proyecto fue la 
+inmersión en la lógica de negocio del transporte de carga para modelar y traducir sus 
+múltiples variables en un motor de cálculo funcional y preciso. A nivel personal, la 
+experiencia de aplicar los fundamentos de la ingeniería de software en un desafío real ha 
+sido profundamente satisfactoria. Haber desarrollado un proyecto tangible que aporta un 
+valor concreto y medible a una empresa como Sol del Amanecer S.R.L., ha reafirmado 
+la capacidad de la tecnología para optimizar procesos y potenciar la estrategia de 
+negocio. 
+Demo 
+En el siguiente enlace se podrá acceder al prototipo desarrollado, al código 
+fuente del sistema y a un material audiovisual con una demostración guiada de su uso. 
+El objetivo de este material es permitir la visualización del funcionamiento del sistema 
+y facilitar su ejecución en un entorno de prueba. 
+https://drive.google.com/drive/folders/10rRu-JTUpow_8c13_amQl-6r-5o7iasv?usp=sha
+ring 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 88 =====
+ 
+87 
+Referencias 
+Administración Nacional de Medicamentos, Alimentos y Tecnología Médica. (2018). 
+Disposición 2069/2018: Buenas Prácticas de Distribución de Medicamentos. 
+Boletín Oficial de la República Argentina. 
+Axios Community. (2025). Axios - Promise based HTTP client for the browser and 
+node.js. Recuperado el 8 de septiembre de 2025, de https://axios-http.com/ 
+Baruj, G. (Ed.). (2023). Tecnologías para la transformación digital en la industria 
+argentina. CIECTI. 
+Bootstrap. (2025). The most popular HTML, CSS, and JS library in the world. 
+Recuperado el 8 de septiembre de 2025, de https://getbootstrap.com/ 
+Calatayud, A., Katz, R., y Riobó, A. (2022). Impulsando la transformación digital del 
+transporte en América Latina y el Caribe (Monografía del BID No. 1011). 
+Banco Interamericano de Desarrollo. Recuperado el 8 de septiembre de 2025, 
+https://publications.iadb.org/publications/spanish/document/Impulsando-la-trans
+formacion-digital-del-transporte-en-America-Latina-y-el-Caribe.pdf 
+Chopra, S., y Meindl, P. (2013). Administración de la Cadena de Suministro: 
+Estrategia, Planeación y Operación (5.ª ed.). Pearson Educación. 
+Consejo Profesional de Ciencias Informáticas de la Provincia de Córdoba. (2025). 
+Honorarios recomendados. Recuperado el 19 de octubre de 2025, de 
+https://cpcipc.org.ar/honorarios-recomendados/ 
+Énfasis Logística. (2025, 8 de agosto). Salto en los costos del transporte de cargas tras 
+meses de relativa estabilidad. Énfasis Logística. Recuperado el 8 de septiembre 
+de 
+2025, 
+https://logistica.enfasis.com/transporte/los-costos-del-transporte-registraron-en-j
+ulio-el-mayor-aumento-del-ano/ 
+ 
+
+
+===== PAGINA 89 =====
+ 
+88 
+Ente Fiscalizador de Transporte. (2025). Escalas Salariales. Recuperado el 9 de 
+septiembre de 2025, de https://www.entefiscalizador.org.ar/ 
+Express. (2025). Express - Node.js web application framework. Recuperado el 8 de 
+septiembre de 2025, de https://expressjs.com/ 
+Federación Argentina de Entidades Empresarias del Autotransporte de Cargas. (2025). 
+Estudios económicos y costos. FADEEAC. Recuperado el 7 de septiembre de 
+2025, de https://www.fadeeac.org.ar/estudios-economicos-y-costos/ 
+Federación Nacional de Trabajadores Camioneros y Obreros del Transporte. (1989). 
+Convenio Colectivo de Trabajo N° 40/89. 
+Forbes Argentina. (2023, 10 de mayo). El nivel de digitalización del transporte de 
+cargas en la Argentina apenas llega al 5%. Forbes Argentina. Recuperado el 8 
+de 
+septiembre 
+de 
+2025, 
+https://www.forbesargentina.com/today/el-nivel-digitalizacion-transporte-cargas
+-argentina-apenas-llega-5-n32138 
+Framer. (2025). Framer Motion - A production-ready motion library for React. 
+Recuperado el 8 de septiembre de 2025, de https://www.framer.com/motion/ 
+GNW Software. (2025). SITca - Cotizador de Fletes. Recuperado el 8 de septiembre de 
+2025, de https://www.sitcaglobal.com/cotizador 
+Google. (2025a). Google Maps Platform Documentation. Recuperado el 8 de 
+septiembre de 2025, de https://developers.google.com/maps/documentation 
+Google. (2025b). Puppeteer. Recuperado el 8 de septiembre de 2025, de https://pptr.dev/ 
+Hello Pangea. (2025). @hello-pangea/dnd. npm. Recuperado el 8 de septiembre de 
+2025, de https://www.npmjs.com/package/@hello-pangea/dnd 
+Hostinger. (2025). Precios de Alojamiento Web y Servidores VPS. Recuperado el 19 de 
+octubre de 2025, de https://www.hostinger.com.ar/precios 
+ 
+
+
+===== PAGINA 90 =====
+ 
+89 
+Internet Security Research Group. (2025). Let's Encrypt. Recuperado el 18 de octubre 
+de 2025, de https://letsencrypt.org/ 
+Lucide. (2025). Lucide - Beautiful & consistent icons. Recuperado el 8 de septiembre 
+de 2025, de https://lucide.dev/ 
+Mantine Team. (2025). Mantine - A fully featured React components library. 
+Recuperado el 8 de septiembre de 2025, de https://mantine.dev/ 
+MDN Web Docs. (2025a). Cross-Origin Resource Sharing (CORS). Mozilla. 
+Recuperado 
+el 
+8 
+de 
+septiembre 
+de 
+2025, 
+de 
+https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS 
+MDN Web Docs. (2025b). Single-page application (SPA). Mozilla. Recuperado el 8 de 
+septiembre de 2025, de https://developer.mozilla.org/en-US/docs/Glossary/SPA 
+Meta. (2025). React - The library for web and native user interfaces. Recuperado el 8 
+de septiembre de 2025, de https://react.dev/ 
+Microsoft. (2025). ¿Qué es Excel?. Soporte técnico de Microsoft. Recuperado el 8 de 
+septiembre 
+de 
+2025, 
+de 
+https://support.microsoft.com/es-es/office/-qu%C3%A9-es-excel-94b00f50-589
+6-479c-b0c5-ff74603b35a3 
+MongoDB, Inc. (2025). MongoDB Atlas. Recuperado el 8 de septiembre de 2025, de 
+https://www.mongodb.com/ 
+Mongoose. (2025). Mongoose ODM. Recuperado el 8 de septiembre de 2025, de 
+https://mongoosejs.com/ 
+Okta. (2025). JSON Web Tokens. Recuperado el 8 de septiembre de 2025, de 
+https://jwt.io/ 
+OpenJS Foundation. (2025). About Node.js. Recuperado el 8 de septiembre de 2025, de 
+https://nodejs.org/about/ 
+ 
+
+
+===== PAGINA 91 =====
+ 
+90 
+Pactum. (2025, 19 de mayo). ¿Y si el futuro de la logística dependiera de un PACTO? 
+Infobae. 
+Recuperado 
+el 
+8 
+de 
+septiembre 
+de 
+2025, 
+https://www.infobae.com/movant/2025/05/19/y-si-el-futuro-de-la-logistica-depe
+ndiera-de-un-pacto/ 
+Remix. (2025). React Router. Recuperado el 8 de septiembre de 2025, de 
+https://reactrouter.com/ 
+Schwaber, K., y Sutherland, J. (2020). La Guía de Scrum: La Guía Definitiva de Scrum: 
+Las Reglas del Juego. Scrum.org. Recuperado el 8 de septiembre de 2025, de 
+https://scrumguides.org/docs/scrumguide/v2020/2020-Scrum-Guide-Spanish-Lat
+in-South-American.pdf 
+Setup Informática. (2025). Software TMS - Setup Transporte. Recuperado el 8 de 
+septiembre 
+de 
+2025, 
+de 
+https://www.setupinformatica.com.ar/soluciones/por-producto/tms-setup-transpo
+rte 
+Soldair. (2025). qrcode. npm. Recuperado el 8 de septiembre de 2025, de 
+https://www.npmjs.com/package/qrcode 
+Vite. (2025). Vite - Next Generation Frontend Tooling. Recuperado el 8 de septiembre 
+de 2025, de https://vitejs.dev/ 
+ 
+ 

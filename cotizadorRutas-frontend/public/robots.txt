@@ -1,0 +1,42 @@
+# ═══════════════════════════════════════════════════
+# Quotargo — robots.txt
+# https://quotargo.ar
+# ═══════════════════════════════════════════════════
+
+# Permitir todos los crawlers
+User-agent: *
+Allow: /
+Disallow: /cotizador/
+Disallow: /api/
+
+# Google
+User-agent: Googlebot
+Allow: /
+Allow: /landing
+Allow: /login
+Allow: /registro
+Allow: /guia-de-uso.html
+Disallow: /cotizador/
+Disallow: /api/
+
+# AI Crawlers — Permitir explícitamente
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+# Sitemap
+Sitemap: https://quotargo.ar/sitemap.xml
