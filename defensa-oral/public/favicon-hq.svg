@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 250">
+  <defs>
+    <!-- Gradiente cyan HD que hace popping out igual al de la landing -->
+    <linearGradient id="pinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+  </defs>
+
+  <!-- 
+    Reconstrucción Nivel Dios (V3):
+    - Hombros suavizados (Q-bezier en vez de corte seco).
+    - Cuadrado interno simétrico y balanceado (Squircle perfecto con margen corto arriba y ancho a los costados).
+    - Refinamiento de la punta inferior imitando la caída real del logo de RouteIQ.
+  -->
+  <path fill="url(#pinGrad)" fill-rule="evenodd" clip-rule="evenodd" d="
+    M 60 20 
+    L 140 20 
+    A 40 40 0 0 1 180 60 
+    L 180 125 
+    Q 180 148 163 163 
+    L 112 222 
+    Q 100 236 88 222 
+    L 37 163 
+    Q 20 148 20 125 
+    L 20 60 
+    A 40 40 0 0 1 60 20 
+    Z 
+    M 75 45 
+    A 15 15 0 0 0 60 60 
+    L 60 115 
+    A 15 15 0 0 0 75 130 
+    L 125 130 
+    A 15 15 0 0 0 140 115 
+    L 140 60 
+    A 15 15 0 0 0 125 45 
+    Z
+  "/>
+</svg>

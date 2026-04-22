@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240">
+  <defs>
+    <!-- Gradiente cyan HD que hace popping out -->
+    <linearGradient id="pinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    
+    <!-- Reflexión interna 3D -->
+    <linearGradient id="glassReflection" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3" />
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.0" />
+    </linearGradient>
+
+    <!-- Sombra Glow HD Drop -->
+    <filter id="dropGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#0ea5e9" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+  
+  <!-- Cuerpo base del pin -->
+  <path d="M 100 10 C 50.3 10 10 50.3 10 100 C 10 160 85 225 94.3 232.5 C 97.6 235.1 102.4 235.1 105.7 232.5 C 115 225 190 160 190 100 C 190 50.3 149.7 10 100 10 Z" fill="url(#pinGrad)" filter="url(#dropGlow)"/>
+  
+  <!-- Brillito superior curvo (efecto glossy) -->
+  <path d="M 100 10 C 50.3 10 10 50.3 10 100 C 10 106 12 110 15 110 C 40 80 150 70 185 105 C 188 105 190 102 190 100 C 190 50.3 149.7 10 100 10 Z" fill="url(#glassReflection)"/>
+
+  <!-- El hueco interior cuadrado con esquinas perfectas -->
+  <rect x="55" y="45" width="90" height="90" rx="32" fill="#020617" />
+</svg>

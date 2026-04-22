@@ -1,0 +1,84 @@
+/* ==========================================
+   FONDO GLOBAL — elimina barras negras
+   ========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #06101a !important;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+* {
+  font-family: 'Inter', system-ui, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Slidev internals — hacemos que todo sea transparente
+   para que el fondo del componente domine */
+#app > *,
+.slidev-page,
+#slide-container,
+#slide-wrapper,
+.slidev-layout,
+.slidev-canvas,
+.slidev-slide {
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  contain: none !important;
+}
+
+/* El "staging area" que rodea al canvas en Slidev
+   siempre debe ser el mismo color que el fondo de los slides */
+.slidev-slides-container,
+[class*="slidev-"] {
+  background-color: transparent !important;
+}
+
+/* ==========================================
+   OCULTAR PANEL DE NAVEGACIÓN FLOTANTE
+   ========================================== */
+
+/* Goto dialog / slide picker */
+.goto-dialog,
+.slidev-goto,
+.nav-goto,
+[class*="goto-dialog"],
+[class*="slidev-goto"] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Panel flotante de títulos de slides (top-right) */
+.slidev-nav-panel,
+.nav-slides,
+.slide-selector,
+.slides-list,
+[class*="nav-panel"],
+[class*="slides-panel"],
+[class*="slide-list"] {
+  display: none !important;
+}
+
+/* Controles de navegación de la barra inferior */
+.slidev-controls,
+.nav-controls-bar,
+.controls-bar,
+.slidev-progress-dots {
+  display: none !important;
+}
+
+/* ==========================================
+   OCULTAR GOTO DIALOG (la tecla g lo activa)
+   id exacto sacado del source de Slidev v0.49
+   ========================================== */
+#slidev-goto-dialog {
+  display: none !important;
+}
