@@ -33,9 +33,21 @@
 
       <!-- Architecture traits -->
       <div class="traits" v-click v-motion :initial="{opacity:0,y:14}" :enter="{opacity:1,y:0,transition:{duration:600}}">
-        <div class="trait"><span class="trait-key">Patrón</span><span class="trait-val">SPA + API RESTful</span></div>
-        <div class="trait"><span class="trait-key">Protocolo</span><span class="trait-val">HTTPS cifrado</span></div>
-        <div class="trait"><span class="trait-key">Auth</span><span class="trait-val">JWT + OAuth 2.0</span></div>
+        <div class="trait">
+          <div class="trait-accent cyan"></div>
+          <span class="trait-key">Patrón</span>
+          <span class="trait-val">SPA + API RESTful</span>
+        </div>
+        <div class="trait">
+          <div class="trait-accent indigo"></div>
+          <span class="trait-key">Protocolo</span>
+          <span class="trait-val">HTTPS cifrado</span>
+        </div>
+        <div class="trait">
+          <div class="trait-accent emerald"></div>
+          <span class="trait-key">Auth</span>
+          <span class="trait-val">JWT + OAuth 2.0</span>
+        </div>
       </div>
 
     </div>
@@ -272,25 +284,43 @@ h1 {
 .traits {
   display: flex;
   flex-direction: column;
-  gap: 0.18rem;
+  gap: 0.4rem;
 }
 .trait {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.6rem;
   align-items: center;
+  padding: 0.45rem 0.7rem;
+  background: rgba(15,23,42,0.6);
+  border: 1px solid rgba(71,85,105,0.2);
+  border-radius: 0.5rem;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.3s;
 }
+.trait:hover {
+  border-color: rgba(99,102,241,0.3);
+}
+.trait-accent {
+  width: 3px;
+  height: 18px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.trait-accent.cyan { background: #22d3ee; }
+.trait-accent.indigo { background: #6366f1; }
+.trait-accent.emerald { background: #34d399; }
 .trait-key {
-  font-size: 0.42rem;
+  font-size: 0.52rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #475569;
-  min-width: 50px;
+  color: #64748b;
+  min-width: 55px;
 }
 .trait-val {
-  font-size: 0.48rem;
-  color: #94a3b8;
-  font-weight: 400;
+  font-size: 0.58rem;
+  color: #e2e8f0;
+  font-weight: 500;
 }
 
 /* ═══ RIGHT: DIAGRAM ═══ */
@@ -406,8 +436,8 @@ h1 {
   white-space: nowrap;
 }
 .n-sub {
-  font-size: 0.38rem;
-  color: #475569;
+  font-size: 0.46rem;
+  color: #94a3b8;
   font-weight: 400;
   text-align: center;
   white-space: nowrap;

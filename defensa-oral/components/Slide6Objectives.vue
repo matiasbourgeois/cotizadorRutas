@@ -311,10 +311,10 @@ h1 {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.22em;
-  color: #475569;
+  color: #94a3b8;
   padding: 0.2rem 0.6rem;
-  background: rgba(71,85,105,0.15);
-  border: 1px solid rgba(71,85,105,0.25);
+  background: rgba(71,85,105,0.22);
+  border: 1px solid rgba(99,102,241,0.25);
   border-radius: 50px;
 }
 

@@ -389,8 +389,8 @@ h1 {
   color: #e2e8f0;
 }
 .wf-hint {
-  font-size: 0.35rem;
-  color: #475569;
+  font-size: 0.42rem;
+  color: #64748b;
   font-weight: 400;
   font-style: italic;
   margin-left: auto;
@@ -409,13 +409,13 @@ h1 {
   gap: 0.18rem;
 }
 .wf-tag {
-  font-size: 0.38rem;
-  color: #94a3b8;
+  font-size: 0.44rem;
+  color: #cbd5e1;
   font-weight: 400;
-  padding: 0.1rem 0.35rem;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(71,85,105,0.18);
-  border-radius: 0.2rem;
+  padding: 0.12rem 0.4rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(71,85,105,0.25);
+  border-radius: 0.25rem;
 }
 
 /* ── Connectors ── */
@@ -436,9 +436,9 @@ h1 {
   width: 2px;
 }
 .wf-op {
-  font-size: 0.65rem;
-  font-weight: 300;
-  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #64748b;
   line-height: 1;
 }
 .wf-op.eq {

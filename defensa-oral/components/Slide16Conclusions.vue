@@ -55,7 +55,7 @@
         <p class="obj-desc">Genera propuestas comerciales y desgloses de costos en formato digital estandarizado</p>
         <div class="obj-proof">
           <span class="proof-dot emerald"></span>
-          <span class="proof-text">PDF con QR automático</span>
+          <span class="proof-text">Documentos digitales</span>
         </div>
       </div>
 
@@ -150,7 +150,7 @@
 /* ═══ OBJECTIVES ROW ═══ */
 .objectives-row {
   position: relative; z-index: 1;
-  display: flex; align-items: flex-start; justify-content: center;
+  display: flex; align-items: stretch; justify-content: center;
   gap: 1rem; margin-bottom: 1.4rem;
 }
 
@@ -207,8 +207,8 @@
   to { stroke-dashoffset: 0; }
 }
 
-.obj-title { font-size: 0.68rem; font-weight: 800; color: #e2e8f0; margin-bottom: 0.12rem; }
-.obj-desc { font-size: 0.44rem; color: #64748b; font-weight: 300; line-height: 1.4; margin: 0 0 0.3rem; }
+.obj-title { font-size: 0.75rem; font-weight: 800; color: #e2e8f0; margin-bottom: 0.15rem; }
+.obj-desc { font-size: 0.52rem; color: #94a3b8; font-weight: 300; line-height: 1.45; margin: 0 0 0.35rem; }
 
 .obj-proof {
   display: flex; align-items: center; gap: 0.25rem;
@@ -222,7 +222,7 @@
 .proof-dot.cyan { background: #22d3ee; box-shadow: 0 0 6px rgba(34,211,238,0.4); }
 .proof-dot.emerald { background: #34d399; box-shadow: 0 0 6px rgba(52,211,153,0.4); }
 .proof-dot.violet { background: #a78bfa; box-shadow: 0 0 6px rgba(139,92,246,0.4); }
-.proof-text { font-size: 0.38rem; font-weight: 600; color: #94a3b8; letter-spacing: 0.03em; }
+.proof-text { font-size: 0.44rem; font-weight: 600; color: #cbd5e1; letter-spacing: 0.03em; }
 
 @keyframes pulseDot {
   0%, 100% { opacity: 1; transform: scale(1); }
@@ -248,7 +248,7 @@
   border-radius: 1px;
 }
 .quote-text {
-  font-size: 0.50rem; color: #94a3b8; font-weight: 300;
+  font-size: 0.58rem; color: #cbd5e1; font-weight: 300;
   line-height: 1.55; margin: 0;
 }
 
@@ -269,10 +269,8 @@
 .close-center { text-align: center; }
 .gracias {
   font-size: 1.4rem; font-weight: 900;
-  background: linear-gradient(135deg, #22d3ee, #34d399, #a78bfa);
-  background-size: 200% 200%;
+  background: linear-gradient(145deg, #ffffff 0%, #94a3b8 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  animation: shimmer 3s ease-in-out infinite;
   letter-spacing: 0.08em;
 }
 

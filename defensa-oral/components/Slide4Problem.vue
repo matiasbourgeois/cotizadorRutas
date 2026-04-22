@@ -342,8 +342,8 @@ h1 {
   line-height: 1.4;
 }
 .stat-source {
-  font-size: 0.45rem;
-  color: #334155;
+  font-size: 0.52rem;
+  color: #64748b;
   font-style: italic;
   margin-top: auto;
   padding-top: 0.4rem;

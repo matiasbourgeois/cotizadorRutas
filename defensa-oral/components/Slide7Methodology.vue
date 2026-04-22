@@ -60,7 +60,7 @@
     <!-- RIGHT COLUMN: Tech Stack -->
     <div class="right">
 
-      <div class="stack-header" v-motion :initial="{opacity:0}" :enter="{opacity:1,transition:{duration:600,delay:400}}">
+      <div class="stack-header" v-click v-motion :initial="{opacity:0}" :enter="{opacity:1,transition:{duration:600}}">
         <span class="stack-badge">Herramientas de Desarrollo</span>
         <span class="stack-note">Stack JavaScript Full</span>
       </div>

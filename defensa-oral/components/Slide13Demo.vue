@@ -48,7 +48,7 @@
     <!-- RIGHT COLUMN: Demo Roadmap -->
     <div class="right">
 
-      <div class="right-header" v-motion :initial="{opacity:0}" :enter="{opacity:1,transition:{duration:600,delay:400}}">
+      <div class="right-header" v-click v-motion :initial="{opacity:0}" :enter="{opacity:1,transition:{duration:600}}">
         <span class="right-badge">Recorrido de la demostración</span>
       </div>
 
@@ -304,7 +304,7 @@ h1 {
 /* Body */
 .step-body { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .step-name { font-size: 0.62rem; font-weight: 700; color: #e2e8f0; line-height: 1.2; }
-.step-desc { font-size: 0.48rem; color: #64748b; font-weight: 300; line-height: 1.3; }
+.step-desc { font-size: 0.52rem; color: #94a3b8; font-weight: 300; line-height: 1.4; margin-top: 0.15rem; }
 
 /* ═══ Hover color accents ═══ */
 .step-card:has(.emerald):hover { border-color: rgba(52,211,153,0.35); }

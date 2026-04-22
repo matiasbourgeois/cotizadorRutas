@@ -296,20 +296,20 @@ h1 { font-size: 2.2rem; font-weight: 900; line-height: 1.12; margin: 0 0 0.5rem 
 .risk-score { font-size: 0.52rem; font-weight: 900; color: #94a3b8; min-width: 24px; text-align: right; }
 
 /* Bottom group */
-.bottom-group { display: flex; flex-direction: column; gap: 0.2rem; }
+.bottom-group { display: flex; flex-direction: column; gap: 0.5rem; }
 
 /* Secondary */
-.secondary { opacity: 0.75; }
-.secondary-label { margin-bottom: 0.08rem; }
-.secondary-row { display: flex; gap: 0.2rem; flex-wrap: wrap; }
-.sec-chip { display: flex; align-items: center; gap: 0.2rem; padding: 0.12rem 0.35rem; background: rgba(71,85,105,0.06); border: 1px solid rgba(71,85,105,0.15); border-radius: 0.25rem; }
-.sec-name { font-size: 0.42rem; color: #64748b; font-weight: 400; }
-.sec-score { font-size: 0.42rem; font-weight: 800; color: #94a3b8; }
+.secondary { }
+.secondary-label { margin-bottom: 0.15rem; }
+.secondary-row { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.sec-chip { display: flex; align-items: center; gap: 0.25rem; padding: 0.18rem 0.45rem; background: rgba(71,85,105,0.1); border: 1px solid rgba(71,85,105,0.22); border-radius: 0.3rem; }
+.sec-name { font-size: 0.48rem; color: #94a3b8; font-weight: 400; }
+.sec-score { font-size: 0.48rem; font-weight: 800; color: #e2e8f0; }
 
 /* Contingency */
-.contingency { display: flex; overflow: hidden; border-radius: 0.45rem; background: rgba(52,211,153,0.03); border: 1px solid rgba(52,211,153,0.15); }
-.cont-accent { width: 3px; flex-shrink: 0; background: linear-gradient(to bottom, #34d399, rgba(52,211,153,0.15)); }
-.cont-body { padding: 0.3rem 0.5rem; }
-.cont-title { font-size: 0.46rem; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.12em; display: block; margin-bottom: 0.06rem; }
-.cont-body p { font-size: 0.44rem; color: #64748b; font-weight: 300; line-height: 1.4; margin: 0; }
+.contingency { display: flex; overflow: hidden; border-radius: 0.5rem; background: rgba(52,211,153,0.04); border: 1px solid rgba(52,211,153,0.2); }
+.cont-accent { width: 4px; flex-shrink: 0; background: linear-gradient(to bottom, #34d399, rgba(52,211,153,0.2)); }
+.cont-body { padding: 0.4rem 0.6rem; }
+.cont-title { font-size: 0.52rem; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.12em; display: block; margin-bottom: 0.12rem; }
+.cont-body p { font-size: 0.5rem; color: #94a3b8; font-weight: 300; line-height: 1.5; margin: 0; }
 </style>

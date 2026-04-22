@@ -482,8 +482,8 @@ h1 {
 .resultado {
   position: relative;
   z-index: 1;
-  margin-top: 0.4rem;
-  padding-top: 0.6rem;
+  margin-top: -1rem;
+  padding-top: 0.4rem;
 }
 .res-line {
   position: absolute;
