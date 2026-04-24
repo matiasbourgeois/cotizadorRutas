@@ -104,8 +104,14 @@ function calcularCostoEmpleado(recurso, kmsPorViaje, duracionMin, frecuencia, C)
       tipoDeCalculo = `Proporcional ${hsFacturadas.toFixed(2)}h`;
     }
 
+    // El adicional fijo es un concepto MENSUAL del CCT 40/89.
+    // Para N1 (jornal/esporádico), primero convertimos a DIARIO (÷ días laborales)
+    // y luego prorrateamos por las horas del viaje dentro del día.
+    // Esto es análogo a cómo sueldoBasico se convierte a jornal (÷24).
+    const DIAS_LAB = C.diasLaboralesMes || 22;
+    const adicionalDiario = (recurso.adicionalNoRemunerativoFijo || 0) / DIAS_LAB;
     const adicionalProrrateadoPorViaje =
-      (recurso.adicionalNoRemunerativoFijo || 0) * (Math.min(tiempoAFacturar, JORNADA_COMPLETA_MINUTOS) / JORNADA_COMPLETA_MINUTOS);
+      adicionalDiario * (Math.min(tiempoAFacturar, JORNADA_COMPLETA_MINUTOS) / JORNADA_COMPLETA_MINUTOS);
 
     costoBaseRemunerativo       = costoViajeIndividual         * cantidadViajesAlMes;
     adicionalFijoNoRemunerativo = adicionalProrrateadoPorViaje * cantidadViajesAlMes;

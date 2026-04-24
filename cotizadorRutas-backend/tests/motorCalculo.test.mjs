@@ -184,8 +184,8 @@ const TESTS = [
       'kmMin = 150 (30 < 200 km). Se factura: max(30, 150) = 150 km.',
       'sueldoAjust = 917462×1.15 = 1.055.081 → jornal = 43.962 → costo/min = 91.59',
       'costoBase = 120 × 91.59 = 10.990 | adicionalKm = 73.40×150 = 11.010',
-      'adicionalFijo = 53000 × 120/480 = 13.250 | cargas = 22000 × 0.35 = 7.700',
-      'TOTAL RRHH = 22.000 + 13.250 + 11.010 + 7.700 = 53.960',
+      'adicionalFijo = (53000/22) × 120/480 = 602 | cargas = 21990 × 0.35 = 7.697',
+      'TOTAL RRHH = 21.990 + 602 + 11.010 + 7.711 = 41.313',
     ],
     input: {
       vehiculoDatos: VEHICULO_BASE, recursoDatos: EMPLEADO_BASE,
@@ -199,7 +199,7 @@ const TESTS = [
       { campo: 'calculoRecurso.detalle.horasFacturadasPorViaje', valor: 2.0, tolerancia: 0.01, label: 'Horas facturadas = 2.0 h (el mínimo CCT)' },
       { campo: 'calculoRecurso.detalle.kmParaPagar',         valor: 150, tolerancia: 0, label: 'kmParaPagar = 150 (mínimo corto aplicado, no 30 km reales)' },
       { campo: 'calculoRecurso.detalle.adicionalKm',         valor: Math.round(73.40 * 150), tolerancia: 1, label: `adicionalKm = ${Math.round(73.40 * 150)} ($73.40 × 150 km)` },
-      { campo: 'calculoRecurso.totalFinal',                  valor: 53_961, label: 'Total RRHH ≈ $53.961' },
+      { campo: 'calculoRecurso.totalFinal',                  valor: 41_313, label: 'Total RRHH ≈ $41.313 (fix: adicFijo ÷22)' },
     ],
   },
 
@@ -231,8 +231,8 @@ const TESTS = [
       'kmsPorViaje = 200: 200 < 200 es FALSE → usa km_min LARGO = 350 (no 150!).',
       'duracionMin = 150: + 30 C/D = 180 min → exactamente en umbral → JORNADA COMPLETA.',
       'costoBase = jornal = 43.962 | kmParaPagar = max(200, 350) = 350',
-      'adicionalKm = 73.40×350 = 25.690 | adicionalFijo = 53000×180/480 = 19.875',
-      'TOTAL RRHH = 69.652 + 19.875 + 25.690 + 24.378 = 139.595',
+      'adicionalKm = 73.40×350 = 25.690 | adicionalFijo = (53000/22)×180/480 = 903',
+      'TOTAL RRHH = 69.652 + 903 + 25.690 + 24.378 = 120.623',
     ],
     input: {
       vehiculoDatos: VEHICULO_BASE, recursoDatos: EMPLEADO_BASE,
@@ -245,7 +245,7 @@ const TESTS = [
       { campo: 'calculoRecurso.detalle.tipoDeCalculo', contiene: 'Jornada Completa', label: 'Nivel RRHH = Jornada Completa (180 min inclusive)' },
       { campo: 'calculoRecurso.detalle.kmParaPagar',   valor: 350, tolerancia: 0, label: '🔑 kmParaPagar = 350 (200 NO es < 200, activa km_min LARGO)' },
       { campo: 'calculoRecurso.detalle.kmRealesTotales', valor: 200, tolerancia: 0, label: 'km reales = 200 (el mínimo 350 domina porque 350 > 200)' },
-      { campo: 'calculoRecurso.totalFinal', valor: 139_595, label: 'Total RRHH ≈ $139.595' },
+      { campo: 'calculoRecurso.totalFinal', valor: 120_623, label: 'Total RRHH ≈ $120.623 (fix: adicFijo ÷22)' },
     ],
   },
 
@@ -255,7 +255,7 @@ const TESTS = [
       'Larga distancia: 400 km, 570 min. tiempoTotal = 600 min > 480 (jornada).',
       'Extras = 120 min × 91.59 × 1.5 = 16.486. costoBase = 43.962 + 16.486 = 60.448.',
       'kmParaPagar = max(400, 350) = 400 km REALES ganan al mínimo CCT.',
-      'TOTAL RRHH = 89.808 + 53.000 + 29.360 + 31.432 = 203.600',
+      'TOTAL RRHH = 89.808 + 2.409 + 29.360 + 31.432 = 153.009 (fix: adicFijo÷22)',
     ],
     input: {
       vehiculoDatos: VEHICULO_BASE, recursoDatos: EMPLEADO_BASE,
@@ -268,7 +268,7 @@ const TESTS = [
       { campo: 'calculoRecurso.detalle.tipoDeCalculo',     contiene: 'Extra',  label: 'Nivel RRHH incluye Horas Extra' },
       { campo: 'calculoRecurso.detalle.horasExtraPorViaje', valor: 2.0, tolerancia: 0.05, label: 'horasExtraPorViaje = 2.0h (120 min / 60)' },
       { campo: 'calculoRecurso.detalle.kmParaPagar',       valor: 400, tolerancia: 0, label: '🔑 kmParaPagar = 400 km REALES (ganan al mínimo 350)' },
-      { campo: 'calculoRecurso.totalFinal', valor: 203_600, label: 'Total RRHH ≈ $203.600' },
+      { campo: 'calculoRecurso.totalFinal', valor: 153_009, label: 'Total RRHH ≈ $153.009 (fix: adicFijo ÷22)' },
     ],
   },
 
