@@ -6,6 +6,12 @@
 .bi-dashboard {
   padding: 0;
   min-height: calc(100vh - 120px);
+  transition: opacity 0.2s ease;
+}
+
+.bi-dashboard.bi-transitioning {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 /* ─── Header ─── */
@@ -13,7 +19,50 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+}
+
+/* ─── Period Filter Bar ─── */
+.bi-period-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  margin-bottom: 20px;
+  backdrop-filter: blur(12px);
+  transition: box-shadow 0.3s ease;
+}
+
+.bi-period-bar:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.bi-period-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--app-text-muted);
+  white-space: nowrap;
+}
+
+.bi-segmented-root {
+  background: var(--app-surface-hover) !important;
+  border: 1px solid var(--app-border) !important;
+}
+
+@media (max-width: 640px) {
+  .bi-period-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 
 .bi-header-icon {
@@ -370,4 +419,15 @@
   .bi-header h1 { font-size: 1.3rem; }
   .kpi-grid { gap: 10px; margin-bottom: 16px; }
   .chart-grid { gap: 14px; }
+  .bi-period-bar { padding: 8px 14px; margin-bottom: 12px; }
+}
+
+/* ─── Dark mode: period bar ─── */
+[data-mantine-color-scheme="dark"] .bi-period-bar {
+  background: var(--app-surface);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+[data-mantine-color-scheme="dark"] .bi-period-bar:hover {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }

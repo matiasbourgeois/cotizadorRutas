@@ -1,14 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import {
   BarChart3, FileText, DollarSign, TrendingUp, MapPin,
-  Truck, Users, Calendar, Zap
+  Truck, Users, Calendar, Zap, Filter
 } from 'lucide-react';
+import { SegmentedControl } from '@mantine/core';
 import clienteAxios from '../../api/clienteAxios';
 import './DashboardBI.css';
+
+// ═══════════════════════════════════════════════
+// Period options
+// ═══════════════════════════════════════════════
+
+const PERIODO_OPTIONS = [
+  { label: '1 Mes', value: '1m' },
+  { label: '3 Meses', value: '3m' },
+  { label: '6 Meses', value: '6m' },
+  { label: '1 Año', value: '1y' },
+  { label: 'Todo', value: 'all' },
+];
 
 // ═══════════════════════════════════════════════
 // Subcomponents
@@ -51,21 +64,33 @@ const BAR_COLORS = { Utilitario: '#22d3ee', Mediano: '#f59e0b', Grande: '#8b5cf6
 const DashboardBI = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [periodo, setPeriodo] = useState('6m');
+  const [transitioning, setTransitioning] = useState(false);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const { data: stats } = await clienteAxios.get('/bi/stats');
-        setData(stats);
-      } catch (err) {
-        console.error('Error fetching BI stats:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
+  const fetchStats = useCallback(async (p) => {
+    try {
+      setTransitioning(true);
+      const { data: stats } = await clienteAxios.get(`/bi/stats?periodo=${p}`);
+      setData(stats);
+    } catch (err) {
+      console.error('Error fetching BI stats:', err);
+    } finally {
+      setLoading(false);
+      // Pequeño delay para la animación de fade
+      setTimeout(() => setTransitioning(false), 80);
+    }
   }, []);
+
+  // Initial load
+  useEffect(() => {
+    fetchStats(periodo);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // On period change
+  const handlePeriodoChange = (newPeriodo) => {
+    setPeriodo(newPeriodo);
+    fetchStats(newPeriodo);
+  };
 
   const fmt = (n) => `$${Number(n || 0).toLocaleString('es-AR')}`;
   const fmtK = (n) => {
@@ -74,7 +99,9 @@ const DashboardBI = () => {
     return fmt(n);
   };
 
-  // Loading state
+  const periodoLabel = PERIODO_OPTIONS.find(o => o.value === periodo)?.label || periodo;
+
+  // Loading state (solo la primera vez)
   if (loading) {
     return (
       <div className="bi-loading">
@@ -94,10 +121,28 @@ const DashboardBI = () => {
             <p>Indicadores clave de tu operación logística</p>
           </div>
         </div>
+
+        {/* Period filter incluso en estado vacío */}
+        <div className="bi-period-bar">
+          <div className="bi-period-label">
+            <Filter size={14} />
+            <span>Período</span>
+          </div>
+          <SegmentedControl
+            data={PERIODO_OPTIONS}
+            value={periodo}
+            onChange={handlePeriodoChange}
+            size="xs"
+            radius="xl"
+            color="cyan"
+            classNames={{ root: 'bi-segmented-root' }}
+          />
+        </div>
+
         <div className="bi-empty">
           <div className="bi-empty-icon"><TrendingUp size={32} /></div>
-          <h3 style={{ margin: '0 0 8px', color: 'var(--app-text)' }}>Sin datos todavía</h3>
-          <p>Generá tu primera cotización para ver los indicadores aquí.</p>
+          <h3 style={{ margin: '0 0 8px', color: 'var(--app-text)' }}>Sin datos en este período</h3>
+          <p>Probá seleccionando un período más amplio, o generá tu primera cotización.</p>
         </div>
       </div>
     );
@@ -106,14 +151,31 @@ const DashboardBI = () => {
   const { kpis, tendenciaMensual, distribucionCostos, distribucionVehiculos, topClientes, ultimasCotizaciones } = data;
 
   return (
-    <div className="bi-dashboard">
+    <div className={`bi-dashboard ${transitioning ? 'bi-transitioning' : ''}`}>
       {/* ─── Header ─── */}
       <div className="bi-header">
         <div className="bi-header-icon"><BarChart3 size={24} /></div>
-        <div>
+        <div style={{ flex: 1 }}>
           <h1>Business Intelligence</h1>
           <p>Indicadores clave de tu operación logística</p>
         </div>
+      </div>
+
+      {/* ─── Period Filter ─── */}
+      <div className="bi-period-bar">
+        <div className="bi-period-label">
+          <Filter size={14} />
+          <span>Período</span>
+        </div>
+        <SegmentedControl
+          data={PERIODO_OPTIONS}
+          value={periodo}
+          onChange={handlePeriodoChange}
+          size="xs"
+          radius="xl"
+          color="cyan"
+          classNames={{ root: 'bi-segmented-root' }}
+        />
       </div>
 
       {/* ─── KPI Cards ─── */}
@@ -122,14 +184,14 @@ const DashboardBI = () => {
           icon={FileText}
           label="Cotizaciones"
           value={kpis.totalCotizaciones}
-          sub="Total generadas"
+          sub={periodo === 'all' ? 'Total histórico' : `En ${periodoLabel.toLowerCase()}`}
           color="cyan"
         />
         <KpiCard
           icon={DollarSign}
           label="Revenue Total"
           value={fmtK(kpis.revenueTotal)}
-          sub="Facturación acumulada"
+          sub={periodo === 'all' ? 'Facturación acumulada' : `Facturación ${periodoLabel.toLowerCase()}`}
           color="teal"
         />
         <KpiCard
@@ -149,7 +211,7 @@ const DashboardBI = () => {
         <KpiCard
           icon={MapPin}
           label="Distancia Total"
-          value={`${kpis.distanciaTotal.toLocaleString('es-AR')} km`}
+          value={`${(kpis.distanciaTotal || 0).toLocaleString('es-AR')} km`}
           sub="Kilómetros cotizados"
           color="blue"
         />
@@ -181,7 +243,7 @@ const DashboardBI = () => {
         {/* Revenue Trend */}
         <div className="chart-card">
           <div className="chart-title">📈 Revenue Mensual</div>
-          <div className="chart-subtitle">Evolución de los últimos 6 meses</div>
+          <div className="chart-subtitle">Evolución — {periodoLabel.toLowerCase()}</div>
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={tendenciaMensual}>
               <defs>
@@ -208,6 +270,7 @@ const DashboardBI = () => {
                 fill="url(#gradRevenue)"
                 dot={{ r: 4, fill: '#22d3ee', strokeWidth: 2, stroke: 'white' }}
                 activeDot={{ r: 6, fill: '#22d3ee', stroke: 'white', strokeWidth: 2 }}
+                animationDuration={800}
               />
               <Area
                 type="monotone"
@@ -217,6 +280,7 @@ const DashboardBI = () => {
                 strokeWidth={2}
                 fill="url(#gradGanancia)"
                 dot={{ r: 3, fill: '#10b981', strokeWidth: 2, stroke: 'white' }}
+                animationDuration={800}
               />
             </AreaChart>
           </ResponsiveContainer>
