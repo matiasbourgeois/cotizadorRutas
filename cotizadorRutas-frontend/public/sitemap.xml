@@ -10,14 +10,6 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- Landing (alias) -->
-  <url>
-    <loc>https://quotargo.ar/landing</loc>
-    <lastmod>2026-04-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-
   <!-- Login -->
   <url>
     <loc>https://quotargo.ar/login</loc>
